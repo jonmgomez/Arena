@@ -14,11 +14,15 @@ public class PlayerCamera : NetworkBehaviour
     float xRotation;
     float yRotation;
 
+    bool mouseFree = false;
+
     public override void OnNetworkSpawn()
     {
         if (!IsOwner)
         {
             enabled = false;
+            GetComponent<Camera>().enabled = false;
+            GetComponent<AudioListener>().enabled = false;
         }
     }
 
@@ -27,6 +31,9 @@ public class PlayerCamera : NetworkBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        GetComponent<Camera>().enabled = true;
+        Camera.main.enabled = false;
     }
 
     // Update is called once per frame
@@ -34,9 +41,13 @@ public class PlayerCamera : NetworkBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+            mouseFree = !mouseFree;
+            Cursor.lockState = mouseFree ? CursorLockMode.None : CursorLockMode.Locked;
+            Cursor.visible = mouseFree;
         }
+
+        if (mouseFree)
+            return;
 
         float mouseX = Input.GetAxisRaw("Mouse X") * xSenstivity;
         float mouseY = Input.GetAxisRaw("Mouse Y") * ySenstivity;
