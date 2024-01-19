@@ -49,6 +49,7 @@ public class Pistol : NetworkBehaviour
             }
 
             SpawnFiringEffects();
+            SpawnFiringEffectsServerRpc();
 
             recoilTargetPosition = idlePosition - firePoint.forward * Random.Range(0.1f, 0.2f);
             recoilTargetRotation = idleRotation * Quaternion.Euler(Random.Range(-25f, -10f), 0, 0f);
@@ -59,6 +60,19 @@ public class Pistol : NetworkBehaviour
 
         transform.localRotation = Quaternion.Lerp(transform.localRotation, recoilTargetRotation, Time.deltaTime * 20f);
         recoilTargetRotation = Quaternion.Lerp(recoilTargetRotation, idleRotation, Time.deltaTime * 10f);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void SpawnFiringEffectsServerRpc()
+    {
+        SpawnFiringEffectsClientRpc();
+    }
+
+    [ClientRpc]
+    void SpawnFiringEffectsClientRpc()
+    {
+        if (!IsOwner)
+            SpawnFiringEffects();
     }
 
     void SpawnFiringEffects()
