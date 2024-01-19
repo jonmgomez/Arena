@@ -9,8 +9,6 @@ public class Player : NetworkBehaviour
 
     void Update()
     {
-        Debug.Log($"Health: {health.Value} | NetworkId: {NetworkObjectId}");
-
         if (!IsOwner)
             return;
     }

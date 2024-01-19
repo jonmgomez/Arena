@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7905955051333104677}
   - component: {fileID: 739684157268693146}
   - component: {fileID: 4493232463816780780}
+  - component: {fileID: 5410598656556186810}
   - component: {fileID: 3912880602520155838}
   - component: {fileID: -4496802282535648970}
   - component: {fileID: 1543022879872979989}
@@ -90,6 +91,29 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!136 &5410598656556186810
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3021317606462415145}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.55
+  m_Height: 2.1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!143 &3912880602520155838
 CharacterController:
   m_ObjectHideFlags: 0
@@ -128,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 231512293
+  GlobalObjectIdHash: 1429631593
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -486,27 +510,27 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 726e329e1719c8f42949342e6a5b42e3,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.39946502
+      value: 0.5124337
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 726e329e1719c8f42949342e6a5b42e3,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.35939273
+      value: 0.461029
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 726e329e1719c8f42949342e6a5b42e3,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.35939273
+      value: 0.461029
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 726e329e1719c8f42949342e6a5b42e3,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.258
+      value: 0.377
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 726e329e1719c8f42949342e6a5b42e3,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.35100007
+      value: -0.367
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 726e329e1719c8f42949342e6a5b42e3,
         type: 3}
@@ -596,7 +620,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 5958590727471780502, guid: 4d8503644f5c23145a931916d35f6e40,
     type: 3}
-  firePoint: {fileID: 5459709224432633740}
+  firePoint: {fileID: 8593457842578009674}
   layerMask:
     serializedVersion: 2
     m_Bits: 8
