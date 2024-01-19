@@ -10,6 +10,7 @@ public class Pistol : NetworkBehaviour
     [SerializeField] Transform muzzle;
     [SerializeField] LayerMask layerMask;
     [SerializeField] GameObject trail;
+    [SerializeField] GameObject muzzleFlash;
 
     [SerializeField] float damage = 10f;
     [SerializeField] float fireRate = 0.1f;
@@ -39,7 +40,7 @@ public class Pistol : NetworkBehaviour
 
     void Update()
     {
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetMouseButtonDown(0))
         {
             crosshair.Bloom(bloomPerShotPercent);
             if (Physics.Raycast(firePoint.position, firePoint.forward, out RaycastHit hit, Mathf.Infinity, layerMask))
@@ -47,7 +48,7 @@ public class Pistol : NetworkBehaviour
                 hit.transform.GetComponent<Player>().TakeDamage(damage);
             }
 
-            var obj = Instantiate(trail, muzzle.position, firePoint.rotation);
+            SpawnFiringEffects();
 
             recoilTargetPosition = idlePosition - firePoint.forward * Random.Range(0.1f, 0.2f);
             recoilTargetRotation = idleRotation * Quaternion.Euler(Random.Range(-25f, -10f), 0, 0f);
@@ -58,5 +59,12 @@ public class Pistol : NetworkBehaviour
 
         transform.localRotation = Quaternion.Lerp(transform.localRotation, recoilTargetRotation, Time.deltaTime * 20f);
         recoilTargetRotation = Quaternion.Lerp(recoilTargetRotation, idleRotation, Time.deltaTime * 10f);
+    }
+
+    void SpawnFiringEffects()
+    {
+        Instantiate(trail, muzzle.position, firePoint.rotation);
+        var obj = Instantiate(muzzleFlash, muzzle.position, firePoint.rotation);
+        obj.transform.parent = muzzle;
     }
 }

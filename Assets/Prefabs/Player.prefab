@@ -626,6 +626,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   trail: {fileID: 8301015454374067333, guid: 04068d1ef2d8f5342bc9ad9eeb20f731, type: 3}
+  muzzleFlash: {fileID: 100000, guid: 8eaaa4f553116f44b8459bc24201c514, type: 3}
   damage: 10
   fireRate: 0.1
   bloomPerShotPercent: 0.1
