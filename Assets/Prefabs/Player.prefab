@@ -621,10 +621,14 @@ MonoBehaviour:
   bulletPrefab: {fileID: 5958590727471780502, guid: 4d8503644f5c23145a931916d35f6e40,
     type: 3}
   firePoint: {fileID: 8593457842578009674}
+  muzzle: {fileID: 5459709224432633740}
   layerMask:
     serializedVersion: 2
     m_Bits: 8
+  trail: {fileID: 8301015454374067333, guid: 04068d1ef2d8f5342bc9ad9eeb20f731, type: 3}
   damage: 10
+  fireRate: 0.1
+  bloomPerShotPercent: 0.1
 --- !u!4 &5593027465871667892 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 726e329e1719c8f42949342e6a5b42e3,

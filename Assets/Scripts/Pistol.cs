@@ -7,7 +7,9 @@ public class Pistol : NetworkBehaviour
 {
     [SerializeField] GameObject bulletPrefab;
     [SerializeField] Transform firePoint;
+    [SerializeField] Transform muzzle;
     [SerializeField] LayerMask layerMask;
+    [SerializeField] GameObject trail;
 
     [SerializeField] float damage = 10f;
     [SerializeField] float fireRate = 0.1f;
@@ -42,9 +44,10 @@ public class Pistol : NetworkBehaviour
             crosshair.Bloom(bloomPerShotPercent);
             if (Physics.Raycast(firePoint.position, firePoint.forward, out RaycastHit hit, Mathf.Infinity, layerMask))
             {
-                Debug.Log(hit.transform.name);
                 hit.transform.GetComponent<Player>().TakeDamage(damage);
             }
+
+            var obj = Instantiate(trail, muzzle.position, firePoint.rotation);
 
             recoilTargetPosition = idlePosition - firePoint.forward * Random.Range(0.1f, 0.2f);
             recoilTargetRotation = idleRotation * Quaternion.Euler(Random.Range(-25f, -10f), 0, 0f);
