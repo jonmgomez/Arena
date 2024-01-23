@@ -6,14 +6,15 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
+
 public class Player : NetworkBehaviour
 {
-    Vector3 offScreen = new Vector3(0f, -100f, 0f);
+    static Vector3 OFF_SCREEN = new(0f, -100f, 0f);
 
     [SerializeField] NetworkVariable<float> health = new(100f);
     float maxHealth = 100f;
-    [SerializeField] float healthRegenDelay = 5f;
     bool regeneratingHealth = false;
+    [SerializeField] float healthRegenDelay = 5f;
     [SerializeField] float healthRegenRatePerSecond = 10f;
     Vignette vignette;
     [SerializeField] float vignetteMaxIntensity = 0.4f;
@@ -22,6 +23,9 @@ public class Player : NetworkBehaviour
     CharacterController characterController;
     PlayerMovement playerMovement;
     [SerializeField]  PlayerCamera playerCamera;
+
+    // Necessary to prevent regen coroutine from running multiple times. Only using the method name does not work
+    Coroutine regenHealthCoroutine = null;
 
     public override void OnNetworkSpawn()
     {
@@ -42,68 +46,65 @@ public class Player : NetworkBehaviour
         clientNetworkTransform = GetComponent<ClientNetworkTransform>();
         characterController = GetComponent<CharacterController>();
         playerMovement = GetComponent<PlayerMovement>();
+
+        health.OnValueChanged += HealthChanged;
     }
 
     void Update()
     {
+        if (IsServer && regeneratingHealth)
+            RegenHealthOnServer();
+
         if (!IsOwner)
             return;
-
-        if (regeneratingHealth)
-            RegenHealth();
     }
+
 
     // Called from other scripts
     // Then calls to server to deal damage to this player
-    // And then calls to client that was hit to handle effects
-    // TakeDamage() -> TakeDamageServerRpc() -> TakeDamageClientRpc()
+    // TakeDamage() -> TakeDamageServerRpc()
     public void TakeDamage(float damage)
     {
-        TakeDamageServerRpc(OwnerClientId, damage);
+        TakeDamageServerRpc(damage);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void TakeDamageServerRpc(ulong clientId, float damage)
+    private void TakeDamageServerRpc(float damage)
     {
-        Debug.Log($"Player {clientId} took {damage} damage");
+        Debug.Log($"Player {OwnerClientId} took {damage} damage");
         health.Value -= damage;
         if (health.Value <= 0f)
         {
             PlayerSpawnController.Instance.RespawnPlayer(this);
         }
 
-        ClientRpcParams clientRpcParams = Utility.CreateClientRpcParams(clientId);
-        TakeDamageClientRpc(health.Value, clientRpcParams);
+        if (regenHealthCoroutine != null)
+            StopCoroutine(regenHealthCoroutine);
+        regeneratingHealth = false;
+        regenHealthCoroutine = StartCoroutine(StartHealthRegenOnServer());
     }
 
-    // Called only on the client that was hit
-    [ClientRpc]
-    private void TakeDamageClientRpc(float newHealthValue, ClientRpcParams clientRpcParams = default)
+    private void HealthChanged(float oldHealthValue, float newHealthValue)
     {
-        TakeDamageInternal(newHealthValue);
-    }
-
-    private void TakeDamageInternal(float newHealthValue)
-    {
+        bool damaged = newHealthValue < oldHealthValue;
         if (newHealthValue <= 0f)
         {
             OnDeath();
         }
         else
         {
-            regeneratingHealth = false;
-            // RecalculateHealthVignette();
-            // StartCoroutine(StartHealthRegen());
+            RecalculateHealthVignette();
         }
     }
 
-    IEnumerator StartHealthRegen()
+    IEnumerator StartHealthRegenOnServer()
     {
         yield return new WaitForSeconds(healthRegenDelay);
         regeneratingHealth = true;
     }
 
-    private void RegenHealth()
+    // OnServer: Only called on the server (ServerRpc)
+    private void RegenHealthOnServer()
     {
         health.Value += healthRegenRatePerSecond * Time.deltaTime;
         if (health.Value >= 100f)
@@ -111,8 +112,6 @@ public class Player : NetworkBehaviour
             health.Value = 100f;
             regeneratingHealth = false;
         }
-
-        RecalculateHealthVignette();
     }
 
     private void RecalculateHealthVignette()
@@ -122,7 +121,7 @@ public class Player : NetworkBehaviour
 
     private void OnDeath()
     {
-        transform.position = offScreen;
+        transform.position = OFF_SCREEN;
         vignette.intensity.value = 0f;
         clientNetworkTransform.enabled = false;
         characterController.enabled = false;
