@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1429631593
+  GlobalObjectIdHash: 231512293
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -207,6 +207,7 @@ MonoBehaviour:
   healthRegenDelay: 5
   healthRegenRatePerSecond: 10
   vignetteMaxIntensity: 0.5
+  playerCamera: {fileID: 6232771696667572888}
 --- !u!114 &6835946693310315376
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -661,7 +662,7 @@ MonoBehaviour:
     m_Bits: 8
   trail: {fileID: 8301015454374067333, guid: 04068d1ef2d8f5342bc9ad9eeb20f731, type: 3}
   muzzleFlash: {fileID: 100000, guid: 8eaaa4f553116f44b8459bc24201c514, type: 3}
-  damage: 10
+  damage: 20
   fireRate: 0.1
   bloomPerShotPercent: 0.1
 --- !u!4 &5593027465871667892 stripped

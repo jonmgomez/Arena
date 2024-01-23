@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Multiplayer.Samples.Utilities.ClientAuthority;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -7,6 +8,8 @@ using UnityEngine.Rendering.Universal;
 
 public class Player : NetworkBehaviour
 {
+    Vector3 offScreen = new Vector3(0f, -100f, 0f);
+
     [SerializeField] NetworkVariable<float> health = new(100f);
     float maxHealth = 100f;
     [SerializeField] float healthRegenDelay = 5f;
@@ -14,6 +17,17 @@ public class Player : NetworkBehaviour
     [SerializeField] float healthRegenRatePerSecond = 10f;
     Vignette vignette;
     [SerializeField] float vignetteMaxIntensity = 0.4f;
+
+    ClientNetworkTransform clientNetworkTransform;
+    CharacterController characterController;
+    PlayerMovement playerMovement;
+    [SerializeField]  PlayerCamera playerCamera;
+
+    public override void OnNetworkSpawn()
+    {
+        if (IsServer)
+            PlayerSpawnController.Instance.RegisterPlayer(this);
+    }
 
     void Start()
     {
@@ -24,6 +38,10 @@ public class Player : NetworkBehaviour
         Volume volume = FindObjectOfType<Volume>();
         volume.profile.TryGet<Vignette>(out vignette);
         vignette.intensity.value = 0f;
+
+        clientNetworkTransform = GetComponent<ClientNetworkTransform>();
+        characterController = GetComponent<CharacterController>();
+        playerMovement = GetComponent<PlayerMovement>();
     }
 
     void Update()
@@ -35,46 +53,48 @@ public class Player : NetworkBehaviour
             RegenHealth();
     }
 
-    // Called from other scripts to deal damage to this player
+    // Called from other scripts
+    // Then calls to server to deal damage to this player
+    // And then calls to client that was hit to handle effects
+    // TakeDamage() -> TakeDamageServerRpc() -> TakeDamageClientRpc()
     public void TakeDamage(float damage)
     {
         TakeDamageServerRpc(OwnerClientId, damage);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    void TakeDamageServerRpc(ulong clientId, float damage)
+    private void TakeDamageServerRpc(ulong clientId, float damage)
     {
         Debug.Log($"Player {clientId} took {damage} damage");
         health.Value -= damage;
         if (health.Value <= 0f)
         {
-            Debug.Log("Player died");
-            GetComponent<NetworkObject>().Despawn(true);
+            PlayerSpawnController.Instance.RespawnPlayer(this);
         }
 
-        ClientRpcParams clientRpcParams = new ClientRpcParams
-        {
-            Send = new ClientRpcSendParams
-            {
-                TargetClientIds = new ulong[]{clientId}
-            }
-        };
-        TakeDamageClientRpc(damage, clientRpcParams);
+        ClientRpcParams clientRpcParams = Utility.CreateClientRpcParams(clientId);
+        TakeDamageClientRpc(health.Value, clientRpcParams);
     }
 
     // Called only on the client that was hit
     [ClientRpc]
-    void TakeDamageClientRpc(float damage, ClientRpcParams clientRpcParams = default)
+    private void TakeDamageClientRpc(float newHealthValue, ClientRpcParams clientRpcParams = default)
     {
-        TakeDamageInternal();
+        TakeDamageInternal(newHealthValue);
     }
 
-    private void TakeDamageInternal()
+    private void TakeDamageInternal(float newHealthValue)
     {
-        Debug.Log("I took damage!");
-        regeneratingHealth = false;
-        RecalculateHealthVignette();
-        StartCoroutine(StartHealthRegen());
+        if (newHealthValue <= 0f)
+        {
+            OnDeath();
+        }
+        else
+        {
+            regeneratingHealth = false;
+            // RecalculateHealthVignette();
+            // StartCoroutine(StartHealthRegen());
+        }
     }
 
     IEnumerator StartHealthRegen()
@@ -98,5 +118,41 @@ public class Player : NetworkBehaviour
     private void RecalculateHealthVignette()
     {
         vignette.intensity.value = (1f - health.Value / maxHealth) * vignetteMaxIntensity;
+    }
+
+    private void OnDeath()
+    {
+        transform.position = offScreen;
+        vignette.intensity.value = 0f;
+        clientNetworkTransform.enabled = false;
+        characterController.enabled = false;
+        playerMovement.enabled = false;
+        playerCamera.SetEnabled(false);
+    }
+
+    // OnServer: Only called on the server (ServerRpc)
+    public void RespawnOnServer(Vector3 spawnPoint, ulong clientId)
+    {
+        health.Value = maxHealth;
+
+        ClientRpcParams clientRpcParams = new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = new ulong[]{clientId}
+            }
+        };
+        RespawnClientRpc(spawnPoint, clientRpcParams);
+    }
+
+    [ClientRpc]
+    public void RespawnClientRpc(Vector3 spawnPoint, ClientRpcParams clientRpcParams = default)
+    {
+        Debug.Log(health.Value);
+        transform.position = spawnPoint;
+        clientNetworkTransform.enabled = true;
+        characterController.enabled = true;
+        playerMovement.enabled = true;
+        playerCamera.SetEnabled(true);
     }
 }

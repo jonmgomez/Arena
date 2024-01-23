@@ -16,6 +16,11 @@ public class PlayerCamera : NetworkBehaviour
 
     bool mouseFree = false;
 
+    Camera cam;
+    AudioListener audioListener;
+    Camera defaultCamera;
+    AudioListener defaultAudioListener;
+
     public override void OnNetworkSpawn()
     {
         if (!IsOwner)
@@ -32,8 +37,15 @@ public class PlayerCamera : NetworkBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        GetComponent<Camera>().enabled = true;
-        Camera.main.enabled = false;
+        cam = GetComponent<Camera>();
+        cam.enabled = true;
+        audioListener = GetComponent<AudioListener>();
+        audioListener.enabled = true;
+
+        defaultCamera = Camera.main;
+        defaultCamera.enabled = false;
+        defaultAudioListener = defaultCamera.GetComponent<AudioListener>();
+        defaultAudioListener.enabled = false;
     }
 
     // Update is called once per frame
@@ -60,5 +72,14 @@ public class PlayerCamera : NetworkBehaviour
         transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
         player.rotation = Quaternion.Euler(0, yRotation, 0);
         playerChildRotation.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+    }
+
+    public void SetEnabled(bool enabled)
+    {
+        this.enabled = enabled;
+        cam.enabled = enabled;
+        audioListener.enabled = enabled;
+        defaultCamera.enabled = !enabled;
+        defaultAudioListener.enabled = !enabled;
     }
 }

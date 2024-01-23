@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public static class Utility
@@ -14,5 +15,16 @@ public static class Utility
     {
         yield return new WaitForSeconds(delay);
         f();
+    }
+
+    public static ClientRpcParams CreateClientRpcParams(ulong clientId)
+    {
+        return new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = new ulong[] { clientId }
+            }
+        };
     }
 }
