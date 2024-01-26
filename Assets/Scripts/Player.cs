@@ -85,8 +85,12 @@ public class Player : NetworkBehaviour
     {
         if (health - damage <= 0f)
         {
+            Debug.Log($"[SERVER] Player {OwnerClientId} died");
             PlayerSpawnController.Instance.RespawnPlayer(this);
         }
+
+        if (IsServer && !IsHost)
+            health -= damage;
 
         TakeDamageClientRpc(damage, clientId);
 
@@ -108,6 +112,7 @@ public class Player : NetworkBehaviour
 
         if (clientSideHealth <= 0f)
         {
+            Debug.Log($"[CLIENT] Player {OwnerClientId} died (client rpc)");
             OnDeath();
         }
         else if (IsOwner)
@@ -175,6 +180,20 @@ public class Player : NetworkBehaviour
     // OnServer: Only called on the server (ServerRpc)
     public void RespawnOnServer(Vector3 spawnPoint)
     {
+        if (IsServer && !IsHost)
+        {
+            isDead = false;
+            health = maxHealth;
+            clientSideHealth = maxHealth;
+
+            transform.position = spawnPoint;
+            clientNetworkTransform.enabled = true;
+
+            // Interpolation from offscreen to spawn point looks bad, so disable interpolation for a short time
+            clientNetworkTransform.Interpolate = false;
+            this.Invoke(() => clientNetworkTransform.Interpolate = true, 0.25f);
+        }
+
         RespawnClientRpc(spawnPoint);
     }
 
