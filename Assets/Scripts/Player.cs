@@ -11,17 +11,24 @@ public class Player : NetworkBehaviour
 {
     static Vector3 OFF_SCREEN = new(0f, -100f, 0f);
 
-    [SerializeField] NetworkVariable<float> health = new(100f);
+    bool isDead = false;
+
+    [SerializeField] float health = 100f;
+    // Internal variable to track health on the client before the server has a chance to update it
+    float clientSideHealth = 100f;
     float maxHealth = 100f;
+
     bool regeneratingHealth = false;
     [SerializeField] float healthRegenDelay = 5f;
-    [SerializeField] float healthRegenRatePerSecond = 10f;
+    [SerializeField] float healthRegenPerSecond = 10f;
+
     Vignette vignette;
     [SerializeField] float vignetteMaxIntensity = 0.4f;
 
     ClientNetworkTransform clientNetworkTransform;
     CharacterController characterController;
     PlayerMovement playerMovement;
+    PlayerWeapon playerWeapon;
     [SerializeField]  PlayerCamera playerCamera;
 
     // Necessary to prevent regen coroutine from running multiple times. Only using the method name does not work
@@ -35,19 +42,20 @@ public class Player : NetworkBehaviour
 
     void Start()
     {
+        clientNetworkTransform = GetComponent<ClientNetworkTransform>();
         if (!IsOwner)
             return;
 
-        maxHealth = health.Value;
+        clientSideHealth = health;
+        maxHealth = health;
+
         Volume volume = FindObjectOfType<Volume>();
         volume.profile.TryGet<Vignette>(out vignette);
         vignette.intensity.value = 0f;
 
-        clientNetworkTransform = GetComponent<ClientNetworkTransform>();
         characterController = GetComponent<CharacterController>();
         playerMovement = GetComponent<PlayerMovement>();
-
-        health.OnValueChanged += HealthChanged;
+        playerWeapon = GetComponent<PlayerWeapon>();
     }
 
     void Update()
@@ -59,39 +67,70 @@ public class Player : NetworkBehaviour
             return;
     }
 
-
-    // Called from other scripts
-    // Then calls to server to deal damage to this player
-    // TakeDamage() -> TakeDamageServerRpc()
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, ulong clientId)
     {
-        TakeDamageServerRpc(damage);
+        Debug.Log($"[CLIENT] Player {OwnerClientId} took {damage} damage, Health {health}, client-side health {clientSideHealth}");
+        clientSideHealth -= damage;
+        if (clientSideHealth <= 0f)
+        {
+            Debug.Log($"[CLIENT] Player {OwnerClientId} died");
+            OnDeath();
+        }
+
+        TakeDamageServerRpc(damage, clientId);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void TakeDamageServerRpc(float damage)
+    private void TakeDamageServerRpc(float damage, ulong clientId)
     {
-        Debug.Log($"Player {OwnerClientId} took {damage} damage");
-        health.Value -= damage;
-        if (health.Value <= 0f)
+        if (health - damage <= 0f)
         {
             PlayerSpawnController.Instance.RespawnPlayer(this);
         }
 
+        TakeDamageClientRpc(damage, clientId);
+
+        regeneratingHealth = false;
         if (regenHealthCoroutine != null)
             StopCoroutine(regenHealthCoroutine);
-        regeneratingHealth = false;
         regenHealthCoroutine = StartCoroutine(StartHealthRegenOnServer());
     }
 
-    private void HealthChanged(float oldHealthValue, float newHealthValue)
+    [ClientRpc]
+    private void TakeDamageClientRpc(float damage, ulong clientId)
     {
-        bool damaged = newHealthValue < oldHealthValue;
-        if (newHealthValue <= 0f)
+        health -= damage;
+
+        // If this is not executing on the player that dealt the damage, update the client-side health
+        // Otherwise, client-side health was already updated by the client that dealt the damage
+        if (clientId != NetworkManager.Singleton.LocalClientId)
+            clientSideHealth -= damage;
+
+        if (clientSideHealth <= 0f)
         {
             OnDeath();
         }
+        else if (IsOwner)
+        {
+            RecalculateHealthVignette();
+        }
+    }
+
+    [ClientRpc]
+    public void HealClientRpc(float amount)
+    {
+        if (health + amount > maxHealth)
+        {
+            health = maxHealth;
+            clientSideHealth += maxHealth - health;
+        }
         else
+        {
+            health += amount;
+            clientSideHealth += amount;
+        }
+
+        if (IsOwner)
         {
             RecalculateHealthVignette();
         }
@@ -106,52 +145,59 @@ public class Player : NetworkBehaviour
     // OnServer: Only called on the server (ServerRpc)
     private void RegenHealthOnServer()
     {
-        health.Value += healthRegenRatePerSecond * Time.deltaTime;
-        if (health.Value >= 100f)
-        {
-            health.Value = 100f;
-            regeneratingHealth = false;
-        }
+        HealClientRpc(healthRegenPerSecond * Time.deltaTime);
     }
 
     private void RecalculateHealthVignette()
     {
-        vignette.intensity.value = (1f - health.Value / maxHealth) * vignetteMaxIntensity;
+        vignette.intensity.value = (1f - health / maxHealth) * vignetteMaxIntensity;
     }
 
     private void OnDeath()
     {
-        transform.position = OFF_SCREEN;
-        vignette.intensity.value = 0f;
+        if (isDead)
+            return;
+
+        isDead = true;
         clientNetworkTransform.enabled = false;
-        characterController.enabled = false;
-        playerMovement.enabled = false;
-        playerCamera.SetEnabled(false);
+        transform.position = OFF_SCREEN;
+
+        if (IsOwner) // Client specific references
+        {
+            vignette.intensity.value = 0f;
+            characterController.enabled = false;
+            playerMovement.enabled = false;
+            playerWeapon.SetEnabled(false);
+            playerCamera.SetEnabled(false);
+        }
     }
 
     // OnServer: Only called on the server (ServerRpc)
-    public void RespawnOnServer(Vector3 spawnPoint, ulong clientId)
+    public void RespawnOnServer(Vector3 spawnPoint)
     {
-        health.Value = maxHealth;
-
-        ClientRpcParams clientRpcParams = new ClientRpcParams
-        {
-            Send = new ClientRpcSendParams
-            {
-                TargetClientIds = new ulong[]{clientId}
-            }
-        };
-        RespawnClientRpc(spawnPoint, clientRpcParams);
+        RespawnClientRpc(spawnPoint);
     }
 
     [ClientRpc]
-    public void RespawnClientRpc(Vector3 spawnPoint, ClientRpcParams clientRpcParams = default)
+    public void RespawnClientRpc(Vector3 spawnPoint)
     {
-        Debug.Log(health.Value);
+        isDead = false;
+        health = maxHealth;
+        clientSideHealth = maxHealth;
+
         transform.position = spawnPoint;
         clientNetworkTransform.enabled = true;
-        characterController.enabled = true;
-        playerMovement.enabled = true;
-        playerCamera.SetEnabled(true);
+
+        // Interpolation from offscreen to spawn point looks bad, so disable interpolation for a short time
+        clientNetworkTransform.Interpolate = false;
+        this.Invoke(() => clientNetworkTransform.Interpolate = true, 0.25f);
+
+        if (IsOwner)
+        {
+            characterController.enabled = true;
+            playerMovement.enabled = true;
+            playerWeapon.SetEnabled(true);
+            playerCamera.SetEnabled(true);
+        }
     }
 }

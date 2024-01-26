@@ -35,7 +35,7 @@ public class Pistol : NetworkBehaviour
     {
         idlePosition = transform.localPosition;
         idleRotation = transform.localRotation;
-        crosshair = FindObjectOfType<Crosshair>();
+        crosshair = FindObjectOfType<Crosshair>(true);
     }
 
     void Update()
@@ -45,7 +45,7 @@ public class Pistol : NetworkBehaviour
             crosshair.Bloom(bloomPerShotPercent);
             if (Physics.Raycast(firePoint.position, firePoint.forward, out RaycastHit hit, Mathf.Infinity, layerMask))
             {
-                hit.transform.GetComponent<Player>().TakeDamage(damage);
+                hit.transform.GetComponent<Player>().TakeDamage(damage, OwnerClientId);
             }
 
             SpawnFiringEffects();

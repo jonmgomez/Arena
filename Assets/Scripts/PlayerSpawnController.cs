@@ -11,6 +11,9 @@ public class PlayerSpawnController : NetworkBehaviour
     [SerializeField] Transform[] spawnPoints;
     [SerializeField] float respawnDelay = 1f;
 
+    [Header("Debug")]
+    [SerializeField] bool debugSingleSpawn = false;
+
     void Awake()
     {
         if (Instance != null)
@@ -41,12 +44,17 @@ public class PlayerSpawnController : NetworkBehaviour
     IEnumerator RespawnPlayerAfterDelay(Player player)
     {
         yield return new WaitForSeconds(respawnDelay);
-        Debug.Log($"Respawning player {player.OwnerClientId}");
-        player.RespawnOnServer(GetSpawnPoint(), player.OwnerClientId);
+        Debug.Log($"[SERVER] Respawning player {player.OwnerClientId}");
+        Vector3 spawnPoint = GetSpawnPoint();
+        spawnPoint.y += player.GetComponent<CharacterController>().height / 2f;
+        player.RespawnOnServer(spawnPoint);
     }
 
     private Vector3 GetSpawnPoint()
     {
-        return spawnPoints[Random.Range(0, spawnPoints.Length)].position;
+        if (debugSingleSpawn)
+            return spawnPoints[0].position;
+        else
+            return spawnPoints[Random.Range(0, spawnPoints.Length)].position;
     }
 }
