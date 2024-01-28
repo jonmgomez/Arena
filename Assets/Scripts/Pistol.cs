@@ -13,10 +13,13 @@ public class Pistol : NetworkBehaviour
     [SerializeField] LayerMask layerMask;
     [SerializeField] BulletTrail trail;
     [SerializeField] GameObject muzzleFlash;
+    [SerializeField] CameraShake cameraShake;
 
     [SerializeField] float damage = 10f;
     [SerializeField] float fireRate = 0.1f;
     [SerializeField] float bloomPerShotPercent = 0.1f;
+    [SerializeField] float screenShakeDuration = 0.1f;
+    [SerializeField] float screenShakeMagnitude = 0.01f;
 
     Vector3 idlePosition;
     Vector3 recoilTargetPosition;
@@ -46,6 +49,7 @@ public class Pistol : NetworkBehaviour
         {
             Vector3 hitPosition = firePoint.forward * MAX_DISTANCE;
             crosshair.Bloom(bloomPerShotPercent);
+            cameraShake.Shake(screenShakeDuration, screenShakeMagnitude);
             if (Physics.Raycast(firePoint.position, firePoint.forward, out RaycastHit hit, Mathf.Infinity, layerMask))
             {
                 hitPosition = hit.point;

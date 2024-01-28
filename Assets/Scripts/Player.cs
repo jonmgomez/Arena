@@ -43,6 +43,9 @@ public class Player : NetworkBehaviour
     void Start()
     {
         clientNetworkTransform = GetComponent<ClientNetworkTransform>();
+        characterController = GetComponent<CharacterController>();
+        playerMovement = GetComponent<PlayerMovement>();
+        playerWeapon = GetComponent<PlayerWeapon>();
         if (!IsOwner)
             return;
 
@@ -53,9 +56,6 @@ public class Player : NetworkBehaviour
         volume.profile.TryGet<Vignette>(out vignette);
         vignette.intensity.value = 0f;
 
-        characterController = GetComponent<CharacterController>();
-        playerMovement = GetComponent<PlayerMovement>();
-        playerWeapon = GetComponent<PlayerWeapon>();
     }
 
     void Update()
@@ -80,8 +80,26 @@ public class Player : NetworkBehaviour
         TakeDamageServerRpc(damage, clientId);
     }
 
+    /// <summary>
+    /// Same as TakeDamage(), but does not require a clientId attributed to the player that dealt the damage.
+    /// This is for damage which is not dealt by a player, such as falling off the map.
+    /// </summary>
+    /// <param name="damage">Amount of damage to deal to player</param>
+    public void TakeDamageAnonymous(float damage)
+    {
+        Debug.Log($"[CLIENT] Player {OwnerClientId} took {damage} damage, Health {health}, client-side health {clientSideHealth}");
+        clientSideHealth -= damage;
+        if (clientSideHealth <= 0f)
+        {
+            Debug.Log($"[CLIENT] Player {OwnerClientId} died");
+            OnDeath();
+        }
+
+        TakeDamageServerRpc(damage, 0, true);
+    }
+
     [ServerRpc(RequireOwnership = false)]
-    private void TakeDamageServerRpc(float damage, ulong clientId)
+    private void TakeDamageServerRpc(float damage, ulong clientId, bool isAnonymous = false)
     {
         if (health - damage <= 0f)
         {
@@ -92,7 +110,7 @@ public class Player : NetworkBehaviour
         if (IsServer && !IsHost)
             health -= damage;
 
-        TakeDamageClientRpc(damage, clientId);
+        TakeDamageClientRpc(damage, clientId, isAnonymous);
 
         regeneratingHealth = false;
         if (regenHealthCoroutine != null)
@@ -101,14 +119,17 @@ public class Player : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void TakeDamageClientRpc(float damage, ulong clientId)
+    private void TakeDamageClientRpc(float damage, ulong clientId, bool isAnonymous = false)
     {
         health -= damage;
 
-        // If this is not executing on the player that dealt the damage, update the client-side health
-        // Otherwise, client-side health was already updated by the client that dealt the damage
-        if (clientId != NetworkManager.Singleton.LocalClientId)
-            clientSideHealth -= damage;
+        if (!isAnonymous)
+        {
+            // If this is not executing on the player that dealt the damage, update the client-side health
+            // Otherwise, client-side health was already updated by the client that dealt the damage
+            if (clientId != NetworkManager.Singleton.LocalClientId)
+                clientSideHealth -= damage;
+        }
 
         if (clientSideHealth <= 0f)
         {
@@ -166,11 +187,11 @@ public class Player : NetworkBehaviour
         isDead = true;
         clientNetworkTransform.enabled = false;
         transform.position = OFF_SCREEN;
+        characterController.enabled = false;
 
         if (IsOwner) // Client specific references
         {
             vignette.intensity.value = 0f;
-            characterController.enabled = false;
             playerMovement.enabled = false;
             playerWeapon.SetEnabled(false);
             playerCamera.SetEnabled(false);
@@ -213,6 +234,7 @@ public class Player : NetworkBehaviour
 
         if (IsOwner)
         {
+            vignette.intensity.value = 0f;
             characterController.enabled = true;
             playerMovement.enabled = true;
             playerWeapon.SetEnabled(true);

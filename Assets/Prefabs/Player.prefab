@@ -247,6 +247,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 581786264875312836}
+  - component: {fileID: 4773914293534113045}
   m_Layer: 3
   m_Name: CameraPivot
   m_TagString: Untagged
@@ -270,6 +271,18 @@ Transform:
   - {fileID: 8593457842578009674}
   m_Father: {fileID: 7905955051333104677}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4773914293534113045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3948491138130005740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6779c7b4a0ba9d43825cc648cc970db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7295572258288463255
 GameObject:
   m_ObjectHideFlags: 0
@@ -675,9 +688,12 @@ MonoBehaviour:
     m_Bits: 72
   trail: {fileID: 5439988111073444984, guid: 04068d1ef2d8f5342bc9ad9eeb20f731, type: 3}
   muzzleFlash: {fileID: 100000, guid: 8eaaa4f553116f44b8459bc24201c514, type: 3}
+  cameraShake: {fileID: 4773914293534113045}
   damage: 20
   fireRate: 0.1
   bloomPerShotPercent: 0.1
+  screenShakeDuration: 0.1
+  screenShakeMagnitude: 0.01
 --- !u!4 &5593027465871667892 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 726e329e1719c8f42949342e6a5b42e3,
