@@ -24,29 +24,8 @@ public class PlayerSpawnController : NetworkBehaviour
         if (IsServer)
         {
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnNetworkSceneLoadComplete;
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
         }
-    }
-
-    private void OnNetworkSceneLoadComplete(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
-    {
-        this.Invoke(() => {
-            foreach (ulong client in clientsCompleted)
-            {
-                Debug.Log($"[SERVER] Spawning player for client {client}");
-                GameObject playerObject = Instantiate(playerPrefab, GetSpawnPoint(), Quaternion.identity);
-                playerObject.GetComponent<NetworkObject>().SpawnAsPlayerObject(client, true);
-            }
-            GameLoadedClientRpc();
-
-            if (IsServer && !IsHost)
-                screenCover.SetActive(false);
-        }, 1f);
-    }
-
-    [ClientRpc]
-    public void GameLoadedClientRpc()
-    {
-        screenCover.SetActive(false);
     }
 
     void Awake()
@@ -59,6 +38,46 @@ public class PlayerSpawnController : NetworkBehaviour
         }
 
         Instance = this;
+    }
+
+    void Start()
+    {
+        if (NetworkManager.Singleton != null && (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost))
+        {
+            screenCover.SetActive(true);
+        }
+    }
+
+    private void OnNetworkSceneLoadComplete(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
+    {
+        this.Invoke(() => {
+            foreach (ulong client in clientsCompleted)
+            {
+                SpawnNewPlayerPrefab(client);
+            }
+            GameLoadedClientRpc();
+
+            if (IsServer && !IsHost)
+                screenCover.SetActive(false);
+        }, 1f);
+    }
+
+    private void OnClientConnected(ulong clientId)
+    {
+        SpawnNewPlayerPrefab(clientId);
+    }
+
+    private void SpawnNewPlayerPrefab(ulong clientId)
+    {
+        Debug.Log($"[SERVER] Spawning player for client {clientId}");
+        GameObject playerObject = Instantiate(playerPrefab, GetSpawnPoint(), Quaternion.identity);
+        playerObject.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+    }
+
+    [ClientRpc]
+    public void GameLoadedClientRpc()
+    {
+        screenCover.SetActive(false);
     }
 
     public void RegisterPlayer(Player player)
