@@ -5,8 +5,8 @@ using UnityEngine;
 public class BulletTrail : MonoBehaviour
 {
     [SerializeField] float speed = 100f;
-    [SerializeField] float lifeTime = 1f;
     [SerializeField] float timeBeforeActivation = 0.1f;
+    [SerializeField] Destroy destroyAfter;
     TrailRenderer trail;
 
     void Start()
@@ -17,12 +17,17 @@ public class BulletTrail : MonoBehaviour
             trail.enabled = false;
             this.Invoke(() => trail.enabled = true, timeBeforeActivation);
         }
-
-        Destroy(gameObject, lifeTime);
     }
 
     void Update()
     {
         transform.position += transform.forward * (speed * Time.deltaTime);
+    }
+
+    public void SetEndPosition(Vector3 position)
+    {
+        transform.LookAt(position);
+        float timeToMeet = Vector3.Distance(transform.position, position) / speed;
+        destroyAfter.SetDestroyTimer(timeToMeet);
     }
 }

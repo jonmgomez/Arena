@@ -5,11 +5,13 @@ using UnityEngine;
 
 public class Pistol : NetworkBehaviour
 {
+    const float MAX_DISTANCE = 100f;
+
     [SerializeField] GameObject bulletPrefab;
     [SerializeField] Transform firePoint;
     [SerializeField] Transform muzzle;
     [SerializeField] LayerMask layerMask;
-    [SerializeField] GameObject trail;
+    [SerializeField] BulletTrail trail;
     [SerializeField] GameObject muzzleFlash;
 
     [SerializeField] float damage = 10f;
@@ -42,14 +44,19 @@ public class Pistol : NetworkBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            Vector3 hitPosition = firePoint.forward * MAX_DISTANCE;
             crosshair.Bloom(bloomPerShotPercent);
             if (Physics.Raycast(firePoint.position, firePoint.forward, out RaycastHit hit, Mathf.Infinity, layerMask))
             {
-                hit.transform.GetComponent<Player>().TakeDamage(damage, OwnerClientId);
+                hitPosition = hit.point;
+                if (hit.transform.tag == "Player")
+                {
+                   hit.transform.GetComponent<Player>().TakeDamage(damage, OwnerClientId);
+                }
             }
 
-            SpawnFiringEffects();
-            SpawnFiringEffectsServerRpc();
+            SpawnFiringEffects(hitPosition);
+            SpawnFiringEffectsServerRpc(hitPosition);
 
             recoilTargetPosition = idlePosition - firePoint.forward * Random.Range(0.1f, 0.2f);
             recoilTargetRotation = idleRotation * Quaternion.Euler(Random.Range(-25f, -10f), 0, 0f);
@@ -63,21 +70,22 @@ public class Pistol : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    void SpawnFiringEffectsServerRpc()
+    void SpawnFiringEffectsServerRpc(Vector3 hitPosition)
     {
-        SpawnFiringEffectsClientRpc();
+        SpawnFiringEffectsClientRpc(hitPosition);
     }
 
     [ClientRpc]
-    void SpawnFiringEffectsClientRpc()
+    void SpawnFiringEffectsClientRpc(Vector3 hitPosition)
     {
         if (!IsOwner)
-            SpawnFiringEffects();
+            SpawnFiringEffects(hitPosition);
     }
 
-    void SpawnFiringEffects()
+    void SpawnFiringEffects(Vector3 hitPosition)
     {
-        Instantiate(trail, muzzle.position, firePoint.rotation);
+        var bullet = Instantiate(trail, muzzle.position, firePoint.rotation);
+        bullet.SetEndPosition(hitPosition);
         var obj = Instantiate(muzzleFlash, muzzle.position, firePoint.rotation);
         obj.transform.parent = muzzle;
     }

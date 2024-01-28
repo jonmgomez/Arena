@@ -20,7 +20,7 @@ GameObject:
   - component: {fileID: 7195662288568213887}
   m_Layer: 3
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -203,10 +203,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d1cf0099d7f57d4d832f247135c12a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health:
-    m_InternalValue: 100
+  health: 100
   healthRegenDelay: 5
-  healthRegenRatePerSecond: 10
+  healthRegenPerSecond: 10
   vignetteMaxIntensity: 0.5
   playerCamera: {fileID: 6232771696667572888}
 --- !u!114 &6835946693310315376
@@ -673,8 +672,8 @@ MonoBehaviour:
   muzzle: {fileID: 5459709224432633740}
   layerMask:
     serializedVersion: 2
-    m_Bits: 8
-  trail: {fileID: 8301015454374067333, guid: 04068d1ef2d8f5342bc9ad9eeb20f731, type: 3}
+    m_Bits: 72
+  trail: {fileID: 5439988111073444984, guid: 04068d1ef2d8f5342bc9ad9eeb20f731, type: 3}
   muzzleFlash: {fileID: 100000, guid: 8eaaa4f553116f44b8459bc24201c514, type: 3}
   damage: 20
   fireRate: 0.1
