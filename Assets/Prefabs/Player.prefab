@@ -660,6 +660,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 8384824737049720004}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 726e329e1719c8f42949342e6a5b42e3,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2885747393395358457}
   m_SourcePrefab: {fileID: 100100000, guid: 726e329e1719c8f42949342e6a5b42e3, type: 3}
 --- !u!1 &5104192960186607630 stripped
 GameObject:
@@ -688,12 +692,30 @@ MonoBehaviour:
     m_Bits: 72
   trail: {fileID: 5439988111073444984, guid: 04068d1ef2d8f5342bc9ad9eeb20f731, type: 3}
   muzzleFlash: {fileID: 100000, guid: 8eaaa4f553116f44b8459bc24201c514, type: 3}
-  cameraShake: {fileID: 4773914293534113045}
+  playerCamera: {fileID: 6232771696667572888}
   damage: 20
   fireRate: 0.1
-  bloomPerShotPercent: 0.1
-  screenShakeDuration: 0.1
-  screenShakeMagnitude: 0.01
+  bloomPerShotPercent: 0.05
+  recoilVerticalAmount: 0.5
+  recoilRecoveryRate: 0.1
+  recoilHorizontalAmount: 0.1
+  bloom: {fileID: 2885747393395358457}
+--- !u!114 &2885747393395358457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5104192960186607630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b214a3f3e13e495498a460be460e9011, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxBloomAngleDegrees: 5
+  recoveryDelaySeconds: 0.05
+  recoveryPercentPerSecond: 0.5
+  currentBloom: 0
 --- !u!4 &5593027465871667892 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 726e329e1719c8f42949342e6a5b42e3,

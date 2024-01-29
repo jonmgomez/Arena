@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class Pistol : NetworkBehaviour
 {
+    const int LEFT_MOUSE_BUTTON = 0;
+    const int RIGHT_MOUSE_BUTTON = 1;
     const float MAX_DISTANCE = 100f;
 
     [SerializeField] GameObject bulletPrefab;
@@ -13,13 +15,18 @@ public class Pistol : NetworkBehaviour
     [SerializeField] LayerMask layerMask;
     [SerializeField] BulletTrail trail;
     [SerializeField] GameObject muzzleFlash;
-    [SerializeField] CameraShake cameraShake;
+    [SerializeField] PlayerCamera playerCamera;
 
     [SerializeField] float damage = 10f;
     [SerializeField] float fireRate = 0.1f;
     [SerializeField] float bloomPerShotPercent = 0.1f;
-    [SerializeField] float screenShakeDuration = 0.1f;
-    [SerializeField] float screenShakeMagnitude = 0.01f;
+
+    [SerializeField] float recoilVerticalAmount = 0.1f;
+    [SerializeField] float recoilRecoveryRate = 0.1f;
+    [SerializeField] float recoilHorizontalAmount = 0.1f;
+
+    [SerializeField] Bloom bloom;
+    bool aimedIn = false;
 
     Vector3 idlePosition;
     Vector3 recoilTargetPosition;
@@ -45,12 +52,30 @@ public class Pistol : NetworkBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(RIGHT_MOUSE_BUTTON))
         {
-            Vector3 hitPosition = firePoint.forward * MAX_DISTANCE;
-            crosshair.Bloom(bloomPerShotPercent);
-            cameraShake.Shake(screenShakeDuration, screenShakeMagnitude);
-            if (Physics.Raycast(firePoint.position, firePoint.forward, out RaycastHit hit, Mathf.Infinity, layerMask))
+            aimedIn = true;
+        }
+        else if (Input.GetMouseButtonUp(RIGHT_MOUSE_BUTTON))
+        {
+            aimedIn = false;
+        }
+
+        if (Input.GetMouseButtonDown(LEFT_MOUSE_BUTTON))
+        {
+            Recoil();
+
+            Vector3 direction = firePoint.forward;
+            if (!aimedIn)
+            {
+                //crosshair.Bloom(bloomPerShotPercent);
+                direction = bloom.AdjustForBloom(direction);
+
+                bloom.AddBloom(bloomPerShotPercent);
+            }
+
+            Vector3 hitPosition = firePoint.position + direction * MAX_DISTANCE;
+            if (Physics.Raycast(firePoint.position, direction, out RaycastHit hit, Mathf.Infinity, layerMask))
             {
                 hitPosition = hit.point;
                 if (hit.transform.tag == "Player")
@@ -92,5 +117,12 @@ public class Pistol : NetworkBehaviour
         bullet.SetEndPosition(hitPosition);
         var obj = Instantiate(muzzleFlash, muzzle.position, firePoint.rotation);
         obj.transform.parent = muzzle;
+    }
+
+    private void Recoil()
+    {
+        float x = Random.Range(-recoilHorizontalAmount, recoilHorizontalAmount);
+        float y = recoilVerticalAmount;
+        playerCamera.Rotate(x, y);
     }
 }

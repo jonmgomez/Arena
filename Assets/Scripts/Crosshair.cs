@@ -137,6 +137,11 @@ public class Crosshair : MonoBehaviour
         }
     }
 
+    public void SetBloomRecoveryDelay(float delay)
+    {
+        bloomRecoveryDelaySeconds = delay;
+    }
+
     public void SetVisible(bool visible)
     {
         foreach (CrosshairBar crosshairBar in crosshairBars)

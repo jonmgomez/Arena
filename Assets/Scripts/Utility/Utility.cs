@@ -17,6 +17,13 @@ public static class Utility
         f();
     }
 
+    public static Coroutine RestartCoroutine(this MonoBehaviour mb, IEnumerator coroutine, Coroutine runningCoroutine)
+    {
+        if (runningCoroutine != null)
+            mb.StopCoroutine(runningCoroutine);
+        return mb.StartCoroutine(coroutine);
+    }
+
     public static ClientRpcParams CreateClientRpcParams(ulong clientId)
     {
         return new ClientRpcParams

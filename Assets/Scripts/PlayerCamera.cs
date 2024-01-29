@@ -64,14 +64,7 @@ public class PlayerCamera : NetworkBehaviour
         float mouseX = Input.GetAxisRaw("Mouse X") * xSenstivity;
         float mouseY = Input.GetAxisRaw("Mouse Y") * ySenstivity;
 
-        yRotation += mouseX;
-
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
-        transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
-        player.rotation = Quaternion.Euler(0, yRotation, 0);
-        playerChildRotation.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+        Rotate(mouseX, mouseY);
     }
 
     public void SetEnabled(bool enabled)
@@ -81,5 +74,16 @@ public class PlayerCamera : NetworkBehaviour
         audioListener.enabled = enabled;
         defaultCamera.enabled = !enabled;
         defaultAudioListener.enabled = !enabled;
+    }
+
+    public void Rotate(float x, float y)
+    {
+        yRotation += x;
+        xRotation -= y;
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+
+        transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+        player.rotation = Quaternion.Euler(0, yRotation, 0);
+        playerChildRotation.rotation = Quaternion.Euler(xRotation, yRotation, 0);
     }
 }
