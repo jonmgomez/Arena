@@ -683,6 +683,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ed3e033e69fc75429e1b7224f1b1741, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  damage: 20
+  canADS: 0
+  fireRate: 0.1
+  isAutomatic: 0
+  bloomPerShotPercent: 0.05
+  recoilVerticalAmount: 0.5
+  recoilRecoveryRate: 0.1
+  recoilHorizontalAmount: 0.1
   bulletPrefab: {fileID: 5958590727471780502, guid: 4d8503644f5c23145a931916d35f6e40,
     type: 3}
   firePoint: {fileID: 8593457842578009674}
@@ -693,12 +701,6 @@ MonoBehaviour:
   trail: {fileID: 5439988111073444984, guid: 04068d1ef2d8f5342bc9ad9eeb20f731, type: 3}
   muzzleFlash: {fileID: 100000, guid: 8eaaa4f553116f44b8459bc24201c514, type: 3}
   playerCamera: {fileID: 6232771696667572888}
-  damage: 20
-  fireRate: 0.1
-  bloomPerShotPercent: 0.05
-  recoilVerticalAmount: 0.5
-  recoilRecoveryRate: 0.1
-  recoilHorizontalAmount: 0.1
   bloom: {fileID: 2885747393395358457}
 --- !u!114 &2885747393395358457
 MonoBehaviour:
