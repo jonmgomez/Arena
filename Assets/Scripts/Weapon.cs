@@ -17,6 +17,7 @@ public abstract class Weapon : NetworkBehaviour
     [SerializeField] float fireRate = 0.1f;
     bool canFire = true;
     [SerializeField] bool isAutomatic = false;
+    [SerializeField] int projectilesPerShot = 1;
 
     [SerializeField] float bloomPerShotPercent = 0.1f;
     [SerializeField] float recoilVerticalAmount = 0.1f;
@@ -60,7 +61,7 @@ public abstract class Weapon : NetworkBehaviour
 
         CheckAim();
 
-        if (CheckFire())
+        if (CheckIsFiring())
         {
             if (fireRate > 0)
                 StartCoroutine(FireRateCooldown());
@@ -86,7 +87,7 @@ public abstract class Weapon : NetworkBehaviour
         }
     }
 
-    private bool CheckFire()
+    private bool CheckIsFiring()
     {
         if (!canFire) return false;
 
@@ -104,16 +105,16 @@ public abstract class Weapon : NetworkBehaviour
 
     private void Fire()
     {
-        Vector3 direction = firePoint.forward;
-        if (!IsAimedIn())
+        for (int i = 0; i < projectilesPerShot; i++)
         {
-            //crosshair.Bloom(bloomPerShotPercent);
-            direction = bloom.AdjustForBloom(direction);
+            Vector3 direction = firePoint.forward;
+            if (!IsAimedIn())
+            {
+                direction = bloom.AdjustForBloom(direction);
+            }
 
-            bloom.AddBloom(GetBloom());
+            SpawnProjectileNetworked(firePoint.position, direction, OwnerClientId);
         }
-
-        SpawnProjectileNetworked(firePoint.position, direction, OwnerClientId);
 
         OnFire();
     }
@@ -128,10 +129,10 @@ public abstract class Weapon : NetworkBehaviour
     private void CalculateBloom()
     {
         crosshair.Bloom(bloomPerShotPercent);
+        bloom.AddBloom(bloomPerShotPercent);
     }
 
     public bool IsAimedIn() => aimedIn;
-    public float GetBloom() => bloomPerShotPercent;
 
     IEnumerator FireRateCooldown()
     {
@@ -140,7 +141,7 @@ public abstract class Weapon : NetworkBehaviour
         canFire = true;
     }
 
-        #region "Projectile Spawning"
+    #region "Projectile Spawning"
     [ServerRpc(RequireOwnership = false)]
     void SpawnProjectileServerRpc(Vector3 spawn, Vector3 direction, ulong firedFromClientId)
     {
@@ -166,6 +167,7 @@ public abstract class Weapon : NetworkBehaviour
     {
         var bullet = Instantiate(projectilePrefab, spawn, Quaternion.LookRotation(direction));
         bullet.SetFiredFromClient(IsServer, IsHost, firedFromClientId);
+        bullet.SetSpawnDetails(spawn, muzzle.position);
         SpawnFiringEffects();
     }
     #endregion

@@ -209,16 +209,7 @@ public class Player : NetworkBehaviour
     {
         if (IsServer && !IsHost)
         {
-            isDead = false;
-            health = maxHealth;
-            clientSideHealth = maxHealth;
-
-            transform.position = spawnPoint;
-            clientNetworkTransform.enabled = true;
-
-            // Interpolation from offscreen to spawn point looks bad, so disable interpolation for a short time
-            clientNetworkTransform.Interpolate = false;
-            this.Invoke(() => clientNetworkTransform.Interpolate = true, 0.25f);
+            RespawnPlayer(spawnPoint);
         }
 
         RespawnClientRpc(spawnPoint);
@@ -227,24 +218,29 @@ public class Player : NetworkBehaviour
     [ClientRpc]
     public void RespawnClientRpc(Vector3 spawnPoint)
     {
+        RespawnPlayer(spawnPoint);
+
+        if (IsOwner)
+        {
+            vignette.intensity.value = 0f;
+            playerMovement.enabled = true;
+            playerWeapon.SetEnabled(true);
+            playerCamera.SetEnabled(true);
+        }
+    }
+
+    private void RespawnPlayer(Vector3 spawnPoint)
+    {
         isDead = false;
         health = maxHealth;
         clientSideHealth = maxHealth;
 
         transform.position = spawnPoint;
         clientNetworkTransform.enabled = true;
+        characterController.enabled = true;
 
         // Interpolation from offscreen to spawn point looks bad, so disable interpolation for a short time
         clientNetworkTransform.Interpolate = false;
         this.Invoke(() => clientNetworkTransform.Interpolate = true, 0.25f);
-
-        if (IsOwner)
-        {
-            vignette.intensity.value = 0f;
-            characterController.enabled = true;
-            playerMovement.enabled = true;
-            playerWeapon.SetEnabled(true);
-            playerCamera.SetEnabled(true);
-        }
     }
 }

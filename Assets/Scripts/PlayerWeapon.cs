@@ -16,6 +16,8 @@ public class PlayerWeapon : NetworkBehaviour
             return;
         }
 
+        Random.InitState((int)System.DateTime.Now.Ticks);
+
         crosshair = FindObjectOfType<Crosshair>(true);
         crosshair.gameObject.SetActive(true);
     }

@@ -10,6 +10,10 @@ public class Projectile : MonoBehaviour
     [SerializeField] float damage = 10f;
     [SerializeField] float speed = 100f;
     [SerializeField] bool hitScan = false;
+    [Tooltip("Hitscan only --- Originates the projectile from the barrel of the gun rather than the camera." +
+             "Note that hitscan will still act as originating from the camera. A render thing only.")]
+    [SerializeField] bool startFromBarrel = false;
+    Vector3 originalPosition;
     [SerializeField] float maxDistance = 100f;
     Vector3 previousPosition;
 
@@ -25,10 +29,18 @@ public class Projectile : MonoBehaviour
 
         if (hitScan)
         {
-            if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, maxDistance))
+            Vector3 startPosition = startFromBarrel ? originalPosition : transform.position;
+            if (Physics.Raycast(startPosition, transform.forward, out RaycastHit hit, maxDistance))
             {
                 OnCollision(hit.collider);
                 destroyTimer.SetDestroyTimer(Vector3.Distance(transform.position, hit.point) / speed);
+
+                if (startFromBarrel)
+                    transform.LookAt(hit.point);
+            }
+            else if (startFromBarrel)
+            {
+                transform.LookAt(transform.position +transform.forward * maxDistance);
             }
         }
         else
@@ -95,5 +107,14 @@ public class Projectile : MonoBehaviour
     {
         calculateCollisions = (isServer && !isHost) || clientId == NetworkManager.Singleton.LocalClientId;
         firedFromClientId = clientId;
+    }
+
+    public void SetSpawnDetails(Vector3 spawn, Vector3 muzzlePosition)
+    {
+        originalPosition = spawn;
+        if (startFromBarrel)
+        {
+            transform.position = muzzlePosition;
+        }
     }
 }

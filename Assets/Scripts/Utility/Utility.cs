@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.Profiling;
 using UnityEngine;
 
 public static class Utility
@@ -33,5 +34,13 @@ public static class Utility
                 TargetClientIds = new ulong[] { clientId }
             }
         };
+    }
+
+    public static void Loop(int times, Action function)
+    {
+        for (int i = 0; i < times; i++)
+        {
+            function();
+        }
     }
 }
