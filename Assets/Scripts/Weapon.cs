@@ -9,8 +9,9 @@ public abstract class Weapon : NetworkBehaviour
     const int LEFT_MOUSE_BUTTON = 0;
     const int RIGHT_MOUSE_BUTTON = 1;
 
+    PlayerCamera playerCamera = null;
+
     [Header("General")]
-    [SerializeField] float damage = 10f;
     [SerializeField] bool canADS = false;
     bool aimedIn = false;
     [SerializeField] float fireRate = 0.1f;
@@ -22,11 +23,34 @@ public abstract class Weapon : NetworkBehaviour
     [SerializeField] float recoilRecoveryRate = 0.1f;
     [SerializeField] float recoilHorizontalAmount = 0.1f;
 
+    [Header("Spawn Points")]
+    [SerializeField] protected Transform firePoint;
+    [SerializeField] Transform muzzle;
+
+    [Header("Spawn Prefabs")]
+    [SerializeField] Projectile projectilePrefab;
+    [SerializeField] GameObject muzzleFlashPrefab;
+    Bloom bloom;
+
+    Crosshair crosshair;
+
     protected abstract void OnFire();
+
+    public override void OnNetworkSpawn()
+    {
+        if (!IsOwner)
+        {
+            enabled = false;
+        }
+    }
 
     protected virtual void Start()
     {
         if (!IsOwner) return;
+
+        playerCamera = transform.root.GetComponentInChildren<PlayerCamera>();
+        crosshair = FindObjectOfType<Crosshair>(true);
+        bloom = GetComponent<Bloom>();
     }
 
     // Update is called once per frame
@@ -38,8 +62,13 @@ public abstract class Weapon : NetworkBehaviour
 
         if (CheckFire())
         {
-            StartCoroutine(FireRateCooldown());
-            OnFire();
+            if (fireRate > 0)
+                StartCoroutine(FireRateCooldown());
+
+            Fire();
+
+            CalculateRecoil();
+            CalculateBloom();
         }
     }
 
@@ -73,15 +102,78 @@ public abstract class Weapon : NetworkBehaviour
         return false;
     }
 
+    private void Fire()
+    {
+        Vector3 direction = firePoint.forward;
+        if (!IsAimedIn())
+        {
+            //crosshair.Bloom(bloomPerShotPercent);
+            direction = bloom.AdjustForBloom(direction);
+
+            bloom.AddBloom(GetBloom());
+        }
+
+        SpawnProjectileNetworked(firePoint.position, direction, OwnerClientId);
+
+        OnFire();
+    }
+
+    private void CalculateRecoil()
+    {
+        float x = Random.Range(-recoilHorizontalAmount, recoilHorizontalAmount);
+        float y = recoilVerticalAmount;
+        playerCamera.Rotate(x, y);
+    }
+
+    private void CalculateBloom()
+    {
+        crosshair.Bloom(bloomPerShotPercent);
+    }
+
     public bool IsAimedIn() => aimedIn;
-    public float GetDamage() => damage;
     public float GetBloom() => bloomPerShotPercent;
-    public (float horizontal, float vertical) GetRecoil() => (horizontal: recoilVerticalAmount, vertical: recoilHorizontalAmount);
 
     IEnumerator FireRateCooldown()
     {
         canFire = false;
         yield return new WaitForSeconds(fireRate);
         canFire = true;
+    }
+
+        #region "Projectile Spawning"
+    [ServerRpc(RequireOwnership = false)]
+    void SpawnProjectileServerRpc(Vector3 spawn, Vector3 direction, ulong firedFromClientId)
+    {
+        SpawnProjectileClientRpc(spawn, direction, firedFromClientId);
+    }
+
+    [ClientRpc]
+    void SpawnProjectileClientRpc(Vector3 spawn, Vector3 direction, ulong firedFromClientId)
+    {
+        if (!IsOwner)
+        {
+            SpawnProjectile(spawn, direction, firedFromClientId);
+        }
+    }
+
+    private void SpawnProjectileNetworked(Vector3 spawn, Vector3 direction, ulong firedFromClientId)
+    {
+        SpawnProjectile(spawn, direction, firedFromClientId);
+        SpawnProjectileServerRpc(spawn, direction, firedFromClientId);
+    }
+
+    private void SpawnProjectile(Vector3 spawn, Vector3 direction, ulong firedFromClientId)
+    {
+        var bullet = Instantiate(projectilePrefab, spawn, Quaternion.LookRotation(direction));
+        bullet.SetFiredFromClient(IsServer, IsHost, firedFromClientId);
+        SpawnFiringEffects();
+    }
+    #endregion
+
+    private void SpawnFiringEffects()
+    {
+        // Muzzle flash
+        var obj = Instantiate(muzzleFlashPrefab, muzzle.position, firePoint.rotation);
+        obj.transform.parent = muzzle;
     }
 }

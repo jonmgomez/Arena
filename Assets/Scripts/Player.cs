@@ -69,13 +69,13 @@ public class Player : NetworkBehaviour
 
     public void TakeDamage(float damage, ulong clientId)
     {
-        Debug.Log($"[CLIENT] Player {OwnerClientId} took {damage} damage, Health {health}, client-side health {clientSideHealth}");
         clientSideHealth -= damage;
         if (clientSideHealth <= 0f)
         {
-            Debug.Log($"[CLIENT] Player {OwnerClientId} died");
+            Debug.Log($"[CLIENT] Player-{OwnerClientId} died");
             OnDeath();
         }
+        Debug.Log($"[CLIENT] Player-{OwnerClientId} took {damage} damage from Player-{clientId}, Health {health}, client-side health {clientSideHealth}");
 
         TakeDamageServerRpc(damage, clientId);
     }
@@ -87,13 +87,13 @@ public class Player : NetworkBehaviour
     /// <param name="damage">Amount of damage to deal to player</param>
     public void TakeDamageAnonymous(float damage)
     {
-        Debug.Log($"[CLIENT] Player {OwnerClientId} took {damage} damage, Health {health}, client-side health {clientSideHealth}");
         clientSideHealth -= damage;
         if (clientSideHealth <= 0f)
         {
-            Debug.Log($"[CLIENT] Player {OwnerClientId} died");
+            Debug.Log($"[CLIENT] Player-{OwnerClientId} died");
             OnDeath();
         }
+        Debug.Log($"[CLIENT] Player {OwnerClientId} took {damage} damage, Health {health}, client-side health {clientSideHealth}");
 
         TakeDamageServerRpc(damage, 0, true);
     }
@@ -128,7 +128,11 @@ public class Player : NetworkBehaviour
             // If this is not executing on the player that dealt the damage, update the client-side health
             // Otherwise, client-side health was already updated by the client that dealt the damage
             if (clientId != NetworkManager.Singleton.LocalClientId)
+            {
+                Debug.Log($"[CLIENT] Player {OwnerClientId} took {damage} damage from another Player (Player-{clientId}), " +
+                          $"Health: {health}, Client-Side Health: {clientSideHealth}");
                 clientSideHealth -= damage;
+            }
         }
 
         if (clientSideHealth <= 0f)
@@ -154,6 +158,8 @@ public class Player : NetworkBehaviour
         {
             health += amount;
             clientSideHealth += amount;
+            if (clientSideHealth > maxHealth)
+                clientSideHealth = maxHealth;
         }
 
         if (IsOwner)
