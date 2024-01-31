@@ -68,8 +68,11 @@ public abstract class Weapon : NetworkBehaviour
 
             Fire();
 
-            CalculateRecoil();
-            CalculateBloom();
+            if (!IsAimedIn())
+            {
+                CalculateRecoil();
+                CalculateBloom();
+            }
         }
     }
 
