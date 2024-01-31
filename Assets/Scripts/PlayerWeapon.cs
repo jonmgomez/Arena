@@ -62,6 +62,24 @@ public class PlayerWeapon : NetworkBehaviour
         }
     }
 
+    public void PickupWeapon(int weaponId)
+    {
+        Weapon weapon = allWeapons[weaponId];
+        activeWeapon.gameObject.SetActive(false);
+
+        if (MainWeaponEquipped())
+        {
+            mainWeapon = weapon;
+            SetActiveWeaponNetworked(mainWeapon);
+        }
+        else // SideWeaponEquipped()
+        {
+            sideWeapon = weapon;
+            SetActiveWeaponNetworked(sideWeapon);
+        }
+    }
+
+    #region SetActiveWeapon
     private void SetActiveWeaponNetworked(Weapon weapon)
     {
         SetActiveWeapon(weapon);
@@ -94,9 +112,11 @@ public class PlayerWeapon : NetworkBehaviour
         if (!IsOwner)
             SetActiveWeapon(allWeapons[weaponIndex]);
     }
+    #endregion
 
     public void SetEnabled(bool enabled)
     {
+        // TODO: Do custom enabling of weapon script. Otherwise fire rate coroutines will be stopped.
         crosshair.gameObject.SetActive(enabled);
         mainWeapon.enabled = enabled;
     }
@@ -113,4 +133,7 @@ public class PlayerWeapon : NetworkBehaviour
 
         return -1;
     }
+
+    private bool MainWeaponEquipped() => mainWeapon == activeWeapon;
+    private bool SideWeaponEquipped() => sideWeapon == activeWeapon;
 }
