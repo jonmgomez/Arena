@@ -159,7 +159,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 13
-  speed: 100
+  speed: 500
   hitScan: 1
   startFromBarrel: 1
   maxDistance: 100
+  showHitScanRay: 0

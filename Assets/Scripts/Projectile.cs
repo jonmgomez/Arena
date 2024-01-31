@@ -17,6 +17,9 @@ public class Projectile : MonoBehaviour
     [SerializeField] float maxDistance = 100f;
     Vector3 previousPosition;
 
+    [Header("Debug")]
+    [SerializeField] bool showHitScanRay = false;
+
     bool calculateCollisions = true;
     ulong firedFromClientId; // Who shot this projectile
 
@@ -40,7 +43,12 @@ public class Projectile : MonoBehaviour
             }
             else if (startFromBarrel)
             {
-                transform.LookAt(transform.position +transform.forward * maxDistance);
+                transform.LookAt(transform.position + transform.forward * maxDistance);
+            }
+
+            if (showHitScanRay)
+            {
+                Debug.DrawRay(startPosition, transform.forward * maxDistance, Color.red, 5f);
             }
         }
         else
@@ -80,6 +88,7 @@ public class Projectile : MonoBehaviour
         {
             OnCollision(hit.collider);
         }
+        Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(transform.position - previousPosition), 180f);
     }
 
     private void OnCollision(Collider collider)

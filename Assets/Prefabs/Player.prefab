@@ -135,7 +135,7 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 2
-  m_Radius: 0.5
+  m_Radius: 0.61
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
@@ -237,7 +237,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ef7cf0de0fd2bd47895e348cc844993, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pistol: {fileID: 8384824737049720004}
+  activeWeapon: {fileID: 277749932407094356}
+  mainWeapon: {fileID: 277749932407094356}
+  sideWeapon: {fileID: 8384824737049720004}
+  allWeapons:
+  - {fileID: 8384824737049720004}
+  - {fileID: 277749932407094356}
 --- !u!1 &3948491138130005740
 GameObject:
   m_ObjectHideFlags: 0
@@ -414,7 +419,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.01
   far clip plane: 1000
   field of view: 90
   orthographic: 0
@@ -613,6 +618,18 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3f2826cfba5539e43a93a85d4c2f0eba, type: 3}
+--- !u!114 &277749932407094356 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3715245922539469345, guid: 3f2826cfba5539e43a93a85d4c2f0eba,
+    type: 3}
+  m_PrefabInstance: {fileID: 3482954237576316533}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26545e1c7e150544dbf2a23839966ebf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &5311677284861487100 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8782914507463958921, guid: 3f2826cfba5539e43a93a85d4c2f0eba,
@@ -645,7 +662,7 @@ PrefabInstance:
     - target: {fileID: 4007039903007559668, guid: 737ba4b33014f3147b4888cf83356cb7,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4382016882902078798, guid: 737ba4b33014f3147b4888cf83356cb7,
         type: 3}
