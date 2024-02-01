@@ -9,19 +9,25 @@ public abstract class Weapon : NetworkBehaviour
     const int LEFT_MOUSE_BUTTON = 0;
     const int RIGHT_MOUSE_BUTTON = 1;
 
-    PlayerCamera playerCamera = null;
-
     [Header("General")]
-    [SerializeField] bool canADS = false;
-    bool aimedIn = false;
+    [SerializeField] bool canADS  = false;
+                     bool aimedIn = false;
+
     [SerializeField] float fireRate = 0.1f;
-    bool canFire = true;
+                     bool canFire   = true;
+
     [SerializeField] bool isAutomatic = false;
+
+    [SerializeField] float reloadTime = 1f;
+    [SerializeField] int ammo         = 30;
+                     int maxAmmo      = 30;
+                     bool reloading   = false;
+
     [SerializeField] int projectilesPerShot = 1;
 
-    [SerializeField] float bloomPerShotPercent = 0.1f;
-    [SerializeField] float recoilVerticalAmount = 0.1f;
-    [SerializeField] float recoilRecoveryRate = 0.1f;
+    [SerializeField] float bloomPerShotPercent    = 0.1f;
+    [SerializeField] float recoilVerticalAmount   = 0.1f;
+    [SerializeField] float recoilRecoveryRate     = 0.1f;
     [SerializeField] float recoilHorizontalAmount = 0.1f;
 
     [Header("Spawn Points")]
@@ -31,9 +37,10 @@ public abstract class Weapon : NetworkBehaviour
     [Header("Spawn Prefabs")]
     [SerializeField] Projectile projectilePrefab;
     [SerializeField] GameObject muzzleFlashPrefab;
-    Bloom bloom;
 
+    PlayerCamera playerCamera;
     Crosshair crosshair;
+    Bloom bloom;
 
     protected abstract void OnFire();
 
@@ -49,6 +56,7 @@ public abstract class Weapon : NetworkBehaviour
     {
         if (!IsOwner) return;
 
+        maxAmmo = ammo;
         playerCamera = transform.root.GetComponentInChildren<PlayerCamera>();
         crosshair = FindObjectOfType<Crosshair>(true);
         bloom = GetComponent<Bloom>();
@@ -58,6 +66,9 @@ public abstract class Weapon : NetworkBehaviour
     protected virtual void Update()
     {
         if (!IsOwner) return;
+
+        CheckReload();
+        if (reloading) return;
 
         CheckAim();
 
@@ -74,6 +85,24 @@ public abstract class Weapon : NetworkBehaviour
                 CalculateBloom();
             }
         }
+    }
+
+    private void CheckReload()
+    {
+        if (reloading) return;
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            reloading = true;
+            StartCoroutine(Reload());
+        }
+    }
+
+    IEnumerator Reload()
+    {
+        yield return new WaitForSeconds(1f);
+        reloading = false;
+        ammo = maxAmmo;
     }
 
     private void CheckAim()
@@ -93,6 +122,7 @@ public abstract class Weapon : NetworkBehaviour
     private bool CheckIsFiring()
     {
         if (!canFire) return false;
+        if (ammo <= 0) return false;
 
         if (isAutomatic && Input.GetMouseButton(LEFT_MOUSE_BUTTON))
         {
@@ -108,6 +138,7 @@ public abstract class Weapon : NetworkBehaviour
 
     private void Fire()
     {
+        ammo--;
         for (int i = 0; i < projectilesPerShot; i++)
         {
             Vector3 direction = firePoint.forward;

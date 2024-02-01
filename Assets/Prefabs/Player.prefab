@@ -129,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1429631593
+  GlobalObjectIdHash: 231512293
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -523,6 +523,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3715245922539469345, guid: 3f2826cfba5539e43a93a85d4c2f0eba,
         type: 3}
+      propertyPath: ammo
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3715245922539469345, guid: 3f2826cfba5539e43a93a85d4c2f0eba,
+        type: 3}
       propertyPath: firePoint
       value: 
       objectReference: {fileID: 8593457842578009674}
@@ -713,6 +718,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1979593788166222937}
     m_Modifications:
+    - target: {fileID: 365495634958848830, guid: 737ba4b33014f3147b4888cf83356cb7,
+        type: 3}
+      propertyPath: ammo
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 365495634958848830, guid: 737ba4b33014f3147b4888cf83356cb7,
         type: 3}
       propertyPath: fireRate
