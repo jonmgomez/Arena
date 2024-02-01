@@ -129,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 231512293
+  GlobalObjectIdHash: 1429631593
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -523,8 +523,23 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3715245922539469345, guid: 3f2826cfba5539e43a93a85d4c2f0eba,
         type: 3}
+      propertyPath: Ammo
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3715245922539469345, guid: 3f2826cfba5539e43a93a85d4c2f0eba,
+        type: 3}
       propertyPath: ammo
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3715245922539469345, guid: 3f2826cfba5539e43a93a85d4c2f0eba,
+        type: 3}
+      propertyPath: CanADS
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3715245922539469345, guid: 3f2826cfba5539e43a93a85d4c2f0eba,
+        type: 3}
+      propertyPath: FireRate
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 3715245922539469345, guid: 3f2826cfba5539e43a93a85d4c2f0eba,
         type: 3}
@@ -629,9 +644,24 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3106470935876638377, guid: f5ca93d4be1e5cb44ac11d72fc797c0d,
         type: 3}
+      propertyPath: CanADS
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3106470935876638377, guid: f5ca93d4be1e5cb44ac11d72fc797c0d,
+        type: 3}
+      propertyPath: FireRate
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 3106470935876638377, guid: f5ca93d4be1e5cb44ac11d72fc797c0d,
+        type: 3}
       propertyPath: firePoint
       value: 
       objectReference: {fileID: 8593457842578009674}
+    - target: {fileID: 3106470935876638377, guid: f5ca93d4be1e5cb44ac11d72fc797c0d,
+        type: 3}
+      propertyPath: IsAutomatic
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8494765557294680079, guid: f5ca93d4be1e5cb44ac11d72fc797c0d,
         type: 3}
       propertyPath: m_Name
@@ -720,8 +750,23 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 365495634958848830, guid: 737ba4b33014f3147b4888cf83356cb7,
         type: 3}
+      propertyPath: Ammo
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 365495634958848830, guid: 737ba4b33014f3147b4888cf83356cb7,
+        type: 3}
       propertyPath: ammo
       value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 365495634958848830, guid: 737ba4b33014f3147b4888cf83356cb7,
+        type: 3}
+      propertyPath: CanADS
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 365495634958848830, guid: 737ba4b33014f3147b4888cf83356cb7,
+        type: 3}
+      propertyPath: FireRate
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 365495634958848830, guid: 737ba4b33014f3147b4888cf83356cb7,
         type: 3}

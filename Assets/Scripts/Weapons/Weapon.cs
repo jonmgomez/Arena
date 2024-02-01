@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -7,28 +8,27 @@ using UnityEngine;
 public abstract class Weapon : NetworkBehaviour
 {
     const int LEFT_MOUSE_BUTTON = 0;
-    const int RIGHT_MOUSE_BUTTON = 1;
+
+    WeaponState currentState;
 
     [Header("General")]
-    [SerializeField] bool canADS  = false;
-                     bool aimedIn = false;
+    public bool CanADS = false;
+    public float FireRate = 0.1f;
+    public bool IsAutomatic = false;
+    [NonSerialized] public bool AimedIn = false;
+    [NonSerialized] public bool AttemptingFire = false;
 
-    [SerializeField] float fireRate = 0.1f;
-                     bool canFire   = true;
-
-    [SerializeField] bool isAutomatic = false;
-
-    [SerializeField] float reloadTime = 1f;
-    [SerializeField] int ammo         = 30;
-                     int maxAmmo      = 30;
-                     bool reloading   = false;
+    public float ReloadTime = 1f;
+    public float AutoReloadDelay = 0.5f;
+    public int   Ammo       = 30;
+    [NonSerialized] public int MaxAmmo = 30;
 
     [SerializeField] int projectilesPerShot = 1;
 
-    [SerializeField] float bloomPerShotPercent    = 0.1f;
-    [SerializeField] float recoilVerticalAmount   = 0.1f;
-    [SerializeField] float recoilRecoveryRate     = 0.1f;
-    [SerializeField] float recoilHorizontalAmount = 0.1f;
+    public float BloomPerShotPercent    = 0.1f;
+    public float RecoilVerticalAmount   = 0.1f;
+    public float RecoilRecoveryRate     = 0.1f;
+    public float RecoilHorizontalAmount = 0.1f;
 
     [Header("Spawn Points")]
     [SerializeField] protected Transform firePoint;
@@ -38,11 +38,18 @@ public abstract class Weapon : NetworkBehaviour
     [SerializeField] Projectile projectilePrefab;
     [SerializeField] GameObject muzzleFlashPrefab;
 
-    PlayerCamera playerCamera;
-    Crosshair crosshair;
-    Bloom bloom;
+    [NonSerialized] public PlayerCamera PlayerCamera;
+    [NonSerialized] public Crosshair Crosshair;
+    [NonSerialized] public Bloom Bloom;
 
     protected abstract void OnFire();
+
+    public void SetState(WeaponState state)
+    {
+        currentState.OnStateExit();
+        currentState = state;
+        currentState.OnStateEnter();
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -56,10 +63,13 @@ public abstract class Weapon : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        maxAmmo = ammo;
-        playerCamera = transform.root.GetComponentInChildren<PlayerCamera>();
-        crosshair = FindObjectOfType<Crosshair>(true);
-        bloom = GetComponent<Bloom>();
+        MaxAmmo = Ammo;
+        PlayerCamera = transform.root.GetComponentInChildren<PlayerCamera>();
+        Crosshair = FindObjectOfType<Crosshair>(true);
+        Bloom = GetComponent<Bloom>();
+
+        currentState = new WeaponReadyState(this);
+        currentState.OnStateEnter();
     }
 
     // Update is called once per frame
@@ -67,112 +77,27 @@ public abstract class Weapon : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        CheckReload();
-        if (reloading) return;
+        AttemptingFire = IsAutomatic && Input.GetMouseButton(LEFT_MOUSE_BUTTON) ||
+                         !IsAutomatic && Input.GetMouseButtonDown(LEFT_MOUSE_BUTTON);
 
-        CheckAim();
-
-        if (CheckIsFiring())
-        {
-            if (fireRate > 0)
-                StartCoroutine(FireRateCooldown());
-
-            Fire();
-
-            if (!IsAimedIn())
-            {
-                CalculateRecoil();
-                CalculateBloom();
-            }
-        }
+        //Debug.Log(currentState);
+        currentState.Update();
     }
 
-    private void CheckReload()
+    public void Fire()
     {
-        if (reloading) return;
-
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            reloading = true;
-            StartCoroutine(Reload());
-        }
-    }
-
-    IEnumerator Reload()
-    {
-        yield return new WaitForSeconds(1f);
-        reloading = false;
-        ammo = maxAmmo;
-    }
-
-    private void CheckAim()
-    {
-        if (!canADS) return;
-
-        if (Input.GetMouseButtonDown(RIGHT_MOUSE_BUTTON))
-        {
-            aimedIn = true;
-        }
-        else if (Input.GetMouseButtonUp(RIGHT_MOUSE_BUTTON))
-        {
-            aimedIn = false;
-        }
-    }
-
-    private bool CheckIsFiring()
-    {
-        if (!canFire) return false;
-        if (ammo <= 0) return false;
-
-        if (isAutomatic && Input.GetMouseButton(LEFT_MOUSE_BUTTON))
-        {
-            return true;
-        }
-        else if (!isAutomatic && Input.GetMouseButtonDown(LEFT_MOUSE_BUTTON))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    private void Fire()
-    {
-        ammo--;
         for (int i = 0; i < projectilesPerShot; i++)
         {
             Vector3 direction = firePoint.forward;
-            if (!IsAimedIn())
+            if (!AimedIn)
             {
-                direction = bloom.AdjustForBloom(direction);
+                direction = Bloom.AdjustForBloom(direction);
             }
 
             SpawnProjectileNetworked(firePoint.position, direction, OwnerClientId);
         }
 
         OnFire();
-    }
-
-    private void CalculateRecoil()
-    {
-        float x = Random.Range(-recoilHorizontalAmount, recoilHorizontalAmount);
-        float y = recoilVerticalAmount;
-        playerCamera.Rotate(x, y);
-    }
-
-    private void CalculateBloom()
-    {
-        crosshair.Bloom(bloomPerShotPercent);
-        bloom.AddBloom(bloomPerShotPercent);
-    }
-
-    public bool IsAimedIn() => aimedIn;
-
-    IEnumerator FireRateCooldown()
-    {
-        canFire = false;
-        yield return new WaitForSeconds(fireRate);
-        canFire = true;
     }
 
     #region "Projectile Spawning"
