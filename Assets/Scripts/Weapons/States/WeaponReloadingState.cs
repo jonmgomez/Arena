@@ -10,7 +10,6 @@ public class WeaponReloadingState : WeaponState
 
     public override void OnStateEnter()
     {
-        Debug.Log("Reloading...");
         weapon.StartCoroutine(Reload());
     }
 

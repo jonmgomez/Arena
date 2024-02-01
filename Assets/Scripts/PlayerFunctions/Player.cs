@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Multiplayer.Samples.Utilities.ClientAuthority;
@@ -29,7 +30,8 @@ public class Player : NetworkBehaviour
     CharacterController characterController;
     PlayerMovement playerMovement;
     PlayerWeapon playerWeapon;
-    [SerializeField]  PlayerCamera playerCamera;
+    [NonSerialized] public PlayerHUD HUD;
+    [SerializeField] PlayerCamera playerCamera;
 
     // Necessary to prevent regen coroutine from running multiple times. Only using the method name does not work
     Coroutine regenHealthCoroutine = null;
@@ -49,13 +51,15 @@ public class Player : NetworkBehaviour
         if (!IsOwner)
             return;
 
+        HUD = FindObjectOfType<PlayerHUD>(true);
+        HUD.gameObject.SetActive(true);
+
         clientSideHealth = health;
         maxHealth = health;
 
         Volume volume = FindObjectOfType<Volume>();
         volume.profile.TryGet<Vignette>(out vignette);
         vignette.intensity.value = 0f;
-
     }
 
     void Update()

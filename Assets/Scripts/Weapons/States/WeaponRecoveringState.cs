@@ -26,6 +26,11 @@ public class WeaponRecoveringState : WeaponState
     public override void Update()
     {
         CheckAim();
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            weapon.SetState(new WeaponReloadingState(weapon));
+        }
     }
 
     IEnumerator AutoReloadDelay()

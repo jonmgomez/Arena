@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class PlayerWeapon : NetworkBehaviour
 {
+    Player player;
     [SerializeField] Weapon activeWeapon;
     [SerializeField] Weapon mainWeapon;
     [SerializeField] Weapon sideWeapon;
@@ -13,6 +14,8 @@ public class PlayerWeapon : NetworkBehaviour
 
     void Start()
     {
+        // Disable all weapons except the active weapon
+        // Includes all non-owner clients
         foreach (var weapon in allWeapons)
         {
             if (weapon != activeWeapon)
@@ -26,6 +29,10 @@ public class PlayerWeapon : NetworkBehaviour
             enabled = false;
             return;
         }
+
+        player = GetComponent<Player>();
+        player.HUD.UpdateWeapon(activeWeapon.Name, activeWeapon.Ammo, activeWeapon.MaxAmmo);
+        activeWeapon.OnAmmoChanged += (ammo) => player.HUD.UpdateCurrentAmmo(ammo);
 
         crosshair = FindObjectOfType<Crosshair>(true);
         crosshair.gameObject.SetActive(true);
@@ -95,9 +102,14 @@ public class PlayerWeapon : NetworkBehaviour
     {
         if (activeWeapon == weapon) return;
 
+        activeWeapon.OnAmmoChanged -= (ammo) => player.HUD.UpdateCurrentAmmo(ammo);
+
         activeWeapon.gameObject.SetActive(false);
         activeWeapon = weapon;
         activeWeapon.gameObject.SetActive(true);
+
+        player.HUD.UpdateWeapon(weapon.Name, weapon.Ammo, weapon.MaxAmmo);
+        activeWeapon.OnAmmoChanged += (ammo) => player.HUD.UpdateCurrentAmmo(ammo);
     }
 
     [ServerRpc(RequireOwnership = false)]

@@ -11,6 +11,11 @@ public class Pistol : Weapon
     Quaternion idleRotation;
     Quaternion recoilTargetRotation;
 
+    protected override void Awake()
+    {
+        base.Awake();
+    }
+
     protected override void Start()
     {
         if (!IsOwner) return;

@@ -9,9 +9,12 @@ public abstract class Weapon : NetworkBehaviour
 {
     const int LEFT_MOUSE_BUTTON = 0;
 
+    public event Action<int> OnAmmoChanged;
+
     WeaponState currentState;
 
     [Header("General")]
+    public string Name = "Weapon";
     public bool CanADS = false;
     public float FireRate = 0.1f;
     public bool IsAutomatic = false;
@@ -20,7 +23,8 @@ public abstract class Weapon : NetworkBehaviour
 
     public float ReloadTime = 1f;
     public float AutoReloadDelay = 0.5f;
-    public int   Ammo       = 30;
+    [SerializeField] private int ammo = 0;
+                     public int Ammo { get => ammo; set { ammo = value; OnAmmoChanged?.Invoke(ammo); } }
     [NonSerialized] public int MaxAmmo = 30;
 
     [SerializeField] int projectilesPerShot = 1;
@@ -59,11 +63,16 @@ public abstract class Weapon : NetworkBehaviour
         }
     }
 
+    protected virtual void Awake()
+    {
+        // Seems that network variables are not set by this point so be aware of what goes in Awake!
+        MaxAmmo = Ammo;
+    }
+
     protected virtual void Start()
     {
         if (!IsOwner) return;
 
-        MaxAmmo = Ammo;
         PlayerCamera = transform.root.GetComponentInChildren<PlayerCamera>();
         Crosshair = FindObjectOfType<Crosshair>(true);
         Bloom = GetComponent<Bloom>();
@@ -80,7 +89,6 @@ public abstract class Weapon : NetworkBehaviour
         AttemptingFire = IsAutomatic && Input.GetMouseButton(LEFT_MOUSE_BUTTON) ||
                          !IsAutomatic && Input.GetMouseButtonDown(LEFT_MOUSE_BUTTON);
 
-        //Debug.Log(currentState);
         currentState.Update();
     }
 

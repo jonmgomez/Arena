@@ -39,7 +39,6 @@ public class WeaponReadyState : WeaponState
     {
         if (weapon.AttemptingFire)
         {
-            Debug.Log("Firing...");
             weapon.Ammo--;
 
             // This needs to be delegated to the weapon itself due to networked firing
@@ -60,6 +59,7 @@ public class WeaponReadyState : WeaponState
 
     private void CalculateRecoil()
     {
+        // TODO: Recoil should come back down after a certain amount of time
         float x = Random.Range(-weapon.RecoilHorizontalAmount, weapon.RecoilHorizontalAmount);
         float y = weapon.RecoilVerticalAmount;
         weapon.PlayerCamera.Rotate(x, y);
