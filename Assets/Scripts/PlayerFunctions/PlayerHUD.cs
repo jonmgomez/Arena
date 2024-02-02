@@ -7,17 +7,27 @@ public class PlayerHUD : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI weaponNameText;
     [SerializeField] TextMeshProUGUI ammoText;
-    [SerializeField] TextMeshProUGUI maxAmmoText;
+
+    int currentAmmo;
+    int maxAmmo;
 
     public void UpdateCurrentAmmo(int ammo)
     {
-        ammoText.text = ammo.ToString();
+        currentAmmo = ammo;
+        ammoText.text = GetAmmoString();
     }
 
     public void UpdateWeapon(string weaponName, int ammo, int maxAmmo)
     {
+        currentAmmo = ammo;
+        this.maxAmmo = maxAmmo;
+
         weaponNameText.text = weaponName;
-        ammoText.text = ammo.ToString();
-        maxAmmoText.text = maxAmmo.ToString();
+        ammoText.text = GetAmmoString();
+    }
+
+    private string GetAmmoString()
+    {
+        return currentAmmo + " / " + maxAmmo;
     }
 }

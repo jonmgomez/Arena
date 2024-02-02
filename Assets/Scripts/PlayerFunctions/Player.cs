@@ -14,6 +14,8 @@ public class Player : NetworkBehaviour
 
     bool isDead = false;
 
+    public Type type = typeof(Player);
+
     [SerializeField] float health = 100f;
     // Internal variable to track health on the client before the server has a chance to update it
     float clientSideHealth = 100f;
