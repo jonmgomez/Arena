@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class PlayerCamera : NetworkBehaviour
 {
-    public readonly float xSenstivity = 2.5f;
-    public readonly float ySenstivity = 2.5f;
+    public readonly float xSensitivity = 2.5f;
+    public readonly float ySensitivity = 2.5f;
 
     [SerializeField] Transform player;
     [SerializeField] Transform playerChildRotation;
@@ -61,8 +61,8 @@ public class PlayerCamera : NetworkBehaviour
         if (mouseFree)
             return;
 
-        float mouseX = Input.GetAxisRaw("Mouse X") * xSenstivity;
-        float mouseY = Input.GetAxisRaw("Mouse Y") * ySenstivity;
+        float mouseX = Input.GetAxisRaw("Mouse X") * xSensitivity;
+        float mouseY = Input.GetAxisRaw("Mouse Y") * ySensitivity;
 
         Rotate(mouseX, mouseY);
     }
