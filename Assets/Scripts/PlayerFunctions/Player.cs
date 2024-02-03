@@ -35,6 +35,9 @@ public class Player : NetworkBehaviour
     [NonSerialized] public PlayerHUD HUD;
     [SerializeField] PlayerCamera playerCamera;
 
+    [SerializeField] GameObject thirdPersonMesh;
+    [SerializeField] GameObject firstPersonMesh;
+
     // Necessary to prevent regen coroutine from running multiple times. Only using the method name does not work
     Coroutine regenHealthCoroutine = null;
 
@@ -42,6 +45,15 @@ public class Player : NetworkBehaviour
     {
         if (IsServer)
             PlayerSpawnController.Instance.RegisterPlayer(this);
+
+        if (IsOwner)
+        {
+            thirdPersonMesh.SetActive(false);
+        }
+        else
+        {
+            firstPersonMesh.SetActive(false);
+        }
     }
 
     void Start()
