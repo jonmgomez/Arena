@@ -12,6 +12,7 @@ public abstract class Weapon : NetworkBehaviour
     public event Action<int> OnAmmoChanged;
 
     WeaponState currentState;
+    WeaponRecoil recoilController;
 
     [Header("General")]
     public string Name = "Weapon";
@@ -73,6 +74,7 @@ public abstract class Weapon : NetworkBehaviour
     {
         if (!IsOwner) return;
 
+        recoilController = GetComponent<WeaponRecoil>();
         PlayerCamera = transform.root.GetComponentInChildren<PlayerCamera>();
         Crosshair = FindObjectOfType<Crosshair>(true);
         Bloom = GetComponent<Bloom>();
@@ -104,6 +106,9 @@ public abstract class Weapon : NetworkBehaviour
 
             SpawnProjectileNetworked(firePoint.position, direction, OwnerClientId);
         }
+
+        if (recoilController != null)
+            recoilController.CalculateRecoil();
 
         OnFire();
     }
@@ -145,4 +150,6 @@ public abstract class Weapon : NetworkBehaviour
         var obj = Instantiate(muzzleFlashPrefab, muzzle.position, firePoint.rotation);
         obj.transform.parent = muzzle;
     }
+
+    public float GetFireRate() => FireRate;
 }

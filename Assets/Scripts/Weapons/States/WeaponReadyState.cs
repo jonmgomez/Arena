@@ -47,8 +47,8 @@ public class WeaponReadyState : WeaponState
             if (!weapon.AimedIn)
             {
                 CalculateBloom();
-                CalculateRecoil();
             }
+            //CalculateRecoil();
 
             if (weapon.FireRate > 0)
             {
