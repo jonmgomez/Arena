@@ -7,6 +7,8 @@ public class WeaponRecoil : MonoBehaviour
 {
     const float MAX_ROTATION = 360f;
 
+    const float MAX_Y_ROTATION = 180f;
+
     Weapon weapon;
     PlayerCamera playerCamera;
 
@@ -18,6 +20,8 @@ public class WeaponRecoil : MonoBehaviour
 
     [SerializeField] private float cameraRecoilRecoverySpeed = 1;
     [SerializeField] private float cameraRecoilRecoveryDelay = 0.1f;
+    [Tooltip("When the player adjusts for recoil and goes further than the added recoil, the camera will pull down this amount at minimum")]
+    [SerializeField] private float minimumVerticalRecoveryDegrees = 0.1f;
     private bool recovering = false;
     Vector2 currentRecoilingOffset = Vector2.zero;
 
@@ -37,6 +41,7 @@ public class WeaponRecoil : MonoBehaviour
     {
         weapon = GetComponent<Weapon>();
         playerCamera = transform.root.GetComponentInChildren<PlayerCamera>();
+        playerCamera.OnRotate += CameraRotated;
 
         bulletsInterval = weapon.GetFireRate() + 0.1f;
         maxBullets = weapon.MaxAmmo;
@@ -53,7 +58,7 @@ public class WeaponRecoil : MonoBehaviour
             recoveryRotation.x = Mathf.Clamp(recoveryRotation.x, 0f, Mathf.Abs(currentRecoilingOffset.x)) * Mathf.Sign(currentRecoilingOffset.x);
             recoveryRotation.y = -Mathf.Clamp(recoveryRotation.y, 0f, Mathf.Abs(currentRecoilingOffset.y)); // Should always be negative
 
-            playerCamera.Rotate(recoveryRotation.x, recoveryRotation.y);
+            playerCamera.Rotate(recoveryRotation.x, recoveryRotation.y, false);
 
             if (recoveryRotation.x == currentRecoilingOffset.x && recoveryRotation.y == currentRecoilingOffset.y)
             {
@@ -65,6 +70,18 @@ public class WeaponRecoil : MonoBehaviour
             {
                 currentRecoilingOffset -= recoveryRotation;
             }
+        }
+    }
+
+    private void CameraRotated(float x, float y)
+    {
+        if (currentRecoilingOffset.x == 0 && currentRecoilingOffset.y == 0)
+            return;
+
+        if (y < 0)
+        {
+            currentRecoilingOffset.y -= y;
+            currentRecoilingOffset.y = Mathf.Clamp(currentRecoilingOffset.y, -MAX_Y_ROTATION, -minimumVerticalRecoveryDegrees);
         }
     }
 
@@ -102,7 +119,7 @@ public class WeaponRecoil : MonoBehaviour
         }
 
         Vector3 oldRotation = playerCamera.transform.rotation.eulerAngles;
-        playerCamera.Rotate(recoilHorizontal, recoilVertical);
+        playerCamera.Rotate(recoilHorizontal, recoilVertical, false);
         Vector3 newRotation = playerCamera.transform.rotation.eulerAngles;
 
         // Account for the situation in which rotation wraps around 360 degrees

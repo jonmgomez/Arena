@@ -797,6 +797,7 @@ MonoBehaviour:
   verticalMaximum: 1.5
   cameraRecoilRecoverySpeed: 50
   cameraRecoilRecoveryDelay: 0.1
+  minimumVerticalRecoveryDegrees: 0.05
   weakenRecoilOverTime: 1
   horizontalContinuousFireMinimumScaler: 0.1
   verticalContinuousFireMinimumScaler: 0.3
@@ -1015,6 +1016,7 @@ MonoBehaviour:
   verticalMaximum: 0.1
   cameraRecoilRecoverySpeed: 1
   cameraRecoilRecoveryDelay: 0.1
+  minimumVerticalRecoveryDegrees: 0.1
   weakenRecoilOverTime: 1
   horizontalContinuousFireMinimumScaler: 0.1
   verticalContinuousFireMinimumScaler: 0.1

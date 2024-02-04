@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -15,6 +16,9 @@ public class PlayerCamera : NetworkBehaviour
     float yRotation;
 
     bool mouseFree = false;
+
+    // Triggered when the camera is rotated with either x or y value != 0.
+    public event Action<float, float> OnRotate;
 
     Camera cam;
     AudioListener audioListener;
@@ -82,7 +86,7 @@ public class PlayerCamera : NetworkBehaviour
     /// </summary>
     /// <param name="x">Degrees to rotate left or right</param>
     /// <param name="y">Degrees to rotate up or down</param>
-    public void Rotate(float x, float y)
+    public void Rotate(float x, float y, bool triggerEvent = true)
     {
         yRotation += x;
         xRotation -= y;
@@ -91,5 +95,8 @@ public class PlayerCamera : NetworkBehaviour
         transform.localRotation = Quaternion.Euler(xRotation, transform.localRotation.y, 0);
         player.rotation = Quaternion.Euler(0, yRotation, 0);
         playerChildRotation.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+
+        if ((x != 0 || y != 0) && triggerEvent)
+            OnRotate?.Invoke(x, y);
     }
 }
