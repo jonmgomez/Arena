@@ -76,13 +76,19 @@ public class PlayerCamera : NetworkBehaviour
         defaultAudioListener.enabled = !enabled;
     }
 
+    /// <summary>
+    /// Rotate the camera.
+    /// <para>NOTE: X indicates the rotation around the Y axis (left and right), and Y indicates the rotation around the X axis (up and down).</para>
+    /// </summary>
+    /// <param name="x">Degrees to rotate left or right</param>
+    /// <param name="y">Degrees to rotate up or down</param>
     public void Rotate(float x, float y)
     {
         yRotation += x;
         xRotation -= y;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+        transform.localRotation = Quaternion.Euler(xRotation, transform.localRotation.y, 0);
         player.rotation = Quaternion.Euler(0, yRotation, 0);
         playerChildRotation.rotation = Quaternion.Euler(xRotation, yRotation, 0);
     }

@@ -131,7 +131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 231512293
+  GlobalObjectIdHash: 1429631593
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -217,9 +217,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ef7cf0de0fd2bd47895e348cc844993, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activeWeapon: {fileID: 8384824737049720004}
+  activeWeapon: {fileID: 1437470517621664997}
   mainWeapon: {fileID: 277749932407094356}
-  sideWeapon: {fileID: 8384824737049720004}
+  sideWeapon: {fileID: 1437470517621664997}
   allWeapons:
   - {fileID: 8384824737049720004}
   - {fileID: 277749932407094356}
@@ -791,10 +791,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfa53933f744cd24ebb498116c5a7c3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  horizontalMinimum: -0.1
-  horizontalMaximum: 0.1
+  horizontalMinimum: -0.3
+  horizontalMaximum: 0.3
   verticalMinimum: 1.1
-  verticalMaximum: 1.3
+  verticalMaximum: 1.5
+  cameraRecoilRecoverySpeed: 50
+  cameraRecoilRecoveryDelay: 0.1
   weakenRecoilOverTime: 1
   horizontalContinuousFireMinimumScaler: 0.1
   verticalContinuousFireMinimumScaler: 0.3
@@ -1011,6 +1013,8 @@ MonoBehaviour:
   horizontalMaximum: 0.1
   verticalMinimum: 0.1
   verticalMaximum: 0.1
+  cameraRecoilRecoverySpeed: 1
+  cameraRecoilRecoveryDelay: 0.1
   weakenRecoilOverTime: 1
   horizontalContinuousFireMinimumScaler: 0.1
   verticalContinuousFireMinimumScaler: 0.1

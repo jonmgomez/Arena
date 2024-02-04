@@ -5,13 +5,21 @@ using UnityEngine;
 
 public class WeaponRecoil : MonoBehaviour
 {
+    const float MAX_ROTATION = 360f;
+
     Weapon weapon;
     PlayerCamera playerCamera;
 
+    [Header("Base Recoil")]
     [Range(-3f, 0f)] [SerializeField] private float horizontalMinimum = -0.2f;
     [Range(0f,  3f)] [SerializeField] private float horizontalMaximum = 0.4f;
     [Range(0f,  3f)] [SerializeField] private float verticalMinimum   = 0.2f;
     [Range(0f,  3f)] [SerializeField] private float verticalMaximum   = 0.4f;
+
+    [SerializeField] private float cameraRecoilRecoverySpeed = 1;
+    [SerializeField] private float cameraRecoilRecoveryDelay = 0.1f;
+    private bool recovering = false;
+    Vector2 currentRecoilingOffset = Vector2.zero;
 
     [Header("Continuous Fire Weakens Recoil")]
     [SerializeField] private bool weakenRecoilOverTime = true;
@@ -22,6 +30,8 @@ public class WeaponRecoil : MonoBehaviour
     private int bulletsFired = 0;
     private float bulletsTimer = 0;
     private float bulletsInterval = 0f;
+
+    Coroutine recoverCoroutine;
 
     private void Start()
     {
@@ -35,6 +45,27 @@ public class WeaponRecoil : MonoBehaviour
     private void Update()
     {
         bulletsTimer -= Time.deltaTime;
+
+        if (recovering)
+        {
+            Vector2 recoveryRotation = Vector2.one * (cameraRecoilRecoverySpeed * Time.deltaTime);
+
+            recoveryRotation.x = Mathf.Clamp(recoveryRotation.x, 0f, Mathf.Abs(currentRecoilingOffset.x)) * Mathf.Sign(currentRecoilingOffset.x);
+            recoveryRotation.y = -Mathf.Clamp(recoveryRotation.y, 0f, Mathf.Abs(currentRecoilingOffset.y)); // Should always be negative
+
+            playerCamera.Rotate(recoveryRotation.x, recoveryRotation.y);
+
+            if (recoveryRotation.x == currentRecoilingOffset.x && recoveryRotation.y == currentRecoilingOffset.y)
+            {
+                recovering = false;
+                currentRecoilingOffset = Vector2.zero;
+                recoveryRotation = Vector2.zero;
+            }
+            else
+            {
+                currentRecoilingOffset -= recoveryRotation;
+            }
+        }
     }
 
     private void CountBulletsFired()
@@ -66,11 +97,47 @@ public class WeaponRecoil : MonoBehaviour
 
             recoilHorizontal *= horizontalScaler;
             recoilVertical *= verticalScaler;
+
+            bulletsTimer = bulletsInterval;
         }
 
+        Vector3 oldRotation = playerCamera.transform.rotation.eulerAngles;
         playerCamera.Rotate(recoilHorizontal, recoilVertical);
+        Vector3 newRotation = playerCamera.transform.rotation.eulerAngles;
 
-        bulletsTimer = bulletsInterval;
-        // StartCoroutine(RecoverFromRecoil());
+        // Account for the situation in which rotation wraps around 360 degrees
+        if (recoilHorizontal > 0 && oldRotation.y > newRotation.y)
+        {
+            currentRecoilingOffset.x -= MAX_ROTATION - oldRotation.y + newRotation.y;
+        }
+        else if (recoilHorizontal < 0 && oldRotation.y < newRotation.y)
+        {
+            currentRecoilingOffset.x += MAX_ROTATION - newRotation.y + oldRotation.y;
+        }
+        else
+        {
+            currentRecoilingOffset.x -= newRotation.y - oldRotation.y;
+        }
+
+        // Unsure why this occurs, but sometimes when vertical recoil is 0, the measured rotation difference here is an epsilon value.
+        // This at leasts prevents a 360 degree recoil from being applied when it occurs. Does not seem to happen on the x rotation either.
+        // Strange behavior
+        if (oldRotation.x < newRotation.x - Mathf.Epsilon)
+        {
+            currentRecoilingOffset.y -= MAX_ROTATION - newRotation.x + oldRotation.x;
+        }
+        else
+        {
+            currentRecoilingOffset.y -= oldRotation.x - newRotation.x;
+        }
+
+        recoverCoroutine = this.RestartCoroutine(RecoverFromRecoil(), recoverCoroutine);
+    }
+
+    private IEnumerator RecoverFromRecoil()
+    {
+        recovering = false;
+        yield return new WaitForSeconds(cameraRecoilRecoveryDelay);
+        recovering = true;
     }
 }
