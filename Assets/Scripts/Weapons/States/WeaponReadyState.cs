@@ -48,21 +48,12 @@ public class WeaponReadyState : WeaponState
             {
                 CalculateBloom();
             }
-            //CalculateRecoil();
 
             if (weapon.FireRate > 0)
             {
                 weapon.SetState(new WeaponRecoveringState(weapon));
             }
         }
-    }
-
-    private void CalculateRecoil()
-    {
-        // TODO: Recoil should come back down after a certain amount of time
-        float x = Random.Range(-weapon.RecoilHorizontalAmount, weapon.RecoilHorizontalAmount);
-        float y = weapon.RecoilVerticalAmount;
-        weapon.PlayerCamera.Rotate(x, y);
     }
 
     private void CalculateBloom()

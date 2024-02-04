@@ -6,23 +6,24 @@ using UnityEngine;
 public class WeaponRecoil : MonoBehaviour
 {
     const float MAX_ROTATION = 360f;
-
     const float MAX_Y_ROTATION = 180f;
 
     Weapon weapon;
     PlayerCamera playerCamera;
 
     [Header("Base Recoil")]
-    [Range(-3f, 0f)] [SerializeField] private float horizontalMinimum = -0.2f;
+    [Range(-3f, 0f)] [SerializeField] private float horizontalMinimum = -0.2f; // Recoil can only be negative x for left and right. Must be positive for up
     [Range(0f,  3f)] [SerializeField] private float horizontalMaximum = 0.4f;
     [Range(0f,  3f)] [SerializeField] private float verticalMinimum   = 0.2f;
     [Range(0f,  3f)] [SerializeField] private float verticalMaximum   = 0.4f;
 
-    [SerializeField] private float cameraRecoilRecoverySpeed = 1;
+    [Header("Recoil Recovery")]
+    [SerializeField] private float cameraRecoilRecoverySpeed = 35;
     [SerializeField] private float cameraRecoilRecoveryDelay = 0.1f;
     [Tooltip("When the player adjusts for recoil and goes further than the added recoil, the camera will pull down this amount at minimum")]
-    [SerializeField] private float minimumVerticalRecoveryDegrees = 0.1f;
+    [SerializeField] private float minimumVerticalRecoveryDegrees = 0.05f;
     private bool recovering = false;
+    Coroutine recoverCoroutine = null;
     Vector2 currentRecoilingOffset = Vector2.zero;
 
     [Header("Continuous Fire Weakens Recoil")]
@@ -34,8 +35,6 @@ public class WeaponRecoil : MonoBehaviour
     private int bulletsFired = 0;
     private float bulletsTimer = 0;
     private float bulletsInterval = 0f;
-
-    Coroutine recoverCoroutine;
 
     private void Start()
     {

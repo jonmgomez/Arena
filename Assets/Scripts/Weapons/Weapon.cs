@@ -31,9 +31,6 @@ public abstract class Weapon : NetworkBehaviour
     [SerializeField] int projectilesPerShot = 1;
 
     public float BloomPerShotPercent    = 0.1f;
-    public float RecoilVerticalAmount   = 0.1f;
-    public float RecoilRecoveryRate     = 0.1f;
-    public float RecoilHorizontalAmount = 0.1f;
 
     [Header("Spawn Points")]
     [SerializeField] protected Transform firePoint;
