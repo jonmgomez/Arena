@@ -108,8 +108,11 @@ public class PlayerWeapon : NetworkBehaviour
         activeWeapon = weapon;
         activeWeapon.gameObject.SetActive(true);
 
-        player.HUD.UpdateWeapon(weapon.Name, weapon.Ammo, weapon.MaxAmmo);
-        activeWeapon.OnAmmoChanged += (ammo) => player.HUD.UpdateCurrentAmmo(ammo);
+        if (IsOwner)
+        {
+            player.HUD.UpdateWeapon(weapon.Name, weapon.Ammo, weapon.MaxAmmo);
+            activeWeapon.OnAmmoChanged += (ammo) => player.HUD.UpdateCurrentAmmo(ammo);
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]

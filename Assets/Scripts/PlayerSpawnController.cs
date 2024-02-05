@@ -10,23 +10,12 @@ public class PlayerSpawnController : NetworkBehaviour
     public static PlayerSpawnController Instance { get; private set; }
 
     List<Player> players = new List<Player>();
-    [SerializeField] GameObject playerPrefab;
+    [SerializeField] Player playerPrefab;
     [SerializeField] Transform[] spawnPoints;
     [SerializeField] float respawnDelay = 1f;
 
-    [SerializeField] GameObject screenCover;
-
     [Header("Debug")]
     [SerializeField] bool debugSingleSpawn = false;
-
-    public override void OnNetworkSpawn()
-    {
-        if (IsServer)
-        {
-            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnNetworkSceneLoadComplete;
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-        }
-    }
 
     void Awake()
     {
@@ -40,54 +29,19 @@ public class PlayerSpawnController : NetworkBehaviour
         Instance = this;
     }
 
-    void Start()
-    {
-        if (NetworkManager.Singleton != null && (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost))
-        {
-            screenCover.SetActive(true);
-        }
-    }
-
-    private void OnNetworkSceneLoadComplete(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
-    {
-        this.Invoke(() => {
-            foreach (ulong client in clientsCompleted)
-            {
-                SpawnNewPlayerPrefab(client);
-            }
-            GameLoadedClientRpc();
-
-            if (IsServer && !IsHost)
-                screenCover.SetActive(false);
-        }, 1f);
-    }
-
-    private void OnClientConnected(ulong clientId)
-    {
-        SpawnNewPlayerPrefab(clientId);
-    }
-
-    private void SpawnNewPlayerPrefab(ulong clientId)
+    public Player SpawnNewPlayerPrefab(ulong clientId)
     {
         Debug.Log($"[SERVER] Spawning player for client {clientId}");
-        GameObject playerObject = Instantiate(playerPrefab, GetSpawnPoint(), Quaternion.identity);
-        playerObject.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+        Player player = Instantiate(playerPrefab, GetSpawnPoint(), Quaternion.identity);
+        player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+
+        return player;
     }
 
-    [ClientRpc]
-    public void GameLoadedClientRpc()
-    {
-        screenCover.SetActive(false);
-    }
-
-    public void RegisterPlayer(Player player)
-    {
-        players.Add(player);
-    }
-
-    public void UnregisterPlayer(Player player)
+    public void DestroyPlayer(Player player)
     {
         players.Remove(player);
+        player.GetComponent<NetworkObject>().Despawn(true);
     }
 
     public void RespawnPlayer(Player player)
@@ -98,10 +52,11 @@ public class PlayerSpawnController : NetworkBehaviour
     IEnumerator RespawnPlayerAfterDelay(Player player)
     {
         yield return new WaitForSeconds(respawnDelay);
-        Debug.Log($"[SERVER] Respawning player {player.OwnerClientId}");
+
         Vector3 spawnPoint = GetSpawnPoint();
         spawnPoint.y += player.GetComponent<CharacterController>().height / 2f;
         player.RespawnOnServer(spawnPoint);
+        Debug.Log($"[SERVER] Respawning player {player.OwnerClientId} at {spawnPoint}");
     }
 
     private Vector3 GetSpawnPoint()

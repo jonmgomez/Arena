@@ -43,9 +43,6 @@ public class Player : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (IsServer)
-            PlayerSpawnController.Instance.RegisterPlayer(this);
-
         if (IsOwner)
         {
             thirdPersonMesh.SetActive(false);
@@ -62,6 +59,7 @@ public class Player : NetworkBehaviour
         characterController = GetComponent<CharacterController>();
         playerMovement = GetComponent<PlayerMovement>();
         playerWeapon = GetComponent<PlayerWeapon>();
+
         if (!IsOwner)
             return;
 
@@ -209,9 +207,9 @@ public class Player : NetworkBehaviour
             return;
 
         isDead = true;
-        clientNetworkTransform.enabled = false;
-        transform.position = OFF_SCREEN;
         characterController.enabled = false;
+        transform.position = OFF_SCREEN;
+        clientNetworkTransform.enabled = false;
 
         if (IsOwner) // Client specific references
         {

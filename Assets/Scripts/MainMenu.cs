@@ -68,7 +68,7 @@ public class MainMenu : MonoBehaviour
         });
 
         startButton.onClick.AddListener(() => {
-            NetworkManager.Singleton.SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
+            NetworkManager.Singleton.SceneManager.LoadScene("ArenaMain", LoadSceneMode.Single);
         });
     }
 
