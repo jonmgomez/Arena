@@ -24,7 +24,7 @@ public class RelayManager : MonoBehaviour
 
         AuthenticationService.Instance.SignedIn += () =>
         {
-            Debug.Log($"Signed in as {AuthenticationService.Instance.PlayerId}");
+            Logger.Log($"Signed in as {AuthenticationService.Instance.PlayerId}");
         };
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
     }
@@ -36,7 +36,7 @@ public class RelayManager : MonoBehaviour
             Allocation allocation =  await RelayService.Instance.CreateAllocationAsync(3);
 
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
-            Debug.Log($"[SERVER] Created relay with code {joinCode}");
+            Logger.Log($"[SERVER] Created relay with code {joinCode}");
 
             RelayServerData serverData = new(allocation, "dtls");
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(serverData);
@@ -50,7 +50,7 @@ public class RelayManager : MonoBehaviour
         }
         catch (RelayServiceException e)
         {
-            Debug.LogError(e);
+            Logger.LogError(e);
         }
     }
 
@@ -58,7 +58,7 @@ public class RelayManager : MonoBehaviour
     {
         try
         {
-            Debug.Log($"[CLIENT] Joining relay with code {joinCode}");
+            Logger.Log($"[CLIENT] Joining relay with code {joinCode}");
             JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
 
             RelayServerData serverData = new(joinAllocation, "dtls");
@@ -67,7 +67,7 @@ public class RelayManager : MonoBehaviour
         }
         catch (RelayServiceException e)
         {
-            Debug.LogError(e);
+            Logger.LogError(e);
         }
     }
 

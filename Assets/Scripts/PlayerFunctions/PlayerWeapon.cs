@@ -95,7 +95,7 @@ public class PlayerWeapon : NetworkBehaviour
         if (weaponIndex != -1)
             SetActiveWeaponServerRpc(weaponIndex);
         else
-            Debug.LogError("Weapon not found!");
+            Logger.LogError("Weapon not found!");
     }
 
     private void SetActiveWeapon(Weapon weapon)

@@ -44,7 +44,7 @@ public class GameState : NetworkBehaviour
         }
         else
         {
-            Debug.LogError("NetworkManager.Singleton is null!");
+            Logger.LogError("NetworkManager.Singleton is null!");
         }
     }
 
@@ -87,7 +87,7 @@ public class GameState : NetworkBehaviour
     private void OnClientConnected(ulong clientId)
     {
         bool selfConnected = clientId == NetworkManager.Singleton.LocalClientId;
-        Debug.Log($"Client [{clientId}] " + (selfConnected ? "(Self) " : "") + "connected");
+        Logger.Log($"Client [{clientId}] " + (selfConnected ? "(Self) " : "") + "connected");
 
         RegisterPlayer(clientId);
 
@@ -113,7 +113,7 @@ public class GameState : NetworkBehaviour
                         SetClientNameClientRpc(connectedClients[i].clientId, connectedClients[i].clientName, clientParams);
                     }
                 }
-                Debug.Log($"Client [{clientId}] connected. Syncing all {connectedClients.Count} current clients: \n{clientsToSync}");
+                Logger.Log($"Client [{clientId}] connected. Syncing all {connectedClients.Count} current clients: \n{clientsToSync}");
 
             }
             else
@@ -125,14 +125,14 @@ public class GameState : NetworkBehaviour
         }
         else if (selfConnected)
         {
-            Debug.Log($"Sending initial setup request to server with name {thisClientName}");
+            Logger.Log($"Sending initial setup request to server with name {thisClientName}");
             SyncNewClientToServerRpc(clientId, thisClientName);
         }
     }
 
     private void OnClientDisconnected(ulong clientId)
     {
-        Debug.Log($"Client [{clientId}] disconnected");
+        Logger.Log($"Client [{clientId}] disconnected");
         UnregisterPlayer(clientId);
 
         if (IsServer)
@@ -144,7 +144,7 @@ public class GameState : NetworkBehaviour
     [ClientRpc]
     public void ClientDisconnectedClientRpc(ulong clientId)
     {
-        Debug.Log($"Client [{clientId}] disconnected");
+        Logger.Log($"Client [{clientId}] disconnected");
         UnregisterPlayer(clientId);
     }
 
@@ -152,7 +152,7 @@ public class GameState : NetworkBehaviour
                                             List<ulong> clientsCompleted,
                                             List<ulong> clientsTimedOut)
     {
-        Debug.Log($"Networked load scene complete. {sceneName} loaded. {clientsCompleted.Count} clients connected. {clientsTimedOut.Count} clients timed out.");
+        Logger.Log($"Networked load scene complete. {sceneName} loaded. {clientsCompleted.Count} clients connected. {clientsTimedOut.Count} clients timed out.");
 
         if (IsServer)
         {
@@ -177,7 +177,7 @@ public class GameState : NetworkBehaviour
     {
         playerName = GetPlayerName(playerName.ToString());
 
-        Debug.Log($"Syncing new client {clientId} with name {playerName}");
+        Logger.Log($"Syncing new client {clientId} with name {playerName}");
         FindClient(clientId).clientName = playerName.ToString();
 
         SetClientNameClientRpc(clientId, playerName);
@@ -199,7 +199,7 @@ public class GameState : NetworkBehaviour
     [ClientRpc]
     public void SetClientNameClientRpc(ulong clientId, FixedString64Bytes playerName, ClientRpcParams clientParams = default)
     {
-        Debug.Log($"Setting client name for {clientId} to {playerName}");
+        Logger.Log($"Setting client name for {clientId} to {playerName}");
         ClientData client = FindClient(clientId);
         if (client == null)
         {
@@ -222,9 +222,9 @@ public class GameState : NetworkBehaviour
     {
         bool found = waitingForClients.Remove(clientId);
         if (!found)
-            Debug.LogError($"Client {clientId} not found in waiting list");
+            Logger.LogError($"Client {clientId} not found in waiting list");
         else
-            Debug.Log($"Client {clientId} acknowledged and synced successfully");
+            Logger.Log($"Client {clientId} acknowledged and synced successfully");
 
         ClientReady(clientId);
     }

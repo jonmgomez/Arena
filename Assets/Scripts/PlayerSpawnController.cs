@@ -23,7 +23,7 @@ public class PlayerSpawnController : NetworkBehaviour
     {
         if (Instance != null)
         {
-            Debug.LogError("PlayerSpawnController already exists");
+            Logger.LogError("PlayerSpawnController already exists");
             Destroy(this);
             return;
         }
@@ -33,7 +33,7 @@ public class PlayerSpawnController : NetworkBehaviour
 
     public Player SpawnNewPlayerPrefab(ulong clientId, string playerName = "")
     {
-        Debug.Log($"[SERVER] Spawning player for client {clientId}");
+        Logger.Log($"[SERVER] Spawning player for client {clientId}");
         Player player = Instantiate(playerPrefab, GetSpawnPoint(), Quaternion.identity);
         player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
 
@@ -61,7 +61,7 @@ public class PlayerSpawnController : NetworkBehaviour
         Vector3 spawnPoint = GetSpawnPoint();
         spawnPoint.y += player.GetComponent<CharacterController>().height / 2f;
         player.RespawnOnServer(spawnPoint);
-        Debug.Log($"[SERVER] Respawning player {player.OwnerClientId} at {spawnPoint}");
+        Logger.Log($"[SERVER] Respawning player {player.OwnerClientId} at {spawnPoint}");
     }
 
     private Vector3 GetSpawnPoint()

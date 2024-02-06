@@ -24,7 +24,7 @@ public class LateNetworker : MonoBehaviour
             return;
         }
 
-        Debug.Log("Instantiating NetworkManager");
+        Logger.Log("Instantiating NetworkManager");
         Instantiate(networkManagerPrefab);
 
         hostButton.onClick.AddListener(() => {
