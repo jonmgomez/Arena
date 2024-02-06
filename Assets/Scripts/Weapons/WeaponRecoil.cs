@@ -140,7 +140,8 @@ public class WeaponRecoil : MonoBehaviour
         // Strange behavior
         if (oldRotation.x < newRotation.x - Mathf.Epsilon)
         {
-            currentRecoilingOffset.y -= MAX_ROTATION - newRotation.x + oldRotation.x;
+            if (newRotation.x - oldRotation.x < MAX_ROTATION / 2f)
+                currentRecoilingOffset.y -= MAX_ROTATION - newRotation.x + oldRotation.x;
         }
         else
         {

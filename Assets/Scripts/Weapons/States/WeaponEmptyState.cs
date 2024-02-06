@@ -8,6 +8,11 @@ public class WeaponEmptyState : WeaponState
     {
     }
 
+    public override bool ShouldEnter()
+    {
+        return weapon.Ammo <= 0;
+    }
+
     public override void Update()
     {
         CheckAim();
@@ -15,7 +20,7 @@ public class WeaponEmptyState : WeaponState
         bool reloadPressed = Input.GetKeyDown(KeyCode.R);
         if (reloadPressed || weapon.AttemptingFire)
         {
-            weapon.SetState(new WeaponReloadingState(weapon));
+            weapon.SetState(State.Reloading);
         }
     }
 }

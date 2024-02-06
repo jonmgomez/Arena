@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class WeaponRecoveringState : WeaponState
 {
+    private float fireRecoveryTimeLeft = 0f;
+
     Coroutine autoReloadDelay;
     Coroutine recover;
 
@@ -11,8 +13,16 @@ public class WeaponRecoveringState : WeaponState
     {
     }
 
+    public override bool ShouldEnter()
+    {
+        return fireRecoveryTimeLeft > 0;
+    }
+
     public override void OnStateEnter()
     {
+        if (fireRecoveryTimeLeft <= 0)
+            fireRecoveryTimeLeft = weapon.FireRate;
+
         autoReloadDelay = weapon.StartCoroutine(AutoReloadDelay());
         recover = weapon.StartCoroutine(Recover());
     }
@@ -29,7 +39,7 @@ public class WeaponRecoveringState : WeaponState
 
         if (Input.GetKeyDown(KeyCode.R))
         {
-            weapon.SetState(new WeaponReloadingState(weapon));
+            weapon.SetState(State.Reloading);
         }
     }
 
@@ -39,21 +49,26 @@ public class WeaponRecoveringState : WeaponState
 
         if (weapon.Ammo <= 0)
         {
-            weapon.SetState(new WeaponEmptyState(weapon));
+            weapon.SetState(State.Empty);
         }
     }
 
     IEnumerator Recover()
     {
-        yield return new WaitForSeconds(weapon.FireRate);
+        while (fireRecoveryTimeLeft > 0)
+        {
+            fireRecoveryTimeLeft -= Time.deltaTime;
+            yield return null;
+        }
+        fireRecoveryTimeLeft = 0;
 
         if (weapon.Ammo <= 0)
         {
-            weapon.SetState(new WeaponEmptyState(weapon));
+            weapon.SetState(State.Empty);
         }
         else
         {
-            weapon.SetState(new WeaponReadyState(weapon));
+            weapon.SetState(State.Ready);
         }
     }
 }

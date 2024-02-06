@@ -11,6 +11,11 @@ public class WeaponReadyState : WeaponState
     {
     }
 
+    public override bool ShouldEnter()
+    {
+        return true;
+    }
+
     public override void Update()
     {
         CheckAim();
@@ -28,7 +33,7 @@ public class WeaponReadyState : WeaponState
 
         if (!fullAmmo && reloadPressed)
         {
-            weapon.SetState(new WeaponReloadingState(weapon));
+            weapon.SetState(State.Reloading);
             return true;
         }
 
@@ -51,7 +56,7 @@ public class WeaponReadyState : WeaponState
 
             if (weapon.FireRate > 0)
             {
-                weapon.SetState(new WeaponRecoveringState(weapon));
+                weapon.SetState(State.Recovering);
             }
         }
     }

@@ -19,9 +19,9 @@ public class PlayerWeapon : NetworkBehaviour
         foreach (var weapon in allWeapons)
         {
             if (weapon != activeWeapon)
-            {
-                weapon.gameObject.SetActive(false);
-            }
+                weapon.SetEnabled(false);
+            else
+                weapon.SetEnabled(true);
         }
 
         if (!IsOwner)
@@ -55,6 +55,8 @@ public class PlayerWeapon : NetworkBehaviour
         {
             SwapWeapon();
         }
+
+        activeWeapon.WeaponUpdate();
     }
 
     public void SwapWeapon()
@@ -72,7 +74,7 @@ public class PlayerWeapon : NetworkBehaviour
     public void PickupWeapon(int weaponId)
     {
         Weapon weapon = allWeapons[weaponId];
-        activeWeapon.gameObject.SetActive(false);
+        activeWeapon.SetEnabled(false);
 
         if (MainWeaponEquipped())
         {
@@ -104,9 +106,9 @@ public class PlayerWeapon : NetworkBehaviour
 
         activeWeapon.OnAmmoChanged -= (ammo) => player.HUD.UpdateCurrentAmmo(ammo);
 
-        activeWeapon.gameObject.SetActive(false);
+        activeWeapon.SetEnabled(false);
         activeWeapon = weapon;
-        activeWeapon.gameObject.SetActive(true);
+        activeWeapon.SetEnabled(true);
 
         if (IsOwner)
         {
@@ -133,7 +135,7 @@ public class PlayerWeapon : NetworkBehaviour
     {
         // TODO: Do custom enabling of weapon script. Otherwise fire rate coroutines will be stopped.
         crosshair.gameObject.SetActive(enabled);
-        mainWeapon.enabled = enabled;
+        mainWeapon.SetEnabled(enabled);
     }
 
     private int GetWeaponIndex(Weapon weapon)

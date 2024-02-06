@@ -132,7 +132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 231512293
+  GlobalObjectIdHash: 1429631593
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -909,6 +909,11 @@ PrefabInstance:
       propertyPath: RecoilVerticalAmount
       value: 0.3
       objectReference: {fileID: 0}
+    - target: {fileID: 7990375524141263322, guid: f5ca93d4be1e5cb44ac11d72fc797c0d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8494765557294680079, guid: f5ca93d4be1e5cb44ac11d72fc797c0d,
         type: 3}
       propertyPath: m_Name
@@ -1109,7 +1114,7 @@ PrefabInstance:
     - target: {fileID: 365495634958848830, guid: 737ba4b33014f3147b4888cf83356cb7,
         type: 3}
       propertyPath: ammo
-      value: 12
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 365495634958848830, guid: 737ba4b33014f3147b4888cf83356cb7,
         type: 3}

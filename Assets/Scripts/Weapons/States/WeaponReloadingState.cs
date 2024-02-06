@@ -4,19 +4,31 @@ using UnityEngine;
 
 public class WeaponReloadingState : WeaponState
 {
+    Coroutine reload;
+
     public WeaponReloadingState(Weapon weapon) : base(weapon)
     {
     }
 
+    public override bool ShouldEnter()
+    {
+        return false;
+    }
+
     public override void OnStateEnter()
     {
-        weapon.StartCoroutine(Reload());
+        reload = weapon.StartCoroutine(Reload());
+    }
+
+    public override void OnStateExit()
+    {
+        weapon.StopCoroutine(reload);
     }
 
     IEnumerator Reload()
     {
         yield return new WaitForSeconds(weapon.ReloadTime);
         weapon.Ammo = weapon.MaxAmmo;
-        weapon.SetState(new WeaponReadyState(weapon));
+        weapon.SetState(State.Ready);
     }
 }

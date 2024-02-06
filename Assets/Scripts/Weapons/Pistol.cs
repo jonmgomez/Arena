@@ -25,10 +25,10 @@ public class Pistol : Weapon
         idleRotation = transform.localRotation;
     }
 
-    protected override void Update()
+    public override void WeaponUpdate()
     {
         if (!IsOwner) return;
-        base.Update();
+        base.WeaponUpdate();
 
         transform.localPosition = Vector3.Lerp(transform.localPosition, recoilTargetPosition, Time.deltaTime * 20f);
         recoilTargetPosition = Vector3.Lerp(recoilTargetPosition, idlePosition, Time.deltaTime * 10f);

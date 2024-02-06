@@ -11,8 +11,10 @@ public abstract class Weapon : NetworkBehaviour
 
     public event Action<int> OnAmmoChanged;
 
+    WeaponState[] states = new WeaponState[Enum.GetNames(typeof(WeaponState.State)).Length];
     WeaponState currentState;
     WeaponRecoil recoilController;
+    MeshRenderer[] renderers;
 
     [Header("General")]
     public string Name = "Weapon";
@@ -46,11 +48,26 @@ public abstract class Weapon : NetworkBehaviour
 
     protected abstract void OnFire();
 
-    public void SetState(WeaponState state)
+    public void SetState(WeaponState.State stateEnum)
     {
+        WeaponState state = states[(int) stateEnum];
         currentState.OnStateExit();
         currentState = state;
         currentState.OnStateEnter();
+    }
+
+    public WeaponState.State DetermineState()
+    {
+        for (int i = 0; i < states.Length; i++)
+        {
+            // States are first checked in order of priority
+            // ex. if out of ammo, we should enter the empty state first before the recovering state
+            if (states[i].ShouldEnter())
+            {
+                return (WeaponState.State) i;
+            }
+        }
+        return WeaponState.State.Ready;
     }
 
     public override void OnNetworkSpawn()
@@ -63,8 +80,19 @@ public abstract class Weapon : NetworkBehaviour
 
     protected virtual void Awake()
     {
-        // Seems that network variables are not set by this point so be aware of what goes in Awake!
         MaxAmmo = Ammo;
+        states = new WeaponState[]
+        {
+            new WeaponEmptyState(this),
+            new WeaponRecoveringState(this),
+            new WeaponReloadingState(this),
+            new WeaponReadyState(this),
+            new WeaponDisabledState(this)
+        };
+        currentState = states[(int) WeaponState.State.Ready];
+        Debug.Assert(states.Length == Enum.GetNames(typeof(WeaponState.State)).Length, "Weapon states are not equal to the number of states in the WeaponState enum.");
+
+        renderers = GetComponentsInChildren<MeshRenderer>();
     }
 
     protected virtual void Start()
@@ -76,12 +104,14 @@ public abstract class Weapon : NetworkBehaviour
         Crosshair = FindObjectOfType<Crosshair>(true);
         Bloom = GetComponent<Bloom>();
 
-        currentState = new WeaponReadyState(this);
+        if (currentState == null)
+        {
+            currentState = new WeaponReadyState(this);
+        }
         currentState.OnStateEnter();
     }
 
-    // Update is called once per frame
-    protected virtual void Update()
+    public virtual void WeaponUpdate()
     {
         if (!IsOwner) return;
 
@@ -146,6 +176,20 @@ public abstract class Weapon : NetworkBehaviour
         // Muzzle flash
         var obj = Instantiate(muzzleFlashPrefab, muzzle.position, firePoint.rotation);
         obj.transform.parent = muzzle;
+    }
+
+    public void SetEnabled(bool enabled)
+    {
+        if (enabled)
+        {
+            SetState(DetermineState());
+            Array.ForEach(renderers, r => r.enabled = true);
+        }
+        else
+        {
+            SetState(WeaponState.State.Disabled);
+            Array.ForEach(renderers, r => r.enabled = false);
+        }
     }
 
     public float GetFireRate() => FireRate;
