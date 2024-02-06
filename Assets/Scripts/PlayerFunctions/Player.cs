@@ -12,14 +12,13 @@ public class Player : NetworkBehaviour
 {
     static Vector3 OFF_SCREEN = new(0f, -100f, 0f);
 
-    bool isDead = false;
-
-    public Type type = typeof(Player);
+    string playerName = "";
 
     [SerializeField] float health = 100f;
     // Internal variable to track health on the client before the server has a chance to update it
     float clientSideHealth = 100f;
     float maxHealth = 100f;
+    bool isDead = false;
 
     bool regeneratingHealth = false;
     [SerializeField] float healthRegenDelay = 5f;
@@ -83,6 +82,7 @@ public class Player : NetworkBehaviour
             return;
     }
 
+    #region Health
     public void TakeDamage(float damage, ulong clientId)
     {
         clientSideHealth -= damage;
@@ -195,6 +195,7 @@ public class Player : NetworkBehaviour
     {
         HealClientRpc(healthRegenPerSecond * Time.deltaTime);
     }
+    #endregion
 
     private void RecalculateHealthVignette()
     {
@@ -259,4 +260,6 @@ public class Player : NetworkBehaviour
         clientNetworkTransform.Interpolate = false;
         this.Invoke(() => clientNetworkTransform.Interpolate = true, 0.25f);
     }
+
+    public void SetName(string name) => playerName = name;
 }

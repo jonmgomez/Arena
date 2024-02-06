@@ -29,11 +29,14 @@ public class PlayerSpawnController : NetworkBehaviour
         Instance = this;
     }
 
-    public Player SpawnNewPlayerPrefab(ulong clientId)
+    public Player SpawnNewPlayerPrefab(ulong clientId, string playerName = "")
     {
         Debug.Log($"[SERVER] Spawning player for client {clientId}");
         Player player = Instantiate(playerPrefab, GetSpawnPoint(), Quaternion.identity);
         player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+
+        if (playerName != "")
+            player.SetName(playerName);
 
         return player;
     }

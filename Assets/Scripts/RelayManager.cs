@@ -42,9 +42,9 @@ public class RelayManager : MonoBehaviour
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(serverData);
 
             if (host)
-                NetworkManager.Singleton.StartHost();
+                NetworkConnector.Instance.StartHost();
             else
-                NetworkManager.Singleton.StartServer();
+                NetworkConnector.Instance.StartServer();
 
             OnJoinCodeGenerated?.Invoke(joinCode);
         }
@@ -63,7 +63,7 @@ public class RelayManager : MonoBehaviour
 
             RelayServerData serverData = new(joinAllocation, "dtls");
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(serverData);
-            NetworkManager.Singleton.StartClient();
+            NetworkConnector.Instance.StartClient();
         }
         catch (RelayServiceException e)
         {

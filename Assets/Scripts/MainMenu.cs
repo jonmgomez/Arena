@@ -20,6 +20,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] TextMeshProUGUI serverClientsConnectedText;
     [SerializeField] TMP_InputField joinCodeInput;
     [SerializeField] TMP_InputField joinCodeText;
+    [SerializeField] TMP_InputField playerNameInput;
 
     void Start()
     {
@@ -74,6 +75,8 @@ public class MainMenu : MonoBehaviour
 
     private void EnableServerInterface()
     {
+        GameState.Instance.SetLocalClientName(playerNameInput.text);
+
         hostButton.gameObject.SetActive(false);
         serverButton.gameObject.SetActive(false);
         clientButton.gameObject.SetActive(false);
@@ -106,6 +109,8 @@ public class MainMenu : MonoBehaviour
 
     private void EnableClientInterface()
     {
+        GameState.Instance.SetLocalClientName(playerNameInput.text);
+
         hostButton.gameObject.SetActive(false);
         serverButton.gameObject.SetActive(false);
         clientButton.gameObject.SetActive(false);
