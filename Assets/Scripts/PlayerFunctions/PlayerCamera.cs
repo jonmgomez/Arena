@@ -19,12 +19,9 @@ public class PlayerCamera : NetworkBehaviour
 
     // Triggered when the camera is rotated with either x or y value != 0.
     public event Action<float, float> OnRotate;
-    public event Action<Camera> OnCameraChanged;
 
-    Camera cam;
-    AudioListener audioListener;
+    Camera playersCamera;
     Camera defaultCamera;
-    AudioListener defaultAudioListener;
 
     public override void OnNetworkSpawn()
     {
@@ -39,18 +36,15 @@ public class PlayerCamera : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (!IsOwner)
+            return;
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        cam = GetComponent<Camera>();
-        cam.enabled = true;
-        audioListener = GetComponent<AudioListener>();
-        audioListener.enabled = true;
-
+        playersCamera = GetComponent<Camera>();
         defaultCamera = Camera.main;
-        defaultCamera.enabled = false;
-        defaultAudioListener = defaultCamera.GetComponent<AudioListener>();
-        defaultAudioListener.enabled = false;
+        CameraManager.Instance.SetActiveCamera(playersCamera);
     }
 
     // Update is called once per frame
@@ -75,12 +69,7 @@ public class PlayerCamera : NetworkBehaviour
     public void SetEnabled(bool enabled)
     {
         this.enabled = enabled;
-        cam.enabled = enabled;
-        audioListener.enabled = enabled;
-        defaultCamera.enabled = !enabled;
-        defaultAudioListener.enabled = !enabled;
-
-        OnCameraChanged?.Invoke(enabled ? cam : defaultCamera);
+        CameraManager.Instance.SetActiveCamera(enabled ? playersCamera : defaultCamera);
     }
 
     /// <summary>
@@ -101,10 +90,5 @@ public class PlayerCamera : NetworkBehaviour
 
         if ((x != 0 || y != 0) && triggerEvent)
             OnRotate?.Invoke(x, y);
-    }
-
-    public Camera GetCurrentCamera()
-    {
-        return cam.enabled ? cam : defaultCamera;
     }
 }
