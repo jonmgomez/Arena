@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
+using Unity.Collections;
 using Unity.Multiplayer.Samples.Utilities.ClientAuthority;
 using Unity.Netcode;
 using UnityEngine;
@@ -12,7 +14,8 @@ public class Player : NetworkBehaviour
 {
     static Vector3 OFF_SCREEN = new(0f, -100f, 0f);
 
-    string playerName = "";
+    NetworkVariable<FixedString64Bytes> playerName = new("");
+    [SerializeField] TextMeshPro playerNameText;
 
     [SerializeField] float health = 100f;
     // Internal variable to track health on the client before the server has a chance to update it
@@ -58,9 +61,12 @@ public class Player : NetworkBehaviour
         characterController = GetComponent<CharacterController>();
         playerMovement = GetComponent<PlayerMovement>();
         playerWeapon = GetComponent<PlayerWeapon>();
+        playerNameText.text = GetName();
 
         if (!IsOwner)
             return;
+        else
+            playerNameText.gameObject.SetActive(false);
 
         HUD = FindObjectOfType<PlayerHUD>(true);
         HUD.gameObject.SetActive(true);
@@ -261,5 +267,6 @@ public class Player : NetworkBehaviour
         this.Invoke(() => clientNetworkTransform.Interpolate = true, 0.25f);
     }
 
-    public void SetName(string name) => playerName = name;
+    public string GetName() => playerName.Value.ToString();
+    public void SetName(string name) => playerName.Value = name;
 }

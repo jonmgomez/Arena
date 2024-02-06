@@ -17,6 +17,8 @@ public class PlayerSpawnController : NetworkBehaviour
     [Header("Debug")]
     [SerializeField] bool debugSingleSpawn = false;
 
+    List<Player> spawningPlayers = new List<Player>();
+
     void Awake()
     {
         if (Instance != null)

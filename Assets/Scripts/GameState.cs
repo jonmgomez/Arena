@@ -258,4 +258,16 @@ public class GameState : NetworkBehaviour
     {
         thisClientName = playerName;
     }
+
+    public List<Player> GetActivePlayers()
+    {
+        List<Player> players = new();
+        foreach (ClientData client in connectedClients)
+        {
+            if (client.player != null)
+                players.Add(client.player);
+        }
+
+        return players;
+    }
 }
