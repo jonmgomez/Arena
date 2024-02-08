@@ -89,7 +89,7 @@ public class Player : NetworkBehaviour
     }
 
     #region Health
-    public void TakeDamage(float damage, ulong clientId)
+    public void TakeDamage(float damage, ulong damagerClientId)
     {
         clientSideHealth -= damage;
         if (clientSideHealth <= 0f)
@@ -97,9 +97,9 @@ public class Player : NetworkBehaviour
             Logger.Log($"[CLIENT] Player-{OwnerClientId} died");
             OnDeath();
         }
-        Logger.Log($"[CLIENT] Player-{OwnerClientId} took {damage} damage from Player-{clientId}, Health {health}, client-side health {clientSideHealth}");
+        Logger.Log($"[CLIENT] Player-{OwnerClientId} took {damage} damage from Player-{damagerClientId}, Health {health}, client-side health {clientSideHealth}");
 
-        TakeDamageServerRpc(damage, clientId);
+        TakeDamageServerRpc(damage, damagerClientId);
     }
 
     /// <summary>
@@ -123,10 +123,15 @@ public class Player : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void TakeDamageServerRpc(float damage, ulong clientId, bool isAnonymous = false)
     {
-        if (health - damage <= 0f)
+        if (health > 0f && health - damage <= 0f)
         {
             Logger.Log($"[SERVER] Player {OwnerClientId} died");
+            InGameController.Instance.PlayerDied(this, clientId, isAnonymous);
             PlayerSpawnController.Instance.RespawnPlayer(this);
+        }
+        else
+        {
+            InGameController.Instance.PlayerDamaged(this, clientId, isAnonymous);
         }
 
         if (IsServer && !IsHost)

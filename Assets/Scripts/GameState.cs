@@ -270,4 +270,13 @@ public class GameState : NetworkBehaviour
 
         return players;
     }
+
+    public Player GetPlayer(ulong clientId)
+    {
+        ClientData client = FindClient(clientId);
+        if (client != null)
+            return client.player;
+
+        return null;
+    }
 }
