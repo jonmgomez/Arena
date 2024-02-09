@@ -14,10 +14,12 @@ public class InGameController : NetworkBehaviour
 
     public static InGameController Instance { get; private set; }
 
+    readonly Dictionary<ulong, PlayerDamagedState> players = new();
+
     [Tooltip("Time in seconds to wait before the last player that damaged another player is forgotten")]
     [SerializeField] private float timeoutLastPlayerDamaged = 5f;
 
-    readonly Dictionary<ulong, PlayerDamagedState> players = new();
+    EliminationFeed eliminationFeed;
 
     private void Awake()
     {
@@ -28,6 +30,8 @@ public class InGameController : NetworkBehaviour
         }
 
         Instance = this;
+
+        eliminationFeed = FindObjectOfType<EliminationFeed>();
     }
 
     private void Update()
@@ -72,18 +76,22 @@ public class InGameController : NetworkBehaviour
 
     public void PlayerDied(Player player, ulong clientId, bool isAnonymous)
     {
-        if (players.ContainsKey(player.OwnerClientId) && isAnonymous)
+        bool lastDamagedPlayerFound = players.ContainsKey(player.OwnerClientId);
+        Player eliminator = null;
+
+        if (lastDamagedPlayerFound && isAnonymous)
         {
-            Logger.Log($"Player {player.OwnerClientId} died, last damaged by {players[player.OwnerClientId].lastClientId}");
-            players.Remove(player.OwnerClientId);
+            eliminator = GameState.Instance.GetPlayer(players[player.OwnerClientId].lastClientId);
         }
         else if (!isAnonymous)
         {
-            Logger.Log($"Player {player.OwnerClientId} died, last damaged by {clientId}");
+            eliminator = GameState.Instance.GetPlayer(clientId);
         }
-        else
-        {
-            Logger.Log($"Player {player.OwnerClientId} died from unknown source");
-        }
+
+        string eliminatorName = eliminator != null ? eliminator.GetName() : null;
+        eliminationFeed.AddEliminationEntry(eliminatorName, player.GetName());
+
+        if (lastDamagedPlayerFound)
+            players.Remove(player.OwnerClientId);
     }
 }
