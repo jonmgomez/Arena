@@ -90,6 +90,25 @@ public class ClientNamesSynchronizer : NetworkBehaviour
         }
     }
 
+    public bool AreClientsSynced()
+    {
+        int totalWaitingNewClients = 0;
+        foreach (var client in clientsSyncingNewClient)
+        {
+            totalWaitingNewClients += client.Value.Count;
+        }
+
+        int totalWaitingOldClients = 0;
+        foreach (var client in newClientSyncingOldClients)
+        {
+            totalWaitingOldClients += client.Value.Count;
+        }
+
+        return (waitingForInitialClientNameSync.Count <= 0 &&
+                totalWaitingNewClients <= 0 &&
+                totalWaitingOldClients <= 0);
+    }
+
     private void SetClientName(ulong clientId, string name)
     {
         ClientData client = gameState.GetClientData(clientId);

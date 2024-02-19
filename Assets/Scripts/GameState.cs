@@ -30,6 +30,7 @@ public class GameState : NetworkBehaviour
     public event Action<ulong> OnClientConnectedAndReady;
     public event Action<ulong> OnClientDisconnected;
 
+    public event Action AllClientsReady;
 
     float timeSinceGameStart = 0f;
 
@@ -68,6 +69,7 @@ public class GameState : NetworkBehaviour
         DontDestroyOnLoad(gameObject);
 
         clientNameSynchronizer = GetComponent<ClientNamesSynchronizer>();
+        clientNameSynchronizer.OnClientsReady += ClientNamesSynced;
     }
 
     void Start()
@@ -197,10 +199,11 @@ public class GameState : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void AcknowledgeCurrentClientInformationServerRpc(ulong syncedClient, ulong clientId)
+    private void AcknowledgeCurrentClientInformationServerRpc(ulong clientId, ulong syncedClient)
     {
-        syncingCurrentClients[clientId].Remove(syncedClient);
-        CheckIfNewClientIsSynced(clientId);
+        // Note that ordering is swapped here because the new client must acknowledge ALL OTHER clients.
+        syncingCurrentClients[syncedClient].Remove(clientId);
+        CheckIfNewClientIsSynced(syncedClient);
     }
 
     [ClientRpc]
@@ -238,13 +241,60 @@ public class GameState : NetworkBehaviour
     }
     #endregion
 
+    private void ClientNamesSynced()
+    {
+        if (IsServer)
+        {
+            if (AreClientsSynced())
+            {
+                ClientsReady();
+            }
+        }
+    }
+
+    private bool IsClientSynced(ulong clientId)
+    {
+        return syncingCurrentClients[clientId].Count <= 0 && syncingNewClient[clientId].Count <= 0;
+    }
+
+    public bool AreClientsSynced()
+    {
+        int totalWaitingNewClients = 0;
+        foreach (var client in syncingNewClient)
+        {
+            totalWaitingNewClients += client.Value.Count;
+        }
+
+        int totalWaitingOldClients = 0;
+        foreach (var client in syncingCurrentClients)
+        {
+            totalWaitingOldClients += client.Value.Count;
+        }
+
+        return totalWaitingNewClients <= 0 && totalWaitingOldClients <= 0;
+    }
+
     private void CheckIfNewClientIsSynced(ulong clientId)
     {
-        if (syncingCurrentClients[clientId].Count == 0 && syncingNewClient[clientId].Count == 0)
+        if (IsClientSynced(clientId))
         {
             Logger.Log($"Client {Utility.ClientNameToString(clientId)} is fully synced");
             OnClientConnectedAndReady?.Invoke(clientId);
         }
+
+        if (AreClientsSynced())
+        {
+            if (clientNameSynchronizer.AreClientsSynced())
+            {
+                ClientsReady();
+            }
+        }
+    }
+
+    private void ClientsReady()
+    {
+        Logger.Log("All clients are ready. Game is able to start");
+        AllClientsReady?.Invoke();
     }
 
     public void ClientReady(ulong clientId)
