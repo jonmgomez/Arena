@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.Profiling;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public static class Utility
@@ -39,6 +40,18 @@ public static class Utility
                 TargetClientIds = new ulong[] { clientId }
             }
         };
+    }
+
+    public static string ClientIdToString(ulong clientId)
+    {
+        return $"[{clientId}" + (clientId == NetworkManager.Singleton.LocalClientId ? " (Self)" : "") + "]";
+    }
+
+    public static string ClientNameToString(ulong clientId)
+    {
+        ClientData clientData = GameState.Instance.GetClientData(clientId);
+        string name = " (" + clientData?.clientName + ")" ?? "";
+        return $"[{clientId}{name}" + (clientId == NetworkManager.Singleton.LocalClientId ? " (Self)" : "") + "]";
     }
 
     public static void Loop(int times, Action function)
