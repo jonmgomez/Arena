@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 6714091045840251414}
   - component: {fileID: -2891291410433348877}
   - component: {fileID: 6851368080776655518}
+  - component: {fileID: 6264523257068511136}
+  - component: {fileID: 6383836901059612519}
   m_Layer: 0
   m_Name: GameState
   m_TagString: Untagged
@@ -45,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 565477445
+  GlobalObjectIdHash: 3410064413
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -63,5 +65,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a0bd1f12419b304db2bb1609174a9db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6264523257068511136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8818963454983519788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 848679c936b98ac4581bd9ae0840ea06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6383836901059612519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8818963454983519788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3726e7c5edff715449a604c541919699, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

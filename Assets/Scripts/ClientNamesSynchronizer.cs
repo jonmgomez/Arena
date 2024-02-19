@@ -23,8 +23,8 @@ public class ClientNamesSynchronizer : NetworkBehaviour
     void Start()
     {
         gameState = GameState.Instance;
-        gameState.OnClientConnected += OnClientConnected;
-        gameState.OnSelfConnected += OnSelfConnected;
+        ClientNetwork.Instance.OnClientConnected += OnClientConnected;
+        ClientNetwork.Instance.OnConnectToServer += OnSelfConnected;
     }
 
     private void SetupListsForNewClient(ulong clientId)
@@ -191,9 +191,8 @@ public class ClientNamesSynchronizer : NetworkBehaviour
         Logger.Log($"Setting client name {Utility.ClientIdToString(clientId)}: {playerName}");
         if (gameState.GetClientData(clientId) == null)
         {
-            gameState.RegisterPlayer(clientId);
-            // Logger.LogError($"Client {clientId} not found in connected clients list");
-            // return;
+            Logger.LogError($"Client {clientId} not found in connected clients list");
+            return;
         }
 
         SetClientName(clientId, playerName.ToString());
@@ -221,9 +220,8 @@ public class ClientNamesSynchronizer : NetworkBehaviour
     {
         if (gameState.GetClientData(clientId) == null)
         {
-            gameState.RegisterPlayer(clientId);
-            // Logger.LogError($"Client {clientId} not found in connected clients list");
-            // return;
+            Logger.LogError($"Client {clientId} not found in connected clients list");
+            return;
         }
 
         SetClientName(clientId, playerName.ToString());
