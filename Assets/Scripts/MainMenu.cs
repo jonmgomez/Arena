@@ -22,6 +22,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] TMP_InputField joinCodeInput;
     [SerializeField] TMP_InputField joinCodeText;
     [SerializeField] TMP_InputField playerNameInput;
+    [SerializeField] TextMeshProUGUI waitingForClientsText;
 
     void Start()
     {
@@ -96,6 +97,7 @@ public class MainMenu : MonoBehaviour
         serverButton.gameObject.SetActive(false);
         clientButton.gameObject.SetActive(false);
         joinCodeInput.gameObject.SetActive(false);
+        playerNameInput.gameObject.SetActive(false);
 
         if (relay.UsingRelay())
             serverCreatingMessage.SetActive(true);
@@ -106,6 +108,18 @@ public class MainMenu : MonoBehaviour
 
     private void EnableServerReadyInterface(string joinCode)
     {
+        ClientNetwork.Instance.OnWaitingForClients += () => {
+            startButton.interactable = false;
+            waitingForClientsText.gameObject.SetActive(true);
+        };
+
+        ClientNetwork.Instance.OnClientsReady += () => {
+            this.Invoke(() => { // Its too fast. I want to see the waiting for clients message at least a bit ¯\_(ツ)_/¯
+                startButton.interactable = true;
+                waitingForClientsText.gameObject.SetActive(false);
+            }, 2f);
+        };
+
         serverCreatingMessage.SetActive(false);
         startButton.gameObject.SetActive(true);
         serverClientsConnectedText.gameObject.SetActive(true);

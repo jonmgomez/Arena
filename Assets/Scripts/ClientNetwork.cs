@@ -21,6 +21,7 @@ public class ClientNetwork : NetworkBehaviour
     public event Action<ulong> OnClientConnectedAndReady;
     public event Action<ulong> OnClientDisconnected;
 
+    public event Action OnWaitingForClients;
     public event Action OnClientsReady;
 
     public override void OnNetworkSpawn()
@@ -116,6 +117,7 @@ public class ClientNetwork : NetworkBehaviour
                 NewClientInformationClientRpc(clientId);
             }
 
+            OnWaitingForClients?.Invoke();
             OnClientConnected?.Invoke(clientId);
         }
     }

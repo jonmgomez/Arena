@@ -23,6 +23,7 @@ public class GameState : NetworkBehaviour
     private ClientNamesSynchronizer clientNameSynchronizer;
 
     public event Action AllClientsReady;
+    public event Action WaitingForClients;
 
     float timeSinceGameStart = 0f;
 
@@ -60,6 +61,7 @@ public class GameState : NetworkBehaviour
 
         clientNetwork = GetComponent<ClientNetwork>();
         clientNetwork.OnClientsReady += ClientNetworkSynced;
+        clientNetwork.OnWaitingForClients += () => WaitingForClients?.Invoke();
         clientNameSynchronizer = GetComponent<ClientNamesSynchronizer>();
         clientNameSynchronizer.OnClientsReady += ClientNamesSynced;
     }
