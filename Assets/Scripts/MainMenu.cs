@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -59,7 +60,21 @@ public class MainMenu : MonoBehaviour
         clientButton.onClick.AddListener(() => {
             if (relay.UsingRelay())
             {
-                relay.JoinRelay(joinCodeInput.text);
+                // Support for delaying join for testing purposes
+                try
+                {
+                    float delay = float.Parse(playerNameInput.text);
+                    if (delay < 0) throw new FormatException();
+
+                    Logger.Log($"Delaying join for {delay} second(s)");
+                    this.Invoke(() => {
+                        relay.JoinRelay(joinCodeInput.text);
+                    }, delay);
+                }
+                catch (FormatException)
+                {
+                    relay.JoinRelay(joinCodeInput.text);
+                }
             }
             else
             {

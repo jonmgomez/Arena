@@ -18,10 +18,18 @@ public class GameState : NetworkBehaviour
 {
     public static GameState Instance { get; private set; }
 
+    private readonly object clientListLock = new();
     private readonly List<ClientData> connectedClients = new List<ClientData>();
     private ClientNamesSynchronizer clientNameSynchronizer;
 
-    public event Action<ulong> OnNewClientConnected;
+    private readonly Dictionary<ulong, List<ulong>> syncingNewClient = new();
+    private readonly Dictionary<ulong, List<ulong>> syncingCurrentClients = new();
+
+    public event Action<ulong> OnSelfConnected;
+    public event Action<ulong> OnClientConnected;
+    public event Action<ulong> OnClientConnectedAndReady;
+    public event Action<ulong> OnClientDisconnected;
+
 
     float timeSinceGameStart = 0f;
 
@@ -38,8 +46,8 @@ public class GameState : NetworkBehaviour
 
         if (NetworkManager.Singleton != null)
         {
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnect;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnNetworkSceneLoadComplete;
         }
         else
@@ -81,12 +89,18 @@ public class GameState : NetworkBehaviour
 
     public void RegisterPlayer(ulong clientId)
     {
-        connectedClients.Add(new ClientData { clientId = clientId, player = null });
+        lock (clientListLock)
+        {
+            connectedClients.Add(new ClientData { clientId = clientId, player = null });
+        }
     }
 
     private void UnregisterPlayer(ulong clientId)
     {
-        connectedClients.Remove(connectedClients.Find(clientData => clientData.clientId == clientId));
+        lock (clientListLock)
+        {
+            connectedClients.Remove(connectedClients.Find(clientData => clientData.clientId == clientId));
+        }
     }
 
     private ClientData FindClient(ulong clientId)
@@ -95,30 +109,104 @@ public class GameState : NetworkBehaviour
     }
 
     #region NetworkEventCallbacks
-    private void OnClientConnected(ulong clientId)
+    private void OnClientConnect(ulong clientId)
     {
-        bool selfConnected = clientId == NetworkManager.Singleton.LocalClientId;
-        Logger.Log($"Client [{clientId}] " + (selfConnected ? "(Self) " : "") + "connected");
-
         RegisterPlayer(clientId);
 
-        OnNewClientConnected?.Invoke(clientId);
+        if (clientId == NetworkManager.Singleton.LocalClientId)
+        {
+            Logger.Log($"Client [{clientId}] (Self) connected");
+            OnSelfConnected?.Invoke(clientId);
+        }
+
+        if (IsServer)
+        {
+            lock (clientListLock)
+            {
+                // Send information about all already connected clients to the new client
+                syncingCurrentClients.Add(clientId, new List<ulong>());
+                foreach (ClientData client in connectedClients)
+                {
+                    if (client.clientId == clientId)
+                        continue;
+
+                    syncingCurrentClients[clientId].Add(client.clientId);
+                    CurrentClientInformationClientRpc(client.clientId,
+                                                      Utility.SendToOneClient(clientId));
+                }
+
+                // Send information about the new client to all already connected clients
+                // (except the new client and the server)
+                syncingNewClient.Add(clientId, new List<ulong>());
+                foreach (ClientData client in connectedClients)
+                {
+                    if (client.clientId == clientId || client.clientId == NetworkManager.Singleton.LocalClientId)
+                        continue;
+
+                    syncingNewClient[clientId].Add(client.clientId);
+                }
+                NewClientInformationClientRpc(clientId);
+            }
+
+            OnClientConnected?.Invoke(clientId);
+        }
     }
 
-    private void OnClientDisconnected(ulong clientId)
+    private void OnClientDisconnect(ulong clientId)
     {
         Logger.Log($"Client [{clientId}] disconnected");
         UnregisterPlayer(clientId);
 
         if (IsServer)
         {
+            // Client disconnects do not require syncing (response/acknowledgment) for the time being
             ClientDisconnectedClientRpc(clientId);
         }
     }
 
     [ClientRpc]
+    private void NewClientInformationClientRpc(ulong clientId)
+    {
+        if (IsServer || clientId == NetworkManager.Singleton.LocalClientId)
+            return;
+
+        Logger.Log($"New client [{clientId}] connected. Information received from server. Acknowledging...");
+        RegisterPlayer(clientId);
+        OnClientConnected?.Invoke(clientId);
+
+        AcknowledgeNewClientInformationServerRpc(clientId);
+    }
+
+    // Clients that are not the server should acknowledge that they are aware
+    // of a new client connecting to the server
+    [ServerRpc(RequireOwnership = false)]
+    public void AcknowledgeNewClientInformationServerRpc(ulong clientId)
+    {
+        syncingNewClient[clientId].Remove(clientId);
+        CheckIfNewClientIsSynced(clientId);
+    }
+
+    [ClientRpc]
+    private void CurrentClientInformationClientRpc(ulong clientId, ClientRpcParams clientParams = default)
+    {
+        Logger.Log($"Received information about a preexisting client [{clientId}] from the server. Acknowledging...");
+        RegisterPlayer(clientId);
+        AcknowledgeCurrentClientInformationServerRpc(clientId);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void AcknowledgeCurrentClientInformationServerRpc(ulong clientId)
+    {
+        syncingCurrentClients[clientId].Remove(clientId);
+        CheckIfNewClientIsSynced(clientId);
+    }
+
+    [ClientRpc]
     public void ClientDisconnectedClientRpc(ulong clientId)
     {
+        if (IsServer)
+            return;
+
         Logger.Log($"Client [{clientId}] disconnected");
         UnregisterPlayer(clientId);
     }
@@ -147,6 +235,15 @@ public class GameState : NetworkBehaviour
         }
     }
     #endregion
+
+    private void CheckIfNewClientIsSynced(ulong clientId)
+    {
+        if (syncingCurrentClients[clientId].Count == 0 && syncingNewClient[clientId].Count == 0)
+        {
+            Logger.Log($"Client [{clientId}] is fully synced");
+            OnClientConnectedAndReady?.Invoke(clientId);
+        }
+    }
 
     public void ClientReady(ulong clientId)
     {

@@ -23,7 +23,8 @@ public class ClientNamesSynchronizer : NetworkBehaviour
     void Start()
     {
         gameState = GameState.Instance;
-        gameState.OnNewClientConnected += OnClientConnected;
+        gameState.OnClientConnected += OnClientConnected;
+        gameState.OnSelfConnected += OnSelfConnected;
     }
 
     private void SetupListsForNewClient(ulong clientId)
@@ -57,7 +58,11 @@ public class ClientNamesSynchronizer : NetworkBehaviour
                 SetClientName(clientId, thisClientName);
             }
         }
-        else if (selfConnected) // If this is the client that connected to server
+    }
+
+    private void OnSelfConnected(ulong clientId)
+    {
+        if (!IsServer)
         {
             Logger.Log($"Sending initial setup request to server with name {thisClientName}");
             RequestNameServerRpc(clientId, thisClientName);
@@ -128,6 +133,7 @@ public class ClientNamesSynchronizer : NetworkBehaviour
             {
                 newClientSyncingOldClients[clientId].Add(client.clientId);
                 clientsToSync += "{" + client.clientId + " : " + client.clientName + "}, ";
+                Logger.Log($"Syncing client [{client.clientId}] {client.clientName}");
                 SyncOldClientToNewClientRpc(client.clientId, client.clientName,
                                             Utility.SendToOneClient(clientId));
             }
