@@ -53,6 +53,8 @@ public class Player : NetworkBehaviour
         {
             firstPersonMesh.SetActive(false);
         }
+
+        GameState.Instance.SetPlayer(this);
     }
 
     void Start()

@@ -178,6 +178,13 @@ public class GameState : NetworkBehaviour
         return FindClient(clientId);
     }
 
+    public void SetPlayer(Player player)
+    {
+        ClientData client = FindClient(player.OwnerClientId);
+        if (client != null)
+            client.player = player;
+    }
+
     public Player GetPlayer(ulong clientId)
     {
         ClientData client = FindClient(clientId);
