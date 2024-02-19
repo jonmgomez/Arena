@@ -102,7 +102,6 @@ public class MainMenu : MonoBehaviour
         }
 
         NetworkManager.Singleton.OnClientConnectedCallback += (clientId) => {
-            Logger.Log($"[SERVER] Client connected (client id: {clientId})");
             serverClientsConnectedText.text = $"Players connected: {NetworkManager.Singleton.ConnectedClientsList.Count}";
         };
     }
@@ -118,7 +117,6 @@ public class MainMenu : MonoBehaviour
 
         clientConnectingMessage.SetActive(true);
         NetworkManager.Singleton.OnClientConnectedCallback += (clientId) => {
-            Logger.Log($"[CLIENT] Connected to server (client id: {clientId} {NetworkManager.Singleton.LocalClientId})");
             EnableClientConnectedInterface();
         };
     }

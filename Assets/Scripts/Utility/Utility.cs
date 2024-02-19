@@ -25,6 +25,11 @@ public static class Utility
         return mb.StartCoroutine(coroutine);
     }
 
+    public static ClientRpcParams SendToOneClient(ulong clientId)
+    {
+        return CreateClientRpcParams(clientId);
+    }
+
     public static ClientRpcParams CreateClientRpcParams(ulong clientId)
     {
         return new ClientRpcParams

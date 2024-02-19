@@ -7,23 +7,23 @@ using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+public class ClientData
+{
+    public ulong clientId;
+    public string clientName;
+    public Player player;
+}
+
 public class GameState : NetworkBehaviour
 {
-    private class ClientData
-    {
-        public ulong clientId;
-        public string clientName;
-        public Player player;
-    }
-
     public static GameState Instance { get; private set; }
-    private static readonly string[] PLAYER_NAMES = new string[] { "Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel",
-                                                            "India", "Juliet", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec",
-                                                            "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "X-Ray", "Yankee", "Zulu" };
 
-    string thisClientName = "";
-    List<ClientData> connectedClients = new List<ClientData>();
-    List<ulong> waitingForClients = new List<ulong>();
+    private readonly List<ClientData> connectedClients = new List<ClientData>();
+    private ClientNamesSynchronizer clientNameSynchronizer;
+
+    public event Action<ulong> OnNewClientConnected;
+
+    float timeSinceGameStart = 0f;
 
     // Is this is a in-game scene or a lobby/menu
     bool inGameScene = false;
@@ -48,7 +48,7 @@ public class GameState : NetworkBehaviour
         }
     }
 
-    void Start()
+    void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -59,7 +59,18 @@ public class GameState : NetworkBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+        clientNameSynchronizer = GetComponent<ClientNamesSynchronizer>();
+    }
+
+    void Start()
+    {
         ValidateScene(SceneManager.GetActiveScene().name);
+    }
+
+    void Update()
+    {
+        if (inGameScene)
+            timeSinceGameStart += Time.deltaTime;
     }
 
     private void ValidateScene(string sceneName)
@@ -68,7 +79,7 @@ public class GameState : NetworkBehaviour
         inGameScene = sceneName.StartsWith("Arena");
     }
 
-    private void RegisterPlayer(ulong clientId)
+    public void RegisterPlayer(ulong clientId)
     {
         connectedClients.Add(new ClientData { clientId = clientId, player = null });
     }
@@ -91,43 +102,7 @@ public class GameState : NetworkBehaviour
 
         RegisterPlayer(clientId);
 
-        // The server will start by adding new clients to a waiting list.
-        // If the server is also this client, it will shortcut any list since it can sync
-        // The client is responsible for syncing its own data to the server, then the server will sync the client's data to all other clients
-        // The server will receive acknowledgement from the client that the data has been synced and remove the client from the waiting list
-        // Currently, the only data that must be synced is the client's name and id
-        if (IsServer)
-        {
-            if (!selfConnected)
-            {
-                waitingForClients.Add(clientId);
-
-                // Sync all current clients to the new client
-                var clientParams = Utility.CreateClientRpcParams(clientId);
-                string clientsToSync = "";
-                for (int i = 0; i < connectedClients.Count; i++)
-                {
-                    if (connectedClients[i].clientId != clientId)
-                    {
-                        clientsToSync += "{" + connectedClients[i].clientId + " : " + connectedClients[i].clientName + "}, ";
-                        SetClientNameClientRpc(connectedClients[i].clientId, connectedClients[i].clientName, clientParams);
-                    }
-                }
-                Logger.Log($"Client [{clientId}] connected. Syncing all {connectedClients.Count} current clients: \n{clientsToSync}");
-
-            }
-            else
-            {
-                thisClientName = GetPlayerName(thisClientName);
-                SetClientName(clientId, thisClientName);
-                ClientReady(clientId);
-            }
-        }
-        else if (selfConnected)
-        {
-            Logger.Log($"Sending initial setup request to server with name {thisClientName}");
-            SyncNewClientToServerRpc(clientId, thisClientName);
-        }
+        OnNewClientConnected?.Invoke(clientId);
     }
 
     private void OnClientDisconnected(ulong clientId)
@@ -157,6 +132,7 @@ public class GameState : NetworkBehaviour
         if (IsServer)
         {
             ValidateScene(sceneName);
+
             this.Invoke(() => {
                 foreach (ulong client in clientsCompleted)
                 {
@@ -171,63 +147,6 @@ public class GameState : NetworkBehaviour
         }
     }
     #endregion
-
-    [ServerRpc(RequireOwnership = false)]
-    public void SyncNewClientToServerRpc(ulong clientId, FixedString64Bytes playerName)
-    {
-        playerName = GetPlayerName(playerName.ToString());
-
-        Logger.Log($"Syncing new client {clientId} with name {playerName}");
-        FindClient(clientId).clientName = playerName.ToString();
-
-        SetClientNameClientRpc(clientId, playerName);
-    }
-
-    private string GetPlayerName(string playerName)
-    {
-        if (playerName == "")
-        {
-            do
-            {
-                playerName = PLAYER_NAMES[UnityEngine.Random.Range(0, PLAYER_NAMES.Length)];
-            } while (connectedClients.Exists(clientData => clientData.clientName == playerName));
-        }
-
-        return playerName;
-    }
-
-    [ClientRpc]
-    public void SetClientNameClientRpc(ulong clientId, FixedString64Bytes playerName, ClientRpcParams clientParams = default)
-    {
-        Logger.Log($"Setting client name for {clientId} to {playerName}");
-        ClientData client = FindClient(clientId);
-        if (client == null)
-        {
-            client = new ClientData { clientId = clientId, clientName = playerName.ToString() };
-            connectedClients.Add(client);
-        }
-
-        client.clientName = playerName.ToString();
-
-        // Send an acknowledgement to the server that the client has synced the data
-        if (clientId == NetworkManager.Singleton.LocalClientId)
-        {
-            SetLocalClientName(playerName.ToString());
-            AcknowledgeSyncedDataServerRpc(clientId);
-        }
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    public void AcknowledgeSyncedDataServerRpc(ulong clientId)
-    {
-        bool found = waitingForClients.Remove(clientId);
-        if (!found)
-            Logger.LogError($"Client {clientId} not found in waiting list");
-        else
-            Logger.Log($"Client {clientId} acknowledged and synced successfully");
-
-        ClientReady(clientId);
-    }
 
     public void ClientReady(ulong clientId)
     {
@@ -245,20 +164,12 @@ public class GameState : NetworkBehaviour
         }
     }
 
-    private void SetClientName(ulong clientId, string playerName)
+    public void SetLocalClientName(string name)
     {
-        ClientData client = FindClient(clientId);
-        if (client != null)
-        {
-            client.clientName = playerName;
-        }
+        clientNameSynchronizer.SetLocalClientName(name);
     }
 
-    public void SetLocalClientName(string playerName)
-    {
-        thisClientName = playerName;
-    }
-
+    #region Setters/Getters
     public List<Player> GetActivePlayers()
     {
         List<Player> players = new();
@@ -271,6 +182,16 @@ public class GameState : NetworkBehaviour
         return players;
     }
 
+    public List<ClientData> GetConnectedClients()
+    {
+        return connectedClients;
+    }
+
+    public ClientData GetClientData(ulong clientId)
+    {
+        return FindClient(clientId);
+    }
+
     public Player GetPlayer(ulong clientId)
     {
         ClientData client = FindClient(clientId);
@@ -279,4 +200,5 @@ public class GameState : NetworkBehaviour
 
         return null;
     }
+    #endregion
 }
