@@ -142,7 +142,7 @@ public class ClientNamesSynchronizer : NetworkBehaviour
             name = GetValidClientName(name.ToString());
             Logger.Log($"Syncing client {Utility.ClientIdToString(clientId)} with name {name}");
 
-            if (!ClientIsMe(clientId))
+            if (!Net.IsLocalClient(clientId))
                 SetClientName(clientId, name.ToString());
 
             SyncClientNameToAll(clientId, name);
@@ -158,7 +158,7 @@ public class ClientNamesSynchronizer : NetworkBehaviour
         // Send this new client names to all other clients
         foreach (var client in gameState.GetConnectedClients())
         {
-            if (!ClientIsMe(client))
+            if (!Net.IsLocalClient(client.clientId))
                 clientsSyncingNewClient[clientId].Add(client.clientId);
         }
         SyncNewNameClientRpc(clientId, name);
@@ -179,7 +179,7 @@ public class ClientNamesSynchronizer : NetworkBehaviour
 
         SetClientName(clientId, playerName.ToString());
 
-        if (ClientIsMe(clientId))
+        if (Net.IsLocalClient(clientId))
             SetLocalClientName(playerName.ToString());
 
         // Acknowledge to the server that this client has synced the data
@@ -221,15 +221,5 @@ public class ClientNamesSynchronizer : NetworkBehaviour
             clients.Remove(dataFromClientId);
             CheckAllClientsSynced();
         }
-    }
-
-    private bool ClientIsMe(ClientData client)
-    {
-        return ClientIsMe(client.clientId);
-    }
-
-    private bool ClientIsMe(ulong clientId)
-    {
-        return clientId == NetworkManager.Singleton.LocalClientId;
     }
 }

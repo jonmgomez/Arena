@@ -114,7 +114,7 @@ public class GameState : NetworkBehaviour
         Logger.Log($"Client {Utility.ClientIdToString(clientId)} connected");
         RegisterPlayer(clientId);
 
-        if (clientId == NetworkManager.Singleton.LocalClientId)
+        if (Net.IsLocalClient(clientId))
         {
             OnSelfConnected?.Invoke(clientId);
         }
@@ -142,7 +142,7 @@ public class GameState : NetworkBehaviour
                 syncingNewClient.Add(clientId, new List<ulong>());
                 foreach (ClientData client in connectedClients)
                 {
-                    if (client.clientId == clientId || client.clientId == NetworkManager.Singleton.LocalClientId)
+                    if (client.clientId == clientId || Net.IsLocalClient(client.clientId))
                         continue;
 
                     syncingNewClient[clientId].Add(client.clientId);
@@ -169,14 +169,14 @@ public class GameState : NetworkBehaviour
     [ClientRpc]
     private void NewClientInformationClientRpc(ulong clientId)
     {
-        if (IsServer || clientId == NetworkManager.Singleton.LocalClientId)
+        if (IsServer || clientId == Net.LocalClientId)
             return;
 
         Logger.Log($"New client {Utility.ClientIdToString(clientId)} connected. Information received from server. Acknowledging...");
         RegisterPlayer(clientId);
         OnClientConnected?.Invoke(clientId);
 
-        AcknowledgeNewClientInformationServerRpc(clientId, NetworkManager.Singleton.LocalClientId);
+        AcknowledgeNewClientInformationServerRpc(clientId, Net.LocalClientId);
     }
 
     // Clients that are not the server should acknowledge that they are aware
@@ -193,7 +193,7 @@ public class GameState : NetworkBehaviour
     {
         Logger.Log($"Received information about a preexisting client {Utility.ClientIdToString(clientId)} from the server. Acknowledging...");
         RegisterPlayer(clientId);
-        AcknowledgeCurrentClientInformationServerRpc(clientId, NetworkManager.Singleton.LocalClientId);
+        AcknowledgeCurrentClientInformationServerRpc(clientId, Net.LocalClientId);
     }
 
     [ServerRpc(RequireOwnership = false)]

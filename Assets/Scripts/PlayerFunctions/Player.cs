@@ -134,7 +134,7 @@ public class Player : NetworkBehaviour
             InGameController.Instance.PlayerDamaged(this, clientId, isAnonymous);
         }
 
-        if (IsServer && !IsHost)
+        if (Net.IsServerOnly)
             health -= damage;
 
         TakeDamageClientRpc(damage, clientId, isAnonymous);
@@ -235,7 +235,7 @@ public class Player : NetworkBehaviour
     // OnServer: Only called on the server (ServerRpc)
     public void RespawnOnServer(Vector3 spawnPoint)
     {
-        if (IsServer && !IsHost)
+        if (Net.IsServerOnly)
         {
             RespawnPlayer(spawnPoint);
         }

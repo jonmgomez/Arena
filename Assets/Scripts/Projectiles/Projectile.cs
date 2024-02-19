@@ -114,7 +114,7 @@ public class Projectile : MonoBehaviour
 
     public void SetFiredFromClient(bool isServer, bool isHost, ulong clientId)
     {
-        calculateCollisions = (isServer && !isHost) || clientId == NetworkManager.Singleton.LocalClientId;
+        calculateCollisions = (Net.IsServerOnly) || clientId == NetworkManager.Singleton.LocalClientId;
         firedFromClientId = clientId;
     }
 
