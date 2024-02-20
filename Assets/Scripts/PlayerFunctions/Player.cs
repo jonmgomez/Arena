@@ -13,6 +13,7 @@ using UnityEngine.Rendering.Universal;
 public class Player : NetworkBehaviour
 {
     static Vector3 OFF_SCREEN = new(0f, -100f, 0f);
+    private readonly Logger logger = new("PLAYR");
 
     [SerializeField] TextMeshPro playerNameText;
 
@@ -95,10 +96,10 @@ public class Player : NetworkBehaviour
         clientSideHealth -= damage;
         if (clientSideHealth <= 0f)
         {
-            Logger.Log($"[CLIENT] Player-{OwnerClientId} died");
+            logger.Log($"[CLIENT] Player-{OwnerClientId} died");
             OnDeath();
         }
-        Logger.Log($"[CLIENT] Player-{OwnerClientId} took {damage} damage from Player-{damagerClientId}, Health {health}, client-side health {clientSideHealth}");
+        logger.Log($"[CLIENT] Player-{OwnerClientId} took {damage} damage from Player-{damagerClientId}, Health {health}, client-side health {clientSideHealth}");
 
         TakeDamageServerRpc(damage, damagerClientId);
     }
@@ -113,10 +114,10 @@ public class Player : NetworkBehaviour
         clientSideHealth -= damage;
         if (clientSideHealth <= 0f)
         {
-            Logger.Log($"[CLIENT] Player-{OwnerClientId} died");
+            logger.Log($"[CLIENT] Player-{OwnerClientId} died");
             OnDeath();
         }
-        Logger.Log($"[CLIENT] Player {OwnerClientId} took {damage} damage, Health {health}, client-side health {clientSideHealth}");
+        logger.Log($"[CLIENT] Player {OwnerClientId} took {damage} damage, Health {health}, client-side health {clientSideHealth}");
 
         TakeDamageServerRpc(damage, 0, true);
     }
@@ -126,7 +127,7 @@ public class Player : NetworkBehaviour
     {
         if (health > 0f && health - damage <= 0f)
         {
-            Logger.Log($"[SERVER] Player {OwnerClientId} died");
+            logger.Log($"[SERVER] Player {OwnerClientId} died");
             InGameController.Instance.PlayerDied(this, clientId, isAnonymous);
             PlayerSpawnController.Instance.RespawnPlayer(this);
         }
@@ -157,7 +158,7 @@ public class Player : NetworkBehaviour
             // Otherwise, client-side health was already updated by the client that dealt the damage
             if (clientId != NetworkManager.Singleton.LocalClientId)
             {
-                Logger.Log($"[CLIENT] Player {OwnerClientId} took {damage} damage from another Player (Player-{clientId}), " +
+                logger.Log($"[CLIENT] Player {OwnerClientId} took {damage} damage from another Player (Player-{clientId}), " +
                           $"Health: {health}, Client-Side Health: {clientSideHealth}");
                 clientSideHealth -= damage;
             }
@@ -165,7 +166,7 @@ public class Player : NetworkBehaviour
 
         if (clientSideHealth <= 0f)
         {
-            Logger.Log($"[CLIENT] Player {OwnerClientId} died (client rpc)");
+            logger.Log($"[CLIENT] Player {OwnerClientId} died (client rpc)");
             OnDeath();
         }
         else if (IsOwner)

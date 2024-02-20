@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class ClientNetwork : NetworkBehaviour
 {
+    private Logger logger = new("CLNET");
+
     public static ClientNetwork Instance { get; private set; }
 
     private readonly object clientListLock = new();
@@ -39,7 +41,7 @@ public class ClientNetwork : NetworkBehaviour
         }
         else
         {
-            Logger.LogError("NetworkManager.Singleton is null!");
+            logger.LogError("NetworkManager.Singleton is null!");
         }
     }
 
@@ -51,6 +53,7 @@ public class ClientNetwork : NetworkBehaviour
             return;
         }
 
+        logger = new("CLNET");
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
@@ -78,7 +81,7 @@ public class ClientNetwork : NetworkBehaviour
 
     private void OnClientConnect(ulong clientId)
     {
-        Logger.Log($"Client {Utility.ClientIdToString(clientId)} connected");
+        logger.Log($"Client {Utility.ClientIdToString(clientId)} connected");
         RegisterPlayer(clientId);
 
         if (Net.IsLocalClient(clientId))
@@ -102,7 +105,7 @@ public class ClientNetwork : NetworkBehaviour
                     CurrentClientInformationClientRpc(client.clientId,
                                                       Utility.SendToOneClient(clientId));
                 }
-                Logger.Log($"Syncing all {connectedClients.Count - 1} preexisting clients to new client {Utility.ClientIdToString(clientId)}\ncurrent client(s): {clientsToSync}");
+                logger.Log($"Syncing all {connectedClients.Count - 1} preexisting clients to new client {Utility.ClientIdToString(clientId)}\ncurrent client(s): {clientsToSync}");
 
                 // Send information about the new client to all already connected clients
                 // (except the new client and the server)
@@ -124,7 +127,7 @@ public class ClientNetwork : NetworkBehaviour
 
     private void OnClientDisconnect(ulong clientId)
     {
-        Logger.Log($"Client {Utility.ClientNameToString(clientId)} disconnected");
+        logger.Log($"Client {Utility.ClientNameToString(clientId)} disconnected");
         UnregisterPlayer(clientId);
 
         if (IsServer)
@@ -142,7 +145,7 @@ public class ClientNetwork : NetworkBehaviour
         if (IsServer || clientId == Net.LocalClientId)
             return;
 
-        Logger.Log($"New client {Utility.ClientIdToString(clientId)} connected. Information received from server. Acknowledging...");
+        logger.Log($"New client {Utility.ClientIdToString(clientId)} connected. Information received from server. Acknowledging...");
         RegisterPlayer(clientId);
         OnClientConnected?.Invoke(clientId);
 
@@ -161,7 +164,7 @@ public class ClientNetwork : NetworkBehaviour
     [ClientRpc]
     private void CurrentClientInformationClientRpc(ulong clientId, ClientRpcParams clientParams = default)
     {
-        Logger.Log($"Received information about a preexisting client {Utility.ClientIdToString(clientId)} from the server. Acknowledging...");
+        logger.Log($"Received information about a preexisting client {Utility.ClientIdToString(clientId)} from the server. Acknowledging...");
         RegisterPlayer(clientId);
         AcknowledgeCurrentClientInformationServerRpc(clientId, Net.LocalClientId);
     }
@@ -180,7 +183,7 @@ public class ClientNetwork : NetworkBehaviour
         if (IsServer)
             return;
 
-        Logger.Log($"Client {Utility.ClientIdToString(clientId)} disconnected");
+        logger.Log($"Client {Utility.ClientIdToString(clientId)} disconnected");
         UnregisterPlayer(clientId);
         OnClientDisconnected?.Invoke(clientId);
     }
@@ -209,13 +212,13 @@ public class ClientNetwork : NetworkBehaviour
     {
         if (IsClientSynced(clientId))
         {
-            Logger.Log($"Client {Utility.ClientNameToString(clientId)} is synced");
+            logger.Log($"Client {Utility.ClientNameToString(clientId)} is synced");
             OnClientConnectedAndReady?.Invoke(clientId);
         }
 
         if (AreClientsSynced())
         {
-            Logger.Log("All clients are network synced");
+            logger.Log("All clients are network synced");
             OnClientsReady?.Invoke();
         }
     }

@@ -16,6 +16,8 @@ public class ClientData
 
 public class GameState : NetworkBehaviour
 {
+    private readonly Logger logger = new("GAMESTATE");
+
     public static GameState Instance { get; private set; }
 
     private readonly List<ClientData> connectedClients = new();
@@ -44,7 +46,7 @@ public class GameState : NetworkBehaviour
         }
         else
         {
-            Logger.LogError("NetworkManager.Singleton is null!");
+            logger.LogError("NetworkManager.Singleton is null!");
         }
     }
 
@@ -92,7 +94,7 @@ public class GameState : NetworkBehaviour
                                             List<ulong> clientsCompleted,
                                             List<ulong> clientsTimedOut)
     {
-        Logger.Log($"Networked load scene complete. {sceneName} loaded. {clientsCompleted.Count} clients connected. {clientsTimedOut.Count} clients timed out.");
+        logger.Log($"Networked load scene complete. {sceneName} loaded. {clientsCompleted.Count} clients connected. {clientsTimedOut.Count} clients timed out.");
 
         if (IsServer)
         {
@@ -128,7 +130,7 @@ public class GameState : NetworkBehaviour
         {
             if (clientNetwork.AreClientsSynced() && clientNameSynchronizer.AreClientsSynced())
             {
-                Logger.Log("All clients are ready. Game is able to start");
+                logger.Log("All clients are ready. Game is able to start");
                 AllClientsReady?.Invoke();
             }
         }

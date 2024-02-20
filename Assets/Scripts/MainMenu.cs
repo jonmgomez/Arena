@@ -67,7 +67,7 @@ public class MainMenu : MonoBehaviour
                     float delay = float.Parse(playerNameInput.text);
                     if (delay < 0) throw new FormatException();
 
-                    Logger.Log($"Delaying join for {delay} second(s)");
+                    Logger.Default.Log($"Delaying join for {delay} second(s)");
                     this.Invoke(() => {
                         relay.JoinRelay(joinCodeInput.text);
                     }, delay);

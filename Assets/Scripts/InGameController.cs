@@ -48,7 +48,7 @@ public class InGameController : NetworkBehaviour
 
         foreach (var key in toRemove)
         {
-            Logger.Log($"Player {key} last damaged timeout expired");
+            Logger.Default.Log($"Player {key} last damaged timeout expired");
             players.Remove(key);
         }
     }

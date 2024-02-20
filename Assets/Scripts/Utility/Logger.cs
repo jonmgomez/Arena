@@ -3,45 +3,81 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class Logger
+public class Logger
 {
-    public static void Log(object message)
+    private class DefaultLogHandler : ILogHandler
     {
-        Debug.Log(message);
+        private readonly ILogHandler defaultLogHandler = Debug.unityLogger.logHandler;
+
+        public void LogFormat(LogType logType, UnityEngine.Object context, string format, params object[] args)
+        {
+            defaultLogHandler.LogFormat(logType, context, format, args);
+        }
+
+        public void LogException(Exception exception, UnityEngine.Object context)
+        {
+            defaultLogHandler.LogException(exception, context);
+        }
     }
 
-    public static void Log(object message, UnityEngine.Object context)
+    public static Logger Default = new("");
+
+    private readonly UnityEngine.Logger logger = new(new DefaultLogHandler());
+    private readonly string region;
+    private bool logDebug = false;
+
+    public Logger(string region)
     {
-        Debug.Log(message, context);
+        this.region = region;
+
+        // Enable debug logging in the editor but not release builds
+        #if UNITY_EDITOR
+        logDebug = true;
+        #endif
     }
 
-    public static void LogWarning(object message)
+    public void LogDebug(object message)
     {
-        Debug.LogWarning(message);
+        if (logDebug)
+            Log(message);
     }
 
-    public static void LogWarning(object message, UnityEngine.Object context)
+    public void Log(object message)
     {
-        Debug.LogWarning(message, context);
+        logger.Log(FormatMessage(message));
     }
 
-    public static void LogError(object message)
+    public void LogWarning(object message)
     {
-        Debug.LogError(message);
+        logger.LogWarning("", FormatMessage(message));
     }
 
-    public static void LogError(object message, UnityEngine.Object context)
+    public void LogError(object message)
     {
-        Debug.LogError(message, context);
+        logger.LogError("", FormatMessage(message));
     }
 
-        public static void LogException(Exception exception)
+    public void LogException(Exception exception)
     {
-        Debug.LogException(exception);
+        string message = exception.Message;
+        LogError($"Exception: {message}");
     }
 
-    public static void LogException(Exception exception, UnityEngine.Object context)
+    private object FormatMessage(object message)
     {
-        Debug.LogException(exception, context);
+        if (string.IsNullOrEmpty(region))
+            return message;
+
+        return $"[{region}] {message}";
+    }
+
+    public void EnableDebugLogging()
+    {
+        logDebug = true;
+    }
+
+    public void DisableDebugLogging()
+    {
+        logDebug = false;
     }
 }

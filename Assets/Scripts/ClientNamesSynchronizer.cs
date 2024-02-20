@@ -10,6 +10,7 @@ public class ClientNamesSynchronizer : NetworkBehaviour
     private static readonly string[] PLAYER_NAMES = new string[] { "Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel",
                                                                    "India", "Juliet", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec",
                                                                    "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "X-Ray", "Yankee", "Zulu" };
+    private readonly Logger logger = new("NAMES");
 
     GameState gameState;
     string thisClientName = "";
@@ -59,7 +60,7 @@ public class ClientNamesSynchronizer : NetworkBehaviour
         }
         else
         {
-            Logger.Log($"Sending initial setup request to server with name {thisClientName}");
+            logger.Log($"Sending initial setup request to server with name {thisClientName}");
             RequestNameServerRpc(clientId, thisClientName);
         }
     }
@@ -84,7 +85,7 @@ public class ClientNamesSynchronizer : NetworkBehaviour
                 totalWaitingNewClients <= 0 &&
                 totalWaitingOldClients <= 0)
             {
-                Logger.Log("Client names synced");
+                logger.Log("Client names synced");
                 OnClientsReady?.Invoke();
             }
         }
@@ -159,7 +160,7 @@ public class ClientNamesSynchronizer : NetworkBehaviour
             waitingForInitialClientNameSync.Remove(clientId);
 
             name = GetValidClientName(name.ToString());
-            Logger.Log($"Syncing client {Utility.ClientIdToString(clientId)} with name {name}");
+            logger.Log($"Syncing client {Utility.ClientIdToString(clientId)} with name {name}");
 
             if (!Net.IsLocalClient(clientId))
                 SetClientName(clientId, name.ToString());
@@ -168,7 +169,7 @@ public class ClientNamesSynchronizer : NetworkBehaviour
         }
         else
         {
-            Logger.LogError($"Received name sync request from client {Utility.ClientIdToString(clientId)}, but client is not in waiting list");
+            logger.LogError($"Received name sync request from client {Utility.ClientIdToString(clientId)}, but client is not in waiting list");
         }
     }
 
@@ -188,10 +189,10 @@ public class ClientNamesSynchronizer : NetworkBehaviour
     {
         if (IsServer) return;
 
-        Logger.Log($"Setting client name {Utility.ClientIdToString(clientId)}: {playerName}");
+        logger.Log($"Setting client name {Utility.ClientIdToString(clientId)}: {playerName}");
         if (gameState.GetClientData(clientId) == null)
         {
-            Logger.LogError($"Client {clientId} not found in connected clients list");
+            logger.LogError($"Client {clientId} not found in connected clients list");
             return;
         }
 
@@ -220,7 +221,7 @@ public class ClientNamesSynchronizer : NetworkBehaviour
     {
         if (gameState.GetClientData(clientId) == null)
         {
-            Logger.LogError($"Client {clientId} not found in connected clients list");
+            logger.LogError($"Client {clientId} not found in connected clients list");
             return;
         }
 
