@@ -14,7 +14,6 @@ public class LogFile
 
     public static void WriteToFile(string message)
     {
-        Debug.Log("Writing to log file: " + LOG_FILE);
         if (!System.IO.File.Exists(LOG_FILE))
         {
             System.IO.File.WriteAllText(LOG_FILE, "Log file created at " + DateTime.Now + Environment.NewLine);

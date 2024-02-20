@@ -124,6 +124,10 @@ public class GameState : NetworkBehaviour
         CheckClientsReady();
     }
 
+    /// <summary>
+    /// Checks if there are any waiting clients from any synchronizing components
+    /// Will call the AllClientsReady event if there are no waiting clients
+    /// </summary>
     private void CheckClientsReady()
     {
         if (IsServer)
