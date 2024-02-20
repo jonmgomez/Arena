@@ -37,9 +37,6 @@ public class PlayerSpawnController : NetworkBehaviour
         Player player = Instantiate(playerPrefab, GetSpawnPoint(), Quaternion.identity);
         player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
 
-        if (playerName != "")
-            player.SetName(playerName);
-
         return player;
     }
 

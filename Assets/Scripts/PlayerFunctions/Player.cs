@@ -14,7 +14,6 @@ public class Player : NetworkBehaviour
 {
     static Vector3 OFF_SCREEN = new(0f, -100f, 0f);
 
-    NetworkVariable<FixedString64Bytes> playerName = new("");
     [SerializeField] TextMeshPro playerNameText;
 
     [SerializeField] float health = 100f;
@@ -55,6 +54,7 @@ public class Player : NetworkBehaviour
         }
 
         GameState.Instance.SetPlayer(this);
+        playerNameText.text = GameState.Instance.GetClientData(OwnerClientId).clientName;
     }
 
     void Start()
@@ -63,12 +63,11 @@ public class Player : NetworkBehaviour
         characterController = GetComponent<CharacterController>();
         playerMovement = GetComponent<PlayerMovement>();
         playerWeapon = GetComponent<PlayerWeapon>();
-        playerNameText.text = GetName();
 
         if (!IsOwner)
             return;
-        else
-            playerNameText.gameObject.SetActive(false);
+
+        playerNameText.gameObject.SetActive(false);
 
         HUD = FindObjectOfType<PlayerHUD>(true);
         HUD.gameObject.SetActive(true);
@@ -274,6 +273,5 @@ public class Player : NetworkBehaviour
         this.Invoke(() => clientNetworkTransform.Interpolate = true, 0.25f);
     }
 
-    public string GetName() => playerName.Value.ToString();
-    public void SetName(string name) => playerName.Value = name;
+    public string GetName() => playerNameText.text;
 }
