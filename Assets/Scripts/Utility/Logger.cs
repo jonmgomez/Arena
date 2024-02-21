@@ -5,7 +5,11 @@ using UnityEngine;
 
 public class LogFile
 {
+    private static LogFile Instance { get; set; } = new LogFile();
+    private static int MAX_LOG_MESSAGES = 100;
     private static readonly string LOG_FILE = Application.dataPath + "/log.txt";
+
+    List<string> logMessages = new();
 
     public static void WriteToFile(object message)
     {
@@ -14,12 +18,26 @@ public class LogFile
 
     public static void WriteToFile(string message)
     {
+        Instance.logMessages.Add(ObjectToString(message));
+
+        if (Instance.logMessages.Count > MAX_LOG_MESSAGES)
+        {
+            Instance.DumpToFile();
+        }
+    }
+
+    private void DumpToFile()
+    {
         if (!System.IO.File.Exists(LOG_FILE))
         {
             System.IO.File.WriteAllText(LOG_FILE, "Log file created at " + DateTime.Now + Environment.NewLine);
         }
 
-        System.IO.File.AppendAllText(LOG_FILE, message + Environment.NewLine);
+        while (logMessages.Count > 0)
+        {
+            System.IO.File.AppendAllText(LOG_FILE, logMessages[0] + Environment.NewLine);
+            logMessages.RemoveAt(0);
+        }
     }
 
     private static string ObjectToString(object obj)
