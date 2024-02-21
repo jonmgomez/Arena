@@ -28,6 +28,7 @@ public class GameState : NetworkBehaviour
     public event Action WaitingForClients;
 
     float timeSinceGameStart = 0f;
+    bool clientsReady = true;
 
     // Is this is a in-game scene or a lobby/menu
     bool inGameScene = false;
@@ -62,10 +63,12 @@ public class GameState : NetworkBehaviour
         DontDestroyOnLoad(gameObject);
 
         clientNetwork = GetComponent<ClientNetwork>();
-        clientNetwork.OnClientsReady += ClientNetworkSynced;
-        clientNetwork.OnWaitingForClients += () => WaitingForClients?.Invoke();
+        clientNetwork.AllClientsSynced += ClientNetworkSynced;
+        clientNetwork.OnWaitingForClient += ClientsNoLongerReady;
+
         clientNameSynchronizer = GetComponent<ClientNamesSynchronizer>();
-        clientNameSynchronizer.OnClientsReady += ClientNamesSynced;
+        clientNameSynchronizer.AllClientsSynced += ClientNamesSynced;
+        clientNameSynchronizer.OnWaitingForClient += ClientsNoLongerReady;
     }
 
     void Start()
@@ -114,6 +117,15 @@ public class GameState : NetworkBehaviour
         }
     }
 
+    private void ClientsNoLongerReady(ulong clientId)
+    {
+        if (clientsReady)
+        {
+            clientsReady = false;
+            WaitingForClients?.Invoke();
+        }
+    }
+
     private void ClientNetworkSynced()
     {
         CheckClientsReady();
@@ -130,12 +142,13 @@ public class GameState : NetworkBehaviour
     /// </summary>
     private void CheckClientsReady()
     {
-        if (IsServer)
+        if (IsServer && !clientsReady)
         {
             if (clientNetwork.AreClientsSynced() && clientNameSynchronizer.AreClientsSynced())
             {
                 logger.Log("All clients are ready. Game is able to start");
                 AllClientsReady?.Invoke();
+                clientsReady = true;
             }
         }
     }

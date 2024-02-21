@@ -82,14 +82,14 @@ public class Logger
     public void LogWarning(object message)
     {
         message = FormatMessage(message);
-        logger.LogWarning("", FormatMessage(message));
+        logger.LogWarning("", message);
         LogFile.WriteToFile($"WARNING : {message}");
     }
 
     public void LogError(object message)
     {
         message = FormatMessage(message);
-        logger.LogError("", FormatMessage(message));
+        logger.LogError("", message);
         LogFile.WriteToFile($"ERROR : {message}");
     }
 

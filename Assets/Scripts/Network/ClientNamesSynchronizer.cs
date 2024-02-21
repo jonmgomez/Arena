@@ -2,36 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEditor.PackageManager;
 using UnityEngine;
 
-public class ClientNamesSynchronizer : NetworkBehaviour
+public class ClientNamesSynchronizer : SynchronizedData
 {
     private static readonly string[] PLAYER_NAMES = new string[] { "Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel",
                                                                    "India", "Juliet", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec",
                                                                    "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "X-Ray", "Yankee", "Zulu" };
-    private readonly Logger logger = new("NAMES");
 
     GameState gameState;
     string thisClientName = "";
 
-    private readonly Dictionary<ulong, List<ulong>> syncingNewClient = new();
-    private readonly Dictionary<ulong, List<ulong>> syncingCurrentClients = new();
     private readonly List<ulong> waitingForInitialClientNameSync = new();
 
-    public event System.Action OnClientsReady;
+    public ClientNamesSynchronizer()
+    {
+        logger = new("NAMES");
+    }
 
     void Start()
     {
         gameState = GameState.Instance;
         ClientNetwork.Instance.OnClientConnected += OnClientConnected;
         ClientNetwork.Instance.OnConnectToServer += OnSelfConnected;
-    }
-
-    private void SetupListsForNewClient(ulong clientId)
-    {
-        syncingNewClient.Add(clientId, new List<ulong>());
-        syncingCurrentClients.Add(clientId, new List<ulong>());
     }
 
     private void OnClientConnected(ulong clientId)
@@ -41,13 +36,15 @@ public class ClientNamesSynchronizer : NetworkBehaviour
         // The client is responsible for syncing its own data to the server, then the server will sync the client's data to all other clients
         // The server will receive acknowledgement from the client that the data has been synced and remove the client from the waiting list
         // Currently, the only data that must be synced is the client's name and id
-
-        SetupListsForNewClient(clientId);
         if (IsServer)
         {
-            // Add client to wait list. Wait for client to send their name using SyncMyClientNameToServerRpc()
             waitingForInitialClientNameSync.Add(clientId);
-            SyncAllCurrentClientsToNewClient(clientId);
+            AddNewClientId(clientId);
+
+            SyncCurrentClientsToNewClient(clientId, (ClientData client) => {
+                SyncCurrentClientToNewClientRpc(client.clientId, client.clientName,
+                                                Utility.SendToOneClient(clientId));
+            });
         }
     }
 
@@ -63,42 +60,6 @@ public class ClientNamesSynchronizer : NetworkBehaviour
             logger.Log($"Sending initial setup request to server with name {thisClientName}");
             RequestNameServerRpc(clientId, thisClientName);
         }
-    }
-
-    /// <summary>
-    /// Checks if clients are synced and ready, if so invoke the OnClientsReady event
-    /// </summary>
-    public void CheckAllClientsSynced()
-    {
-        if (IsServer)
-        {
-            if (AreClientsSynced())
-            {
-                logger.Log("Client names synced");
-                OnClientsReady?.Invoke();
-            }
-        }
-    }
-
-    /// <summary>
-    /// Checks through all wait lists to see if there are any clients there are still being waited on for sync
-    /// </summary>
-    /// <returns>Whether all client's names are in sync with each other</returns>
-    public bool AreClientsSynced()
-    {
-        static bool IsWaitingToSync(Dictionary<ulong, List<ulong>> clients)
-        {
-            foreach (var client in clients)
-            {
-                if (client.Value.Count > 0)
-                    return false;
-            }
-            return true;
-        }
-
-        return waitingForInitialClientNameSync.Count <= 0 &&
-               IsWaitingToSync(syncingNewClient) &&
-               IsWaitingToSync(syncingCurrentClients);
     }
 
     /// <summary>
@@ -143,25 +104,22 @@ public class ClientNamesSynchronizer : NetworkBehaviour
         return playerName;
     }
 
-    /// <summary>
-    /// Runs through all currently connected clients and adds their id to this clients list
-    /// A ClientRpc with each client's name will be sent to this client
-    /// </summary>
-    /// <param name="clientId">The client to send all other clients data to</param>
-    private void SyncAllCurrentClientsToNewClient(ulong clientId)
+    protected override bool IsClientSyncedAdditional(ulong clientId)
     {
-        List<ClientData> connectedClients = gameState.GetConnectedClients();
-        foreach (var client in connectedClients)
-        {
-            if (client.clientId != clientId)
-            {
-                syncingCurrentClients[clientId].Add(client.clientId);
-                SyncOldClientToNewClientRpc(client.clientId, client.clientName,
-                                            Utility.SendToOneClient(clientId));
-            }
-        }
+        return !waitingForInitialClientNameSync.Contains(clientId);
     }
 
+    protected override bool AreAllClientsSyncedAdditional()
+    {
+        return waitingForInitialClientNameSync.Count == 0;
+    }
+
+    /// <summary>
+    /// Request a name for this client id to the server. The server will respond by syncing a
+    /// new valid (unchanged is valid) name to this client and all other clients
+    /// </summary>
+    /// <param name="clientId">The id of the client name to request for</param>
+    /// <param name="name"></param>
     [ServerRpc(RequireOwnership = false)]
     private void RequestNameServerRpc(ulong clientId, FixedString64Bytes name)
     {
@@ -175,29 +133,15 @@ public class ClientNamesSynchronizer : NetworkBehaviour
             if (!Net.IsLocalClient(clientId))
                 SetClientName(clientId, name.ToString());
 
-            SyncClientNameToAll(clientId, name);
+
+            SyncNewClientToCurrentClients(clientId, () => {
+                SyncNewNameClientRpc(clientId, name);
+            });
         }
         else
         {
             logger.LogError($"Received name sync request from client {Utility.ClientIdToString(clientId)}, but client is not in waiting list");
         }
-    }
-
-    /// <summary>
-    /// Add all currently connected clients to the wait list. Send a ClientRpc to all clients with the new client's name
-    /// <para>Clients will eventually acknowledge with a ServerRpc that the data was received</para>
-    /// </summary>
-    /// <param name="clientId">The id of the client in which their name will be sent</param>
-    /// <param name="name">The name of this client to send to all others</param>
-    private void SyncClientNameToAll(ulong clientId, FixedString64Bytes name)
-    {
-        // Send this new client names to all other clients
-        foreach (var client in gameState.GetConnectedClients())
-        {
-            if (!Net.IsLocalClient(client.clientId))
-                syncingNewClient[clientId].Add(client.clientId);
-        }
-        SyncNewNameClientRpc(clientId, name);
     }
 
     [ClientRpc]
@@ -218,22 +162,11 @@ public class ClientNamesSynchronizer : NetworkBehaviour
             SetLocalClientName(playerName.ToString());
 
         // Acknowledge to the server that this client has synced the data
-        AcknowledgeNewNameServerRpc(NetworkManager.Singleton.LocalClientId, clientId);
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void AcknowledgeNewNameServerRpc(ulong syncedClient, ulong dataFromClientId)
-    {
-        List<ulong> clients = syncingNewClient[dataFromClientId];
-        if (clients != null)
-        {
-            clients.Remove(syncedClient);
-            CheckAllClientsSynced();
-        }
+        AcknowledgeNewClientDataServerRpc(clientId, Net.LocalClientId);
     }
 
     [ClientRpc]
-    public void SyncOldClientToNewClientRpc(ulong clientId, FixedString64Bytes playerName, ClientRpcParams clientParams = default)
+    public void SyncCurrentClientToNewClientRpc(ulong clientId, FixedString64Bytes playerName, ClientRpcParams clientParams = default)
     {
         if (gameState.GetClientData(clientId) == null)
         {
@@ -241,19 +174,10 @@ public class ClientNamesSynchronizer : NetworkBehaviour
             return;
         }
 
+        logger.Log($"Setting current client name {Utility.ClientIdToString(clientId)}: {playerName}");
         SetClientName(clientId, playerName.ToString());
-        // Acknowledge the server that this client has synced the data
-        AcknowledgeOldClientsToNewServerRpc(NetworkManager.Singleton.LocalClientId, clientId);
-    }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void AcknowledgeOldClientsToNewServerRpc(ulong syncedClient, ulong dataFromClientId)
-    {
-        List<ulong> clients = syncingCurrentClients[syncedClient];
-        if (clients != null)
-        {
-            clients.Remove(dataFromClientId);
-            CheckAllClientsSynced();
-        }
+        // Acknowledge the server that this client has synced the data
+        AcknowledgeCurrentClientDataServerRpc(clientId, Net.LocalClientId);
     }
 }

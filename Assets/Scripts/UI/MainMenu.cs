@@ -108,13 +108,14 @@ public class MainMenu : MonoBehaviour
 
     private void EnableServerReadyInterface(string joinCode)
     {
-        ClientNetwork.Instance.OnWaitingForClients += () => {
+        // Enable/disable the start button if we are waiting on a client to connect and sync their data
+        GameState.Instance.WaitingForClients += () => {
             startButton.interactable = false;
             waitingForClientsText.gameObject.SetActive(true);
         };
 
-        ClientNetwork.Instance.OnClientsReady += () => {
-            this.Invoke(() => { // Its too fast. I want to see the waiting for clients message at least a bit ¯\_(ツ)_/¯
+        GameState.Instance.AllClientsReady += () => {
+            this.Invoke(() => { // Clients sync too fast. I want to see the waiting for clients message at least a bit ¯\_(ツ)_/¯
                 startButton.interactable = true;
                 waitingForClientsText.gameObject.SetActive(false);
             }, 2f);

@@ -50,7 +50,7 @@ public static class Utility
     public static string ClientNameToString(ulong clientId)
     {
         ClientData clientData = GameState.Instance.GetClientData(clientId);
-        string name = " (" + clientData?.clientName + ")" ?? "";
+        string name = string.IsNullOrEmpty(clientData.clientName) ? " (" + clientData?.clientName + ")" : "";
         return $"[{clientId}{name}" + (clientId == NetworkManager.Singleton.LocalClientId ? " (Self)" : "") + "]";
     }
 
