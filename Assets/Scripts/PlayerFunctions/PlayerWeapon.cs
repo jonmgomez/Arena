@@ -133,9 +133,8 @@ public class PlayerWeapon : NetworkBehaviour
 
     public void SetEnabled(bool enabled)
     {
-        // TODO: Do custom enabling of weapon script. Otherwise fire rate coroutines will be stopped.
         crosshair.gameObject.SetActive(enabled);
-        mainWeapon.SetEnabled(enabled);
+        activeWeapon.SetEnabled(enabled);
     }
 
     private int GetWeaponIndex(Weapon weapon)

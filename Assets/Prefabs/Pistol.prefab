@@ -154,13 +154,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ed3e033e69fc75429e1b7224f1b1741, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canADS: 0
-  fireRate: 0.1
-  isAutomatic: 0
-  bloomPerShotPercent: 0.05
-  recoilVerticalAmount: 0.5
-  recoilRecoveryRate: 0.1
-  recoilHorizontalAmount: 0.1
+  Name: Pistol
+  CanADS: 0
+  FireRate: 0.1
+  IsAutomatic: 0
+  ReloadTime: 1
+  AutoReloadDelay: 0.5
+  ammo: 0
+  projectilesPerShot: 1
+  BloomPerShotPercent: 0.1
   firePoint: {fileID: 0}
   muzzle: {fileID: 4218370262448939126}
   projectilePrefab: {fileID: 5770585688798484500, guid: 749c4ec493decfd488c37d9f4424e1ed,

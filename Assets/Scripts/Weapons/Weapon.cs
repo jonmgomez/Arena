@@ -181,15 +181,11 @@ public abstract class Weapon : NetworkBehaviour
     public void SetEnabled(bool enabled)
     {
         if (enabled)
-        {
             SetState(DetermineState());
-            Array.ForEach(renderers, r => r.enabled = true);
-        }
         else
-        {
             SetState(WeaponState.State.Disabled);
-            Array.ForEach(renderers, r => r.enabled = false);
-        }
+
+        Array.ForEach(renderers, r => r.enabled = enabled);
     }
 
     public float GetFireRate() => FireRate;

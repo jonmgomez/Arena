@@ -152,6 +152,8 @@ public class GameState : NetworkBehaviour
                 ClientReady?.Invoke(clientId);
 
                 CheckAllClientsReady();
+
+                InformClientIsSyncedClientRpc(Utility.SendToOneClient(clientId));
             }
         }
     }
@@ -201,6 +203,16 @@ public class GameState : NetworkBehaviour
                 logger.LogError($"Cannot spawn player for client {clientId}. Client not found in connections list");
             }
         }
+    }
+
+    /// <summary>
+    /// Send message to a specific client that it has properly synced necessary data
+    /// </summary>
+    /// <param name="clientRpcParams"></param>
+    [ClientRpc]
+    private void InformClientIsSyncedClientRpc(ClientRpcParams clientRpcParams = default)
+    {
+        ClientReady?.Invoke(Net.LocalClientId);
     }
 
     #region Setters/Getters

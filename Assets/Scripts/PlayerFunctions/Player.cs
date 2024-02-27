@@ -52,7 +52,9 @@ public class Player : NetworkBehaviour
             GameState.Instance.ClientReady += (clientId) =>
             {
                 if (Net.IsLocalClient(clientId))
+                {
                     NetworkSpawn();
+                }
             };
         }
         else
