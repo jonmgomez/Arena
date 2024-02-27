@@ -45,6 +45,24 @@ public class Player : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        // If this player has just connected and immediately loads in a game scene,
+        // then we must wait for the client to be ready before properly setting player data
+        if (GameState.Instance.GetConnectedClients().Count <= 0)
+        {
+            GameState.Instance.ClientReady += (clientId) =>
+            {
+                if (Net.IsLocalClient(clientId))
+                    NetworkSpawn();
+            };
+        }
+        else
+        {
+            NetworkSpawn();
+        }
+    }
+
+    void NetworkSpawn()
+    {
         if (IsOwner)
         {
             thirdPersonMesh.SetActive(false);

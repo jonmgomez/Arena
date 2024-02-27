@@ -23,25 +23,6 @@ public class ClientNetwork : SynchronizedData
         logger = new("CLNET");
     }
 
-    public override void OnNetworkSpawn()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(this);
-            return;
-        }
-
-        if (NetworkManager.Singleton != null)
-        {
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnect;
-            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
-        }
-        else
-        {
-            logger.LogError("NetworkManager.Singleton is null!");
-        }
-    }
-
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -57,6 +38,16 @@ public class ClientNetwork : SynchronizedData
     void Start()
     {
         connectedClients = GameState.Instance.GetConnectedClients();
+
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnect;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
+        }
+        else
+        {
+            logger.LogError("NetworkManager.Singleton is null!");
+        }
 
         ClientSynced += (clientId) => OnClientConnectedAndReady?.Invoke(clientId);
     }

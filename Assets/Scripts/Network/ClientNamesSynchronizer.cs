@@ -31,6 +31,7 @@ public class ClientNamesSynchronizer : SynchronizedData
 
     private void OnClientConnected(ulong clientId)
     {
+        logger.Log($"Client {Utility.ClientIdToString(clientId)} connected");
         // The server will start by adding new clients to a waiting list.
         // If the server is also this client, it will shortcut any list since it can sync
         // The client is responsible for syncing its own data to the server, then the server will sync the client's data to all other clients

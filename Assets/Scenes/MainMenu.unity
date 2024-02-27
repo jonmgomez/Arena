@@ -4030,6 +4030,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2405080654054025882, guid: 6a6b4785fa2edb04f8ca720249fac4c5,
+        type: 3}
+      propertyPath: NetworkConfig.EnableSceneManagement
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3713111795748606897, guid: 6a6b4785fa2edb04f8ca720249fac4c5,
         type: 3}
       propertyPath: m_Name

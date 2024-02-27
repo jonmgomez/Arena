@@ -11,9 +11,8 @@ public class SynchronizedData : NetworkBehaviour
     private readonly Dictionary<ulong, List<ulong>> syncingNewClient = new();
     private readonly Dictionary<ulong, List<ulong>> syncingCurrentClients = new();
 
-    public event Action<ulong> OnWaitingForClient;
+    public event Action<ulong> WaitingForClient;
     public event Action<ulong> ClientSynced;
-    public event Action AllClientsSynced;
 
     /// <summary>
     /// Register a client's id within the synchronization wait lists.
@@ -23,20 +22,6 @@ public class SynchronizedData : NetworkBehaviour
     {
         syncingNewClient.Add(clientId, new List<ulong>());
         syncingCurrentClients.Add(clientId, new List<ulong>());
-    }
-
-    /// <summary>
-    /// Checks if clients are synced and ready, if so invoke the AllClientsSynced event
-    /// </summary>
-    protected void CheckAllClientsSynced()
-    {
-        if (IsServer)
-        {
-            if (AreClientsSynced())
-            {
-                AllClientsSynced?.Invoke();
-            }
-        }
     }
 
     /// <summary>
@@ -51,9 +36,6 @@ public class SynchronizedData : NetworkBehaviour
             {
                 logger.LogDebug($"Client {Utility.ClientNameToString(clientId)} is synced");
                 ClientSynced?.Invoke(clientId);
-
-                // And if this client has just been synced, check if all clients are now synced
-                CheckAllClientsSynced();
             }
         }
     }
@@ -122,7 +104,7 @@ public class SynchronizedData : NetworkBehaviour
             }
         }
 
-        OnWaitingForClient?.Invoke(clientId);
+        WaitingForClient?.Invoke(clientId);
     }
 
     /// <summary>
@@ -157,7 +139,7 @@ public class SynchronizedData : NetworkBehaviour
         }
         SyncNewClientRpcFunc();
 
-        OnWaitingForClient?.Invoke(clientId);
+        WaitingForClient?.Invoke(clientId);
     }
 
     /// <summary>

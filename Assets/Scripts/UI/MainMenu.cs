@@ -26,7 +26,8 @@ public class MainMenu : MonoBehaviour
 
     void Start()
     {
-        hostButton.onClick.AddListener(() => {
+        hostButton.onClick.AddListener(() =>
+        {
             if (relay.UsingRelay())
             {
                 relay.OnJoinCodeGenerated += (joinCode) => {
@@ -42,7 +43,8 @@ public class MainMenu : MonoBehaviour
             EnableServerInterface();
         });
 
-        serverButton.onClick.AddListener(() => {
+        serverButton.onClick.AddListener(() =>
+        {
             if (relay.UsingRelay())
             {
                 relay.OnJoinCodeGenerated += (joinCode) => {
@@ -58,7 +60,8 @@ public class MainMenu : MonoBehaviour
             EnableServerInterface();
         });
 
-        clientButton.onClick.AddListener(() => {
+        clientButton.onClick.AddListener(() =>
+        {
             if (relay.UsingRelay())
             {
                 // Support for delaying join for testing purposes
@@ -84,9 +87,17 @@ public class MainMenu : MonoBehaviour
             EnableClientInterface();
         });
 
-        startButton.onClick.AddListener(() => {
+        startButton.onClick.AddListener(() =>
+        {
             NetworkManager.Singleton.SceneManager.LoadScene("ArenaMain", LoadSceneMode.Single);
         });
+    }
+
+    void OnDestroy()
+    {
+        GameState.Instance.WaitingForClients -= SetDisableStartButton;
+        GameState.Instance.AllClientsReady -= SetEnableStartButton;
+        ClientNetwork.Instance.OnConnectToServer -= EnableClientConnectedInterface;
     }
 
     private void EnableServerInterface()
@@ -109,17 +120,8 @@ public class MainMenu : MonoBehaviour
     private void EnableServerReadyInterface(string joinCode)
     {
         // Enable/disable the start button if we are waiting on a client to connect and sync their data
-        GameState.Instance.WaitingForClients += () => {
-            startButton.interactable = false;
-            waitingForClientsText.gameObject.SetActive(true);
-        };
-
-        GameState.Instance.AllClientsReady += () => {
-            this.Invoke(() => { // Clients sync too fast. I want to see the waiting for clients message at least a bit ¯\_(ツ)_/¯
-                startButton.interactable = true;
-                waitingForClientsText.gameObject.SetActive(false);
-            }, 2f);
-        };
+        GameState.Instance.WaitingForClients += SetDisableStartButton;
+        GameState.Instance.AllClientsReady += SetEnableStartButton;
 
         serverCreatingMessage.SetActive(false);
         startButton.gameObject.SetActive(true);
@@ -131,8 +133,9 @@ public class MainMenu : MonoBehaviour
             joinCodeText.text = joinCode;
         }
 
-        NetworkManager.Singleton.OnClientConnectedCallback += (clientId) => {
-            serverClientsConnectedText.text = $"Players connected: {NetworkManager.Singleton.ConnectedClientsList.Count}";
+        ClientNetwork.Instance.OnClientConnected += (clientId) =>
+        {
+            serverClientsConnectedText.text = $"Players connected: {GameState.Instance.GetConnectedClients().Count}";
         };
     }
 
@@ -146,14 +149,24 @@ public class MainMenu : MonoBehaviour
         joinCodeInput.gameObject.SetActive(false);
 
         clientConnectingMessage.SetActive(true);
-        NetworkManager.Singleton.OnClientConnectedCallback += (clientId) => {
-            EnableClientConnectedInterface();
-        };
+        ClientNetwork.Instance.OnConnectToServer += EnableClientConnectedInterface;
     }
 
-    private void EnableClientConnectedInterface()
+    private void EnableClientConnectedInterface(ulong clientId)
     {
         clientConnectingMessage.SetActive(false);
         clientWaitMessage.SetActive(true);
+    }
+
+    private void SetEnableStartButton()
+    {
+        startButton.interactable = true;
+        waitingForClientsText.gameObject.SetActive(false);
+    }
+
+    private void SetDisableStartButton()
+    {
+        startButton.interactable = false;
+        waitingForClientsText.gameObject.SetActive(true);
     }
 }

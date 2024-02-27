@@ -21,9 +21,11 @@ public class GameState : NetworkBehaviour
     public static GameState Instance { get; private set; }
 
     private readonly List<ClientData> connectedClients = new();
+    private readonly List<ulong> waitingClients = new();
     private ClientNetwork clientNetwork;
     private ClientNamesSynchronizer clientNameSynchronizer;
 
+    public event Action<ulong> ClientReady;
     public event Action AllClientsReady;
     public event Action WaitingForClients;
 
@@ -37,7 +39,7 @@ public class GameState : NetworkBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(this);
+            Destroy(this.gameObject);
             return;
         }
 
@@ -55,7 +57,7 @@ public class GameState : NetworkBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(this);
+            Destroy(this.gameObject);
             return;
         }
 
@@ -63,12 +65,16 @@ public class GameState : NetworkBehaviour
         DontDestroyOnLoad(gameObject);
 
         clientNetwork = GetComponent<ClientNetwork>();
-        clientNetwork.AllClientsSynced += ClientNetworkSynced;
-        clientNetwork.OnWaitingForClient += ClientsNoLongerReady;
+        clientNetwork.ClientSynced += ClientNetworkSynced;
+        clientNetwork.WaitingForClient += ClientsNoLongerReady;
+        clientNetwork.OnConnectToServer += (clientId) =>
+        {
+            OnClientReady(clientId);
+        };
 
         clientNameSynchronizer = GetComponent<ClientNamesSynchronizer>();
-        clientNameSynchronizer.AllClientsSynced += ClientNamesSynced;
-        clientNameSynchronizer.OnWaitingForClient += ClientsNoLongerReady;
+        clientNameSynchronizer.ClientSynced += ClientNamesSynced;
+        clientNameSynchronizer.WaitingForClient += ClientsNoLongerReady;
     }
 
     void Start()
@@ -103,17 +109,13 @@ public class GameState : NetworkBehaviour
         {
             ValidateScene(sceneName);
 
-            this.Invoke(() => {
+            if (inGameScene)
+            {
                 foreach (ulong client in clientsCompleted)
                 {
-                    if (inGameScene)
-                    {
-                        ClientData clientData = FindClient(client);
-                        Player spawnedPlayer = PlayerSpawnController.Instance.SpawnNewPlayerPrefab(client, clientData.clientName);
-                        clientData.player = spawnedPlayer;
-                    }
+                    SpawnClientPlayerPrefab(client);
                 }
-            }, 1f);
+            }
         }
     }
 
@@ -126,45 +128,77 @@ public class GameState : NetworkBehaviour
         }
     }
 
-    private void ClientNetworkSynced()
+    private void ClientNetworkSynced(ulong clientId)
     {
-        CheckClientsReady();
+        CheckClientReady(clientId);
     }
 
-    private void ClientNamesSynced()
+    private void ClientNamesSynced(ulong clientId)
     {
-        CheckClientsReady();
+        CheckClientReady(clientId);
+    }
+
+    /// <summary>
+    /// Checks if this client is present in any synchronizing components wait list
+    /// If not, call events notifying that this client is ready
+    /// </summary>
+    public void CheckClientReady(ulong clientId)
+    {
+        if (IsServer && !clientsReady)
+        {
+            if (clientNetwork.IsClientSynced(clientId) && clientNameSynchronizer.IsClientSynced(clientId))
+            {
+                OnClientReady(clientId);
+                ClientReady?.Invoke(clientId);
+
+                CheckAllClientsReady();
+            }
+        }
     }
 
     /// <summary>
     /// Checks if there are any waiting clients from any synchronizing components
     /// Will call the AllClientsReady event if there are no waiting clients
     /// </summary>
-    private void CheckClientsReady()
+    private void CheckAllClientsReady()
     {
-        if (IsServer && !clientsReady)
+        if (clientNetwork.AreClientsSynced() && clientNameSynchronizer.AreClientsSynced())
         {
-            if (clientNetwork.AreClientsSynced() && clientNameSynchronizer.AreClientsSynced())
-            {
-                logger.Log("All clients are ready. Game is able to start");
-                AllClientsReady?.Invoke();
-                clientsReady = true;
-            }
+            logger.Log("All clients are ready. Game is able to start");
+            AllClientsReady?.Invoke();
+            clientsReady = true;
         }
     }
 
-    public void ClientReady(ulong clientId)
+    /// <summary>
+    /// Called when a client has successfully synced all necessary data.
+    /// This will spawn a player prefab if the game has loaded an in-game scene
+    /// </summary>
+    /// <param name="clientId"></param>
+    public void OnClientReady(ulong clientId)
     {
         if (IsServer)
         {
             if (inGameScene)
             {
-                ClientData client = FindClient(clientId);
-                if (client != null)
-                {
-                    Player spawnedPlayer = PlayerSpawnController.Instance.SpawnNewPlayerPrefab(clientId, client.clientName);
-                    client.player = spawnedPlayer;
-                }
+                SpawnClientPlayerPrefab(clientId);
+            }
+        }
+    }
+
+    private void SpawnClientPlayerPrefab(ulong clientId)
+    {
+        if (IsServer)
+        {
+            ClientData clientData = FindClient(clientId);
+            if (clientData != null)
+            {
+                Player spawnedPlayer = PlayerSpawnController.Instance.SpawnNewPlayerPrefab(clientId, clientData.clientName);
+                clientData.player = spawnedPlayer;
+            }
+            else
+            {
+                logger.LogError($"Cannot spawn player for client {clientId}. Client not found in connections list");
             }
         }
     }
