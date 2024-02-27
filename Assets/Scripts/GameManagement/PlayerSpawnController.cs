@@ -7,23 +7,23 @@ using UnityEngine.UI;
 
 public class PlayerSpawnController : NetworkBehaviour
 {
+    private Logger logger = new("SPAWN");
+
     public static PlayerSpawnController Instance { get; private set; }
 
-    List<Player> players = new List<Player>();
-    [SerializeField] Player playerPrefab;
-    [SerializeField] Transform[] spawnPoints;
-    [SerializeField] float respawnDelay = 1f;
+    private readonly List<Player> players = new();
+    [SerializeField] private Player playerPrefab;
+    [SerializeField] private Transform[] spawnPoints;
+    [SerializeField] private float respawnDelay = 1f;
 
     [Header("Debug")]
-    [SerializeField] bool debugSingleSpawn = false;
-
-    List<Player> spawningPlayers = new List<Player>();
+    [SerializeField] private bool debugSingleSpawn = false;
 
     void Awake()
     {
         if (Instance != null)
         {
-            Logger.Default.LogError("PlayerSpawnController already exists");
+            logger.LogError("PlayerSpawnController already exists");
             Destroy(this);
             return;
         }
@@ -31,9 +31,9 @@ public class PlayerSpawnController : NetworkBehaviour
         Instance = this;
     }
 
-    public Player SpawnNewPlayerPrefab(ulong clientId, string playerName = "")
+    public Player SpawnNewPlayerPrefab(ulong clientId)
     {
-        Logger.Default.Log($"[SERVER] Spawning player for client {clientId}");
+        logger.Log($"Spawning player for client {clientId}");
         Player player = Instantiate(playerPrefab, GetSpawnPoint(), Quaternion.identity);
         player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
 
@@ -56,9 +56,9 @@ public class PlayerSpawnController : NetworkBehaviour
         yield return new WaitForSeconds(respawnDelay);
 
         Vector3 spawnPoint = GetSpawnPoint();
-        spawnPoint.y += player.GetComponent<CharacterController>().height / 2f;
+        spawnPoint.y += player.GetComponent<CharacterController>().height / 4f;
         player.RespawnOnServer(spawnPoint);
-        Logger.Default.Log($"[SERVER] Respawning player {player.OwnerClientId} at {spawnPoint}");
+        logger.Log($"Respawning player {PlayerToString(player)} at {spawnPoint}");
     }
 
     private Vector3 GetSpawnPoint()
@@ -67,5 +67,10 @@ public class PlayerSpawnController : NetworkBehaviour
             return spawnPoints[0].position;
         else
             return spawnPoints[Random.Range(0, spawnPoints.Length)].position;
+    }
+
+    private string PlayerToString(Player player)
+    {
+        return $"({player.GetName()}-{player.OwnerClientId})";
     }
 }

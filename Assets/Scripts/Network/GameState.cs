@@ -193,7 +193,7 @@ public class GameState : NetworkBehaviour
             ClientData clientData = FindClient(clientId);
             if (clientData != null)
             {
-                Player spawnedPlayer = PlayerSpawnController.Instance.SpawnNewPlayerPrefab(clientId, clientData.clientName);
+                Player spawnedPlayer = PlayerSpawnController.Instance.SpawnNewPlayerPrefab(clientId);
                 clientData.player = spawnedPlayer;
             }
             else
