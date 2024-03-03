@@ -186,7 +186,7 @@ public class Player : NetworkBehaviour
 
         if (clientSideHealth <= 0f)
         {
-            logger.Log($"[CLIENT] Player {OwnerClientId} died (client rpc)");
+            logger.Log($"[CLIENT] Player {OwnerClientId} died");
             OnDeath();
         }
         else if (IsOwner)
