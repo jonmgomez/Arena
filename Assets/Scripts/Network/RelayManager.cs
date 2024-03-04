@@ -19,7 +19,6 @@ public class RelayManager : MonoBehaviour
 
     public event System.Action<string> OnJoinCodeGenerated;
 
-    // Start is called before the first frame update
     private async void Start()
     {
         await UnityServices.InitializeAsync();
