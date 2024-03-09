@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.Profiling;
+using UnityEditor.Animations;
 using UnityEngine;
 
 public abstract class Weapon : NetworkBehaviour
@@ -34,6 +35,8 @@ public abstract class Weapon : NetworkBehaviour
 
     public float BloomPerShotPercent    = 0.1f;
 
+    public Animator Animator;
+
     [Header("Spawn Points")]
     [SerializeField] protected Transform firePoint;
     [SerializeField] Transform muzzle;
@@ -42,6 +45,7 @@ public abstract class Weapon : NetworkBehaviour
     [SerializeField] Projectile projectilePrefab;
     [SerializeField] GameObject muzzleFlashPrefab;
 
+    [NonSerialized] public PlayerWeaponAnimator WeaponAnimator;
     [NonSerialized] public PlayerCamera PlayerCamera;
     [NonSerialized] public Crosshair Crosshair;
     [NonSerialized] public Bloom Bloom;
@@ -81,6 +85,7 @@ public abstract class Weapon : NetworkBehaviour
     protected virtual void Awake()
     {
         MaxAmmo = Ammo;
+
         states = new WeaponState[]
         {
             new WeaponEmptyState(this),
@@ -92,6 +97,12 @@ public abstract class Weapon : NetworkBehaviour
         currentState = states[(int) WeaponState.State.Ready];
         Debug.Assert(states.Length == Enum.GetNames(typeof(WeaponState.State)).Length, "Weapon states are not equal to the number of states in the WeaponState enum.");
 
+        WeaponAnimator = transform.root.GetComponentInChildren<PlayerWeaponAnimator>();
+        PlayerCamera = transform.root.GetComponentInChildren<PlayerCamera>();
+        Crosshair = FindObjectOfType<Crosshair>(true);
+        Bloom = GetComponent<Bloom>();
+
+        recoilController = GetComponent<WeaponRecoil>();
         renderers = GetComponentsInChildren<MeshRenderer>();
     }
 
@@ -99,15 +110,6 @@ public abstract class Weapon : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        recoilController = GetComponent<WeaponRecoil>();
-        PlayerCamera = transform.root.GetComponentInChildren<PlayerCamera>();
-        Crosshair = FindObjectOfType<Crosshair>(true);
-        Bloom = GetComponent<Bloom>();
-
-        if (currentState == null)
-        {
-            currentState = new WeaponReadyState(this);
-        }
         currentState.OnStateEnter();
     }
 

@@ -10,6 +10,9 @@ public class PlayerWeapon : NetworkBehaviour
     [SerializeField] Weapon mainWeapon;
     [SerializeField] Weapon sideWeapon;
     [SerializeField] Weapon[] allWeapons;
+
+    public event System.Action<Weapon> OnActiveWeaponChanged;
+
     Crosshair crosshair;
 
     void Start()
@@ -115,6 +118,8 @@ public class PlayerWeapon : NetworkBehaviour
             player.HUD.UpdateWeapon(weapon.Name, weapon.Ammo, weapon.MaxAmmo);
             activeWeapon.OnAmmoChanged += (ammo) => player.HUD.UpdateCurrentAmmo(ammo);
         }
+
+        OnActiveWeaponChanged?.Invoke(weapon);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -152,4 +157,7 @@ public class PlayerWeapon : NetworkBehaviour
 
     private bool MainWeaponEquipped() => mainWeapon == activeWeapon;
     private bool SideWeaponEquipped() => sideWeapon == activeWeapon;
+
+    public Weapon GetActiveWeapon() => activeWeapon;
+    public string GetActiveWeaponName() => activeWeapon.Name;
 }

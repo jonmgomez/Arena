@@ -16,6 +16,11 @@ public class WeaponReadyState : WeaponState
         return true;
     }
 
+    public override void OnStateEnter()
+    {
+        weapon.WeaponAnimator.PlayAnimation("Idle");
+    }
+
     public override void Update()
     {
         CheckAim();
@@ -48,6 +53,7 @@ public class WeaponReadyState : WeaponState
 
             // This needs to be delegated to the weapon itself due to networked firing
             weapon.Fire();
+            weapon.WeaponAnimator.PlayAnimation("Fire");
 
             if (!weapon.AimedIn)
             {

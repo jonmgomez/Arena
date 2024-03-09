@@ -18,6 +18,15 @@ public class WeaponReloadingState : WeaponState
     public override void OnStateEnter()
     {
         reload = weapon.StartCoroutine(Reload());
+
+        if (weapon.Ammo <= 0)
+        {
+            weapon.WeaponAnimator.PlayAnimation("ReloadEmpty");
+        }
+        else
+        {
+            weapon.WeaponAnimator.PlayAnimation("Reload");
+        }
     }
 
     public override void OnStateExit()

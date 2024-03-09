@@ -16,6 +16,7 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] bool canMove = true;
 
     CharacterController characterController;
+    Animator animator;
 
     public override void OnNetworkSpawn()
     {
@@ -28,6 +29,7 @@ public class PlayerMovement : NetworkBehaviour
     void Start()
     {
         characterController = GetComponent<CharacterController>();
+        animator = GetComponentInChildren<Animator>();
     }
 
     void Update()

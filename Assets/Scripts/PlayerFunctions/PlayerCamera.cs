@@ -86,7 +86,6 @@ public class PlayerCamera : NetworkBehaviour
 
         transform.localRotation = Quaternion.Euler(xRotation, transform.localRotation.y, 0);
         player.rotation = Quaternion.Euler(0, yRotation, 0);
-        playerChildRotation.rotation = Quaternion.Euler(xRotation, yRotation, 0);
 
         if ((x != 0 || y != 0) && triggerEvent)
             OnRotate?.Invoke(x, y);
