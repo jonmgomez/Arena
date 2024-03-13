@@ -8,6 +8,11 @@ public class WeaponEmptyState : WeaponState
     {
     }
 
+    public override State GetStateType()
+    {
+        return State.Empty;
+    }
+
     public override bool ShouldEnter()
     {
         return weapon.Ammo <= 0;

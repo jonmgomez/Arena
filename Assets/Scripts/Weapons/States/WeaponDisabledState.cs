@@ -8,6 +8,11 @@ public class WeaponDisabledState : WeaponState
     {
     }
 
+    public override State GetStateType()
+    {
+        return State.Disabled;
+    }
+
     public override bool ShouldEnter()
     {
         return false;

@@ -26,6 +26,7 @@ public abstract class Weapon : NetworkBehaviour
     [NonSerialized] public bool AttemptingFire = false;
 
     public float ReloadTime = 1f;
+    public float EmptyReloadTime = 1f;
     public float AutoReloadDelay = 0.5f;
     [SerializeField] private int ammo = 0;
                      public int Ammo { get => ammo; set { ammo = value; OnAmmoChanged?.Invoke(ammo); } }
@@ -55,9 +56,10 @@ public abstract class Weapon : NetworkBehaviour
     public void SetState(WeaponState.State stateEnum)
     {
         WeaponState state = states[(int) stateEnum];
+        WeaponState.State previousState = currentState.GetStateType();
         currentState.OnStateExit();
         currentState = state;
-        currentState.OnStateEnter();
+        currentState.OnStateEnter(previousState);
     }
 
     public WeaponState.State DetermineState()
@@ -88,13 +90,14 @@ public abstract class Weapon : NetworkBehaviour
 
         states = new WeaponState[]
         {
+            new WeaponReadyingState(this),
             new WeaponEmptyState(this),
             new WeaponRecoveringState(this),
             new WeaponReloadingState(this),
             new WeaponReadyState(this),
             new WeaponDisabledState(this)
         };
-        currentState = states[(int) WeaponState.State.Ready];
+        currentState = states[(int) WeaponState.State.Readying];
         Debug.Assert(states.Length == Enum.GetNames(typeof(WeaponState.State)).Length, "Weapon states are not equal to the number of states in the WeaponState enum.");
 
         WeaponAnimator = transform.root.GetComponentInChildren<PlayerWeaponAnimator>();
@@ -110,7 +113,7 @@ public abstract class Weapon : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        currentState.OnStateEnter();
+        currentState.OnStateEnter(WeaponState.State.Disabled);
     }
 
     public virtual void WeaponUpdate()

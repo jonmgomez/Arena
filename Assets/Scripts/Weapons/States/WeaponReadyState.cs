@@ -11,14 +11,20 @@ public class WeaponReadyState : WeaponState
     {
     }
 
+    public override State GetStateType()
+    {
+        return State.Ready;
+    }
+
     public override bool ShouldEnter()
     {
         return true;
     }
 
-    public override void OnStateEnter()
+    public override void OnStateEnter(State previousState)
     {
-        weapon.WeaponAnimator.PlayAnimation("Idle");
+        if (previousState != State.Recovering)
+            weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.Idle, () => {});
     }
 
     public override void Update()
@@ -53,7 +59,7 @@ public class WeaponReadyState : WeaponState
 
             // This needs to be delegated to the weapon itself due to networked firing
             weapon.Fire();
-            weapon.WeaponAnimator.PlayAnimation("Fire");
+            weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.Fire, () => {});
 
             if (!weapon.AimedIn)
             {

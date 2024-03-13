@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Used when starting the game from a game scene.
-/// <para>It will enable the abililty to connect to the network without having to start the game from the main menu.</para>
+/// <para>It will enable the ability to connect to the network without having to start the game from the main menu.</para>
 /// </summary>
 public class LateNetworker : MonoBehaviour
 {
@@ -16,7 +16,7 @@ public class LateNetworker : MonoBehaviour
     [SerializeField] Button serverButton;
     [SerializeField] Button clientButton;
 
-    void Start()
+    void Awake()
     {
         if (NetworkManager.Singleton != null)
         {

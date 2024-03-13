@@ -110,7 +110,10 @@ public class PlayerWeapon : NetworkBehaviour
         activeWeapon.OnAmmoChanged -= (ammo) => player.HUD.UpdateCurrentAmmo(ammo);
 
         activeWeapon.SetEnabled(false);
+
         activeWeapon = weapon;
+        OnActiveWeaponChanged?.Invoke(weapon);
+
         activeWeapon.SetEnabled(true);
 
         if (IsOwner)
@@ -118,8 +121,6 @@ public class PlayerWeapon : NetworkBehaviour
             player.HUD.UpdateWeapon(weapon.Name, weapon.Ammo, weapon.MaxAmmo);
             activeWeapon.OnAmmoChanged += (ammo) => player.HUD.UpdateCurrentAmmo(ammo);
         }
-
-        OnActiveWeaponChanged?.Invoke(weapon);
     }
 
     [ServerRpc(RequireOwnership = false)]

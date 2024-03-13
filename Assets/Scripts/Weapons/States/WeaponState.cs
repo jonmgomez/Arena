@@ -7,6 +7,7 @@ public abstract class WeaponState
     /// Sorted in order of which would be entered first given weapon's values/state
     public enum State
     {
+        Readying,
         Empty,
         Recovering,
         Reloading,
@@ -22,8 +23,9 @@ public abstract class WeaponState
     }
 
     public abstract bool ShouldEnter();
+    public abstract State GetStateType();
 
-    public virtual void OnStateEnter() { }
+    public virtual void OnStateEnter(State previousState) { }
     public virtual void OnStateExit() { }
     public virtual void Update() { }
 

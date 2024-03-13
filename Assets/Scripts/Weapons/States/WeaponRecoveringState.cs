@@ -13,12 +13,17 @@ public class WeaponRecoveringState : WeaponState
     {
     }
 
+    public override State GetStateType()
+    {
+        return State.Recovering;
+    }
+
     public override bool ShouldEnter()
     {
         return fireRecoveryTimeLeft > 0;
     }
 
-    public override void OnStateEnter()
+    public override void OnStateEnter(State previousState)
     {
         if (fireRecoveryTimeLeft <= 0)
             fireRecoveryTimeLeft = weapon.FireRate;

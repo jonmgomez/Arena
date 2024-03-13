@@ -10,34 +10,39 @@ public class WeaponReloadingState : WeaponState
     {
     }
 
+    public override State GetStateType()
+    {
+        return State.Reloading;
+    }
+
     public override bool ShouldEnter()
     {
         return false;
     }
 
-    public override void OnStateEnter()
+    public override void OnStateEnter(State previousState)
     {
-        reload = weapon.StartCoroutine(Reload());
-
-        if (weapon.Ammo <= 0)
+        if (weapon.Ammo <= 0 && weapon.WeaponAnimator.HasAnimation(WeaponAnimation.ReloadEmpty))
         {
-            weapon.WeaponAnimator.PlayAnimation("ReloadEmpty");
+            weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.ReloadEmpty,
+                                                Reloaded,
+                                                weapon.EmptyReloadTime, ResetAmmo);
         }
         else
         {
-            weapon.WeaponAnimator.PlayAnimation("Reload");
+            weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.Reload,
+                                                Reloaded,
+                                                weapon.ReloadTime, ResetAmmo);
         }
     }
 
-    public override void OnStateExit()
+    private void ResetAmmo()
     {
-        weapon.StopCoroutine(reload);
+        weapon.Ammo = weapon.MaxAmmo;
     }
 
-    IEnumerator Reload()
+    private void Reloaded()
     {
-        yield return new WaitForSeconds(weapon.ReloadTime);
-        weapon.Ammo = weapon.MaxAmmo;
         weapon.SetState(State.Ready);
     }
 }
