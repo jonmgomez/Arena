@@ -59,7 +59,7 @@ public class WeaponReadyState : WeaponState
 
             // This needs to be delegated to the weapon itself due to networked firing
             weapon.Fire();
-            weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.Fire, () => {});
+            weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.Fire);
 
             if (!weapon.AimedIn)
             {
