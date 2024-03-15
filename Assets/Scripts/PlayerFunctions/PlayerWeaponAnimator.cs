@@ -12,7 +12,8 @@ public enum WeaponAnimation
     ReloadEmpty,
     AimIn,
     AimOut,
-    AimIdle
+    AimIdle,
+    AimFire
 }
 
 public class PlayerWeaponAnimator : MonoBehaviour

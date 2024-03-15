@@ -22,6 +22,12 @@ public class WeaponReloadingState : WeaponState
 
     public override void OnStateEnter(State previousState)
     {
+        if (weapon.AimedIn)
+        {
+            weapon.AimedIn = false;
+            weapon.ADSViewer.RestorePositions(weapon.transform);
+        }
+
         if (weapon.Ammo <= 0 && weapon.WeaponAnimator.HasAnimation(WeaponAnimation.ReloadEmpty))
         {
             weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.ReloadEmpty,

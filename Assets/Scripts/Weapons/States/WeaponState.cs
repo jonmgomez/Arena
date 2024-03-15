@@ -37,13 +37,13 @@ public abstract class WeaponState
             if (!weapon.AimedIn && rmbDown)
             {
                 weapon.AimedIn = true;
-                weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.AimIdle);
+                weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.AimIn, () => weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.AimIdle));
                 weapon.ADSViewer.PositionObjects(weapon.transform);
             }
             else if (weapon.AimedIn && !rmbDown)
             {
                 weapon.AimedIn = false;
-                weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.Idle);
+                weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.AimOut, () => weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.Idle));
                 weapon.ADSViewer.RestorePositions(weapon.transform);
             }
         }
