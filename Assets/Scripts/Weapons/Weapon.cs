@@ -15,7 +15,7 @@ public abstract class Weapon : NetworkBehaviour
     WeaponState[] states = new WeaponState[Enum.GetNames(typeof(WeaponState.State)).Length];
     WeaponState currentState;
     WeaponRecoil recoilController;
-    MeshRenderer[] renderers;
+    Renderer[] renderers;
 
     [Header("General")]
     public string Name = "Weapon";
@@ -108,7 +108,7 @@ public abstract class Weapon : NetworkBehaviour
         ADSViewer = transform.root.GetComponentInChildren<AimDownSightsViewer>();
 
         recoilController = GetComponent<WeaponRecoil>();
-        renderers = GetComponentsInChildren<MeshRenderer>();
+        renderers = GetComponentsInChildren<Renderer>();
     }
 
     protected virtual void Start()
@@ -191,6 +191,8 @@ public abstract class Weapon : NetworkBehaviour
             SetState(DetermineState());
         else
             SetState(WeaponState.State.Disabled);
+
+        Debug.Log($"Weapon {Name} enabled: {enabled}");
 
         Array.ForEach(renderers, r => r.enabled = enabled);
     }

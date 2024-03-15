@@ -68,7 +68,7 @@ public class PlayerWeaponAnimator : MonoBehaviour
 
         if (weaponAnimator == null)
         {
-            Logger.Default.LogError("Weapon animator is null");
+            Logger.Default.LogError($"Weapon animator is null for {playerWeapon.GetActiveWeaponName()}! Animation: {animation}");
             return;
         }
 
@@ -90,17 +90,24 @@ public class PlayerWeaponAnimator : MonoBehaviour
     {
         PlayAnimation(animation);
 
-        AnimationClip[] clips = weaponAnimator.runtimeAnimatorController.animationClips;
         float animationLength = 0f;
-
-        foreach (AnimationClip clip in clips)
+        if (weaponAnimator == null)
         {
-            // Note that the clip name refers to the name of the animation file itself, not what it is referred to in the animator
-            // So check if the clip ends with "Fire" or "Reload" etc.
-            if (clip.name.EndsWith(AnimationEnumToString(animation)))
+            animationLength = 0.01f;
+        }
+        else
+        {
+            AnimationClip[] clips = weaponAnimator.runtimeAnimatorController.animationClips;
+
+            foreach (AnimationClip clip in clips)
             {
-                animationLength = clip.length;
-                break;
+                // Note that the clip name refers to the name of the animation file itself, not what it is referred to in the animator
+                // So check if the clip ends with "Fire" or "Reload" etc.
+                if (clip.name.EndsWith(AnimationEnumToString(animation)))
+                {
+                    animationLength = clip.length;
+                    break;
+                }
             }
         }
 
@@ -118,6 +125,11 @@ public class PlayerWeaponAnimator : MonoBehaviour
     {
         PlayAnimation(animation, OnFinished);
 
+        if (weaponAnimator == null)
+        {
+            callbackTime = 0f;
+        }
+
         StartCoroutine(AnimationCallback(callbackTime, CallbackFunction));
     }
 
@@ -129,6 +141,11 @@ public class PlayerWeaponAnimator : MonoBehaviour
 
     public bool HasAnimation(WeaponAnimation animation)
     {
+        if (weaponAnimator == null)
+        {
+            return false;
+        }
+
         string weaponAnimation = AnimationEnumToString(animation);
         string playerAnimation = $"{playerWeapon.GetActiveWeaponName()}_{weaponAnimation}";
 
