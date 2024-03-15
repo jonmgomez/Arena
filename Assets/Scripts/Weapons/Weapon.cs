@@ -50,6 +50,7 @@ public abstract class Weapon : NetworkBehaviour
     [NonSerialized] public PlayerCamera PlayerCamera;
     [NonSerialized] public Crosshair Crosshair;
     [NonSerialized] public Bloom Bloom;
+    [NonSerialized] public AimDownSightsViewer ADSViewer;
 
     protected abstract void OnFire();
 
@@ -104,6 +105,7 @@ public abstract class Weapon : NetworkBehaviour
         PlayerCamera = transform.root.GetComponentInChildren<PlayerCamera>();
         Crosshair = FindObjectOfType<Crosshair>(true);
         Bloom = GetComponent<Bloom>();
+        ADSViewer = transform.root.GetComponentInChildren<AimDownSightsViewer>();
 
         recoilController = GetComponent<WeaponRecoil>();
         renderers = GetComponentsInChildren<MeshRenderer>();

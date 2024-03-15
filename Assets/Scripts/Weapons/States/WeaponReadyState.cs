@@ -24,7 +24,7 @@ public class WeaponReadyState : WeaponState
     public override void OnStateEnter(State previousState)
     {
         if (previousState != State.Recovering)
-            weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.Idle, () => {});
+            weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.Idle);
     }
 
     public override void Update()

@@ -11,7 +11,8 @@ public enum WeaponAnimation
     Reload,
     ReloadEmpty,
     AimIn,
-    AimOut
+    AimOut,
+    AimIdle
 }
 
 public class PlayerWeaponAnimator : MonoBehaviour
@@ -21,8 +22,6 @@ public class PlayerWeaponAnimator : MonoBehaviour
     [SerializeField] private Animator playerThirdPersonAnimator;
 
     private PlayerWeapon playerWeapon;
-
-    public Event[] AnimationCallbacks;
 
     void Awake()
     {
@@ -35,15 +34,9 @@ public class PlayerWeaponAnimator : MonoBehaviour
         playerWeapon.OnActiveWeaponChanged += WeaponChanged;
     }
 
-    public void RegisterAnimationCallback()
-    {
-
-    }
-
     public void WeaponChanged(Weapon weapon)
     {
         weaponAnimator = weapon.GetComponent<Animator>();
-        Debug.Log(weaponAnimator);
     }
 
     private void PlayAnimationForController(Animator animator, string animation)
