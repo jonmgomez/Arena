@@ -192,8 +192,6 @@ public abstract class Weapon : NetworkBehaviour
         else
             SetState(WeaponState.State.Disabled);
 
-        Debug.Log($"Weapon {Name} enabled: {enabled}");
-
         Array.ForEach(renderers, r => r.enabled = enabled);
     }
 

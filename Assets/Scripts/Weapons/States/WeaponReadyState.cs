@@ -61,9 +61,9 @@ public class WeaponReadyState : WeaponState
             weapon.Fire();
 
             if (weapon.AimedIn)
-                weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.AimFire);
+                weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.AimFire, () => weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.AimIdle));
             else
-                weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.Fire);
+                weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.Fire, () => weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.Idle));
 
             if (!weapon.AimedIn)
             {

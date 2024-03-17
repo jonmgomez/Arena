@@ -91,7 +91,7 @@ public class PlayerWeaponAnimator : MonoBehaviour
         PlayAnimation(animation);
 
         float animationLength = 0f;
-        if (weaponAnimator == null)
+        if (!HasAnimation(animation))
         {
             animationLength = 0.01f;
         }
@@ -125,12 +125,14 @@ public class PlayerWeaponAnimator : MonoBehaviour
     {
         PlayAnimation(animation, OnFinished);
 
-        if (weaponAnimator == null)
+        if (!HasAnimation(animation))
         {
-            callbackTime = 0f;
+            CallbackFunction();
         }
-
-        StartCoroutine(AnimationCallback(callbackTime, CallbackFunction));
+        else
+        {
+            StartCoroutine(AnimationCallback(callbackTime, CallbackFunction));
+        }
     }
 
     IEnumerator AnimationCallback(float time, Action function)
