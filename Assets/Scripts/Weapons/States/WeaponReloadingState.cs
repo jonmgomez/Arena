@@ -52,10 +52,13 @@ public class WeaponReloadingState : WeaponState
 
     public override void Update()
     {
-        if (weapon.AttemptingFire && !exiting)
+        if (weapon.AttemptingFire)
         {
-            weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.ReloadEnd, () => weapon.SetState(State.Ready));
-            exiting = true;
+            if (weapon.ReloadSingles && !exiting)
+            {
+                weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.ReloadEnd, () => weapon.SetState(State.Ready));
+                exiting = true;
+            }
         }
     }
 
