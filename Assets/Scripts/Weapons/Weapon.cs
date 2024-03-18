@@ -41,6 +41,8 @@ public abstract class Weapon : NetworkBehaviour
 
     public Animator Animator;
 
+    [SerializeField] private Vector3 aimPositionOffset;
+
     [Header("Spawn Points")]
     [SerializeField] protected Transform firePoint;
     [SerializeField] Transform muzzle;
@@ -198,7 +200,7 @@ public abstract class Weapon : NetworkBehaviour
                 if (AimedIn)
                 {
                     AimedIn = false;
-                    ADSViewer.RestorePositions(this.transform);
+                    ADSViewer.RestorePositions(this);
                 }
             }
 
@@ -212,4 +214,5 @@ public abstract class Weapon : NetworkBehaviour
     }
 
     public float GetFireRate() => FireRate;
+    public Vector3 GetAimPositionOffset() => aimPositionOffset;
 }

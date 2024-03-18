@@ -323,7 +323,7 @@ Transform:
   m_GameObject: {fileID: 7725300310034476780}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.11, y: -0.037, z: 0.051}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -345,6 +345,7 @@ MonoBehaviour:
   fpsArms: {fileID: 2657548887733504832}
   adsFovDelta: 30
   adsSpeed: 10
+  disableCrosshair: 1
 --- !u!1 &7882935772986445887
 GameObject:
   m_ObjectHideFlags: 0
@@ -943,6 +944,7 @@ MonoBehaviour:
   ReloadSinglesAmount: 1
   BloomPerShotPercent: 0.1
   Animator: {fileID: 2946398284778855464}
+  aimPositionOffset: {x: -0.11, y: -0.037, z: 0.051}
   firePoint: {fileID: 8593457842578009674}
   muzzle: {fileID: 8354073682433407004}
   projectilePrefab: {fileID: 5770585688798484500, guid: 749c4ec493decfd488c37d9f4424e1ed,
@@ -1368,6 +1370,7 @@ MonoBehaviour:
   ReloadSinglesAmount: 1
   BloomPerShotPercent: 0.1
   Animator: {fileID: 7936530633819161415}
+  aimPositionOffset: {x: -0.109, y: 0.038, z: 0}
   firePoint: {fileID: 8593457842578009674}
   muzzle: {fileID: 1103593197596932361}
   projectilePrefab: {fileID: -5989285370160078759, guid: 723c519e7a191094691e7bb58fa27435,
@@ -1562,6 +1565,7 @@ MonoBehaviour:
   ReloadSinglesAmount: 1
   BloomPerShotPercent: 0.1
   Animator: {fileID: 316444918686582671}
+  aimPositionOffset: {x: 0, y: 0, z: 0}
   firePoint: {fileID: 8593457842578009674}
   muzzle: {fileID: 6027002092878213410}
   projectilePrefab: {fileID: -968605872070277169, guid: 040d8a700a3103349a2ec0fc6727e606,

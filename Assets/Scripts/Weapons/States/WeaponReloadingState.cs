@@ -28,7 +28,7 @@ public class WeaponReloadingState : WeaponState
         if (weapon.AimedIn)
         {
             weapon.AimedIn = false;
-            weapon.ADSViewer.RestorePositions(weapon.transform);
+            weapon.ADSViewer.RestorePositions(weapon);
         }
 
         // Weapons can reload in two manners, full magazine reload or singular bullets like a shotgun

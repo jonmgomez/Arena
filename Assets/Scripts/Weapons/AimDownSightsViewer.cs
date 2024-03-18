@@ -19,6 +19,9 @@ public class AimDownSightsViewer : MonoBehaviour
     [SerializeField] private float adsFovDelta = 10f;
     [SerializeField] private float adsSpeed = 10f;
 
+    [Header("Debug")]
+    [SerializeField] private bool disableCrosshair = true;
+
     void Start()
     {
         defaultFov = mainCamera.fieldOfView;
@@ -46,27 +49,28 @@ public class AimDownSightsViewer : MonoBehaviour
     /// Positions the weapon and arms for aiming down sights
     /// </summary>
     /// <param name="weapon">Transform of the weapon to position</param>
-    public void PositionObjects(Transform weapon)
+    public void PositionObjects(Weapon weapon)
     {
-        movingWeapon = weapon;
-        desiredPosition = transform.localPosition;
+        movingWeapon = weapon.transform;
+        desiredPosition = weapon.GetAimPositionOffset();
 
         desiredFov = defaultFov - adsFovDelta;
 
-        if (!originalPositions.ContainsKey(weapon))
-            originalPositions[weapon] = weapon.localPosition;
+        if (!originalPositions.ContainsKey(weapon.transform))
+            originalPositions[weapon.transform] = weapon.transform.localPosition;
 
-        crosshair.SetVisible(false);
+        if (disableCrosshair)
+            crosshair.SetVisible(false);
     }
 
     /// <summary>
     /// Restores the weapon and arms to their original positions out of ADS
     /// </summary>
     /// <param name="weapon">Transform of the weapon to position</param>
-    public void RestorePositions(Transform weapon)
+    public void RestorePositions(Weapon weapon)
     {
-        movingWeapon = weapon;
-        desiredPosition = originalPositions[weapon];
+        movingWeapon = weapon.transform;
+        desiredPosition = originalPositions[weapon.transform];
 
         desiredFov = defaultFov;
 
