@@ -18,7 +18,9 @@ public class WeaponRecoil : MonoBehaviour
     [Range(0f,  3f)] [SerializeField] private float verticalMaximum   = 0.4f;
 
     [Header("Recoil Recovery")]
-    [SerializeField] private float cameraRecoilRecoverySpeed = 35;
+    [Tooltip("The speed at which the camera recovers from recoil")]
+    [SerializeField] private float cameraRecoilRecoverySpeed = 35f;
+    [Tooltip("The delay before the camera starts to recover from recoil")]
     [SerializeField] private float cameraRecoilRecoveryDelay = 0.1f;
     [Tooltip("When the player adjusts for recoil and goes further than the added recoil, the camera will pull down this amount at minimum")]
     [SerializeField] private float minimumVerticalRecoveryDegrees = 0.05f;

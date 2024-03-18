@@ -79,7 +79,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1429631593
+  GlobalObjectIdHash: 231512293
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -903,11 +903,13 @@ MonoBehaviour:
   CanADS: 1
   FireRate: 0.05
   IsAutomatic: 0
+  projectilesPerShot: 1
   ReloadTime: 1
   EmptyReloadTime: 1
   AutoReloadDelay: 0.5
   ammo: 16
-  projectilesPerShot: 1
+  ReloadSingles: 0
+  ReloadSinglesAmount: 1
   BloomPerShotPercent: 0.1
   Animator: {fileID: 2946398284778855464}
   firePoint: {fileID: 8593457842578009674}
@@ -1490,14 +1492,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Name: Shotgun
-  CanADS: 1
+  CanADS: 0
   FireRate: 0.25
   IsAutomatic: 0
-  ReloadTime: 1
+  projectilesPerShot: 5
+  ReloadTime: 0.3
   EmptyReloadTime: 1
   AutoReloadDelay: 0.5
-  ammo: 6
-  projectilesPerShot: 5
+  ammo: 8
+  ReloadSingles: 1
+  ReloadSinglesAmount: 1
   BloomPerShotPercent: 0.1
   Animator: {fileID: 316444918686582671}
   firePoint: {fileID: 8593457842578009674}
@@ -1537,7 +1541,7 @@ MonoBehaviour:
   horizontalMaximum: 0.5
   verticalMinimum: 2.5
   verticalMaximum: 3
-  cameraRecoilRecoverySpeed: 5
+  cameraRecoilRecoverySpeed: 20
   cameraRecoilRecoveryDelay: 0.35
   minimumVerticalRecoveryDegrees: 0.05
   weakenRecoilOverTime: 0

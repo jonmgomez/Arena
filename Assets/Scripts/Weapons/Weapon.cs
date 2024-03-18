@@ -24,17 +24,20 @@ public abstract class Weapon : NetworkBehaviour
     public bool IsAutomatic = false;
     [NonSerialized] public bool AimedIn = false;
     [NonSerialized] public bool AttemptingFire = false;
+    [SerializeField] private int projectilesPerShot = 1;
 
+    [Header("Reload")]
     public float ReloadTime = 1f;
     public float EmptyReloadTime = 1f;
     public float AutoReloadDelay = 0.5f;
     [SerializeField] private int ammo = 0;
                      public int Ammo { get => ammo; set { ammo = value; OnAmmoChanged?.Invoke(ammo); } }
     [NonSerialized] public int MaxAmmo = 30;
+    public bool ReloadSingles = false;
+    public int ReloadSinglesAmount = 1;
 
-    [SerializeField] int projectilesPerShot = 1;
-
-    public float BloomPerShotPercent    = 0.1f;
+    [Header("Bloom")]
+    public float BloomPerShotPercent = 0.1f;
 
     public Animator Animator;
 
