@@ -904,10 +904,10 @@ MonoBehaviour:
   FireRate: 0.05
   IsAutomatic: 0
   projectilesPerShot: 1
+  ammo: 16
   ReloadTime: 1
   EmptyReloadTime: 1
   AutoReloadDelay: 0.5
-  ammo: 16
   ReloadSingles: 0
   ReloadSinglesAmount: 1
   BloomPerShotPercent: 0.1
@@ -1506,10 +1506,10 @@ MonoBehaviour:
   FireRate: 0.25
   IsAutomatic: 0
   projectilesPerShot: 5
+  ammo: 8
   ReloadTime: 0.3
   EmptyReloadTime: 1
   AutoReloadDelay: 0.5
-  ammo: 8
   ReloadSingles: 1
   ReloadSinglesAmount: 1
   BloomPerShotPercent: 0.1
