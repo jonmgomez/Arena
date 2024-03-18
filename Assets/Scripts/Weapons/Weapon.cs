@@ -27,12 +27,12 @@ public abstract class Weapon : NetworkBehaviour
     [SerializeField] private int projectilesPerShot = 1;
 
     [Header("Reload")]
-    public float ReloadTime = 1f;
-    public float EmptyReloadTime = 1f;
-    public float AutoReloadDelay = 0.5f;
     [SerializeField] private int ammo = 0;
                      public int Ammo { get => ammo; set { ammo = value; OnAmmoChanged?.Invoke(ammo); } }
     [NonSerialized] public int MaxAmmo = 30;
+    public float ReloadTime = 1f;
+    public float EmptyReloadTime = 1f;
+    public float AutoReloadDelay = 0.5f;
     public bool ReloadSingles = false;
     public int ReloadSinglesAmount = 1;
 
@@ -190,10 +190,23 @@ public abstract class Weapon : NetworkBehaviour
 
     public void SetEnabled(bool enabled)
     {
-        if (enabled)
-            SetState(DetermineState());
-        else
-            SetState(WeaponState.State.Disabled);
+        if (IsOwner)
+        {
+            bool wasEnabled = !enabled && currentState.GetStateType() != WeaponState.State.Disabled;
+            if (wasEnabled)
+            {
+                if (AimedIn)
+                {
+                    AimedIn = false;
+                    ADSViewer.RestorePositions(this.transform);
+                }
+            }
+
+            if (enabled)
+                SetState(DetermineState());
+            else
+                SetState(WeaponState.State.Disabled);
+        }
 
         Array.ForEach(renderers, r => r.enabled = enabled);
     }

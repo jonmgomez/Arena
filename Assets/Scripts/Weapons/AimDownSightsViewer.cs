@@ -42,6 +42,10 @@ public class AimDownSightsViewer : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Positions the weapon and arms for aiming down sights
+    /// </summary>
+    /// <param name="weapon">Transform of the weapon to position</param>
     public void PositionObjects(Transform weapon)
     {
         movingWeapon = weapon;
@@ -55,6 +59,10 @@ public class AimDownSightsViewer : MonoBehaviour
         crosshair.SetVisible(false);
     }
 
+    /// <summary>
+    /// Restores the weapon and arms to their original positions out of ADS
+    /// </summary>
+    /// <param name="weapon">Transform of the weapon to position</param>
     public void RestorePositions(Transform weapon)
     {
         movingWeapon = weapon;
