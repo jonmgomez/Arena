@@ -40,6 +40,8 @@ public abstract class Weapon : NetworkBehaviour
     public float BloomPerShotPercent = 0.1f;
 
     public Animator Animator;
+    public GameObject ThirdPersonWeapon;
+    public Animator ThirdPersonWeaponAnimator;
 
     [SerializeField] private Vector3 aimPositionOffset;
 
