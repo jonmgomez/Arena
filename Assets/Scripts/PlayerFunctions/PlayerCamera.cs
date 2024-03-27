@@ -10,18 +10,21 @@ public class PlayerCamera : NetworkBehaviour
     public readonly float ySensitivity = 2.5f;
 
     [SerializeField] Transform player;
-    [SerializeField] Transform playerChildRotation;
+    [SerializeField] Transform aimTarget;
 
-    float xRotation;
-    float yRotation;
+    public float xRotation;
+    public float yRotation;
 
     bool mouseFree = false;
+    private bool rotatePlayerRoot = false;
 
     // Triggered when the camera is rotated with either x or y value != 0.
     public event Action<float, float> OnRotate;
 
     Camera playersCamera;
     Camera defaultCamera;
+
+    PlayerMovement playerMovement;
 
     public override void OnNetworkSpawn()
     {
@@ -45,6 +48,20 @@ public class PlayerCamera : NetworkBehaviour
         playersCamera = GetComponent<Camera>();
         defaultCamera = Camera.main;
         CameraManager.Instance.SetActiveCamera(playersCamera);
+
+        // aimTarget.parent = null;
+
+        playerMovement = transform.root.GetComponent<PlayerMovement>();
+        playerMovement.OnMovementChange += (isMoving) =>
+        {
+            Debug.Log("Player is moving: " + isMoving);
+            if (isMoving)
+                SwapToPlayerRootRotation();
+            else
+            {
+                yRotation = 0f;
+            }
+        };
     }
 
     // Update is called once per frame
@@ -63,7 +80,35 @@ public class PlayerCamera : NetworkBehaviour
         float mouseX = Input.GetAxisRaw("Mouse X") * xSensitivity;
         float mouseY = Input.GetAxisRaw("Mouse Y") * ySensitivity;
 
-        Rotate(mouseX, mouseY);
+        Rotate(mouseX, mouseY, true, playerMovement.IsMoving());
+    }
+
+    void FixedUpdate()
+    {
+        SetAimTarget();
+    }
+
+    private void SwapToPlayerRootRotation()
+    {
+        Vector3 forward = new(transform.forward.x, 0f, transform.forward.z);
+        Debug.DrawRay(transform.position, forward * 10f, Color.white, 3f);
+
+        player.rotation = Quaternion.LookRotation(forward, Vector3.up);
+        Debug.DrawRay(player.position, player.forward * 10f, Color.red, 3f);
+        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        yRotation = player.rotation.eulerAngles.y;
+    }
+
+    private void SetAimTarget()
+    {
+        // if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, Mathf.Infinity))
+        // {
+        //     aimTarget.position = hit.point;
+        // }
+        // else
+        // {
+            aimTarget.position = transform.position + transform.forward * 100f;
+        // }
     }
 
     public void SetEnabled(bool enabled)
@@ -78,14 +123,22 @@ public class PlayerCamera : NetworkBehaviour
     /// </summary>
     /// <param name="x">Degrees to rotate left or right</param>
     /// <param name="y">Degrees to rotate up or down</param>
-    public void Rotate(float x, float y, bool triggerEvent = true)
+    public void Rotate(float x, float y, bool triggerEvent = true, bool rotatePlayerRoot = false)
     {
         yRotation += x;
         xRotation -= y;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        transform.localRotation = Quaternion.Euler(xRotation, transform.localRotation.y, 0);
-        player.rotation = Quaternion.Euler(0, yRotation, 0);
+        if (rotatePlayerRoot)
+        {
+            transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+            player.rotation = Quaternion.Euler(0f, yRotation, 0f);
+            Debug.Log("Player root rotation: " + player.rotation.eulerAngles);
+        }
+        else
+        {
+            transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0);
+        }
 
         if ((x != 0 || y != 0) && triggerEvent)
             OnRotate?.Invoke(x, y);
