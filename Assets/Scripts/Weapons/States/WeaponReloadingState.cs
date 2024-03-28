@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -56,7 +57,9 @@ public class WeaponReloadingState : WeaponState
         {
             if (weapon.ReloadSingles && !exiting)
             {
-                weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.ReloadEnd, () => weapon.SetState(State.Ready));
+                void ToReady() => weapon.SetState(State.Ready);
+                void ToEmpty() => weapon.SetState(State.Empty);
+                weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.ReloadEnd, weapon.Ammo > 0 ? ToReady : ToEmpty);
                 exiting = true;
             }
         }
