@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
@@ -33,7 +34,7 @@ class PositionAndRotation
     }
 }
 
-public class PlayerWeaponAnimator : MonoBehaviour
+public class PlayerWeaponAnimator : NetworkBehaviour
 {
     private readonly Logger logger = new("PLYRANIM");
 
@@ -77,6 +78,8 @@ public class PlayerWeaponAnimator : MonoBehaviour
 
     void Start()
     {
+        if (!IsOwner) return;
+
         playerMovement = GetComponent<PlayerMovement>();
         playerMovement.OnMovementChange += (isMoving) =>
         {
@@ -109,6 +112,8 @@ public class PlayerWeaponAnimator : MonoBehaviour
 
     void Update()
     {
+        if (!IsOwner) return;
+
         if (reenableRig)
         {
             reenableRig = false;
@@ -147,11 +152,9 @@ public class PlayerWeaponAnimator : MonoBehaviour
         {
             rotation.y -= 360f;
         }
-        //Debug.LogWarning($"Rotation: {rotation.y}, Current: {currentYRotation}");
 
-        float difference = rotation.y - currentYRotation;
-        bool turnRight = difference > 0f;
-        difference = Math.Abs(difference);
+        bool turnRight = rotation.y > 0f;
+        float difference = Mathf.Abs(rotation.y);
 
         if (difference > maxTurnAngleDegrees * 2.5f)
         {
@@ -175,31 +178,6 @@ public class PlayerWeaponAnimator : MonoBehaviour
 
             float animationLength = GetAnimationLength(playerThirdPersonAnimator, animation);
             turningCoroutine = StartCoroutine(TurnPlayer(animationLength));
-            // turningCoroutine = StartCoroutine(AnimationCallback(animationLength, () =>
-            // {
-            //     Debug.Log("Calculating new forward");
-            //     Vector3 newPlayerForward = new(hipsBone.forward.x, 0f, hipsBone.forward.z);
-            //     Debug.DrawRay(hipsBone.position, newPlayerForward * 10f, Color.blue, 3f);
-
-            //     Quaternion savedRotation = playerCamera.transform.rotation;
-            //     Vector3 cameraForward = new(playerCamera.transform.forward.x, 0f, playerCamera.transform.forward.z);
-            //     Debug.DrawRay(playerCamera.transform.position, cameraForward * 10f, Color.green, 3f);
-
-            //     Vector3 aimTargetPosition = aimTarget.position;
-            //     transform.rotation = Quaternion.LookRotation(newPlayerForward);
-            //     aimTarget.position = aimTargetPosition;
-
-            //     // After the player root has been rotated, the camera is now offset based on its local rotation.
-            //     // Adjust its rotation so that its forward lines up with where it used to be.
-            //     float angleDifference = Vector3.SignedAngle(playerCamera.transform.forward, cameraForward, Vector3.up);
-            //     playerCamera.Rotate(angleDifference, 0f);
-            //     currentYRotation = 0f;
-
-            //     PlayAnimationForController(playerThirdPersonAnimator, "MoveIdle");
-
-            //     Debug.Log("Turned player root");
-            //     turningCoroutine = null;
-            // }));
         }
     }
 
@@ -225,12 +203,7 @@ public class PlayerWeaponAnimator : MonoBehaviour
 
         // After the player root has been rotated, the camera is now offset based on its local rotation.
         // Adjust its rotation so that its forward lines up with where it used to be.
-        // float angleDifference = Vector3.SignedAngle(playerCamera.transform.forward, cameraForward, Vector3.up);
-        // playerCamera.Rotate(angleDifference, 0f);
-        // currentYRotation = 0f;
-
         Vector3 rotation = Quaternion.FromToRotation(transform.forward, cameraForward).eulerAngles;
-        logger.Log($"Rotation: {rotation} current rotation: {playerCamera.transform.localRotation.eulerAngles}");
         playerCamera.SetRotation(playerCamera.transform.localEulerAngles.x, rotation.y);
     }
 

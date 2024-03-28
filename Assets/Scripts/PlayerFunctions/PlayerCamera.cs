@@ -20,6 +20,7 @@ public class PlayerCamera : NetworkBehaviour
 
     // Triggered when the camera is rotated with either x or y value != 0.
     public event Action<float, float> OnRotate;
+    public event Action<float, float> OnRotationChange;
 
     Camera playersCamera;
     Camera defaultCamera;
@@ -30,13 +31,11 @@ public class PlayerCamera : NetworkBehaviour
     {
         if (!IsOwner)
         {
-            enabled = false;
             GetComponent<Camera>().enabled = false;
             GetComponent<AudioListener>().enabled = false;
         }
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         if (!IsOwner)
@@ -64,9 +63,11 @@ public class PlayerCamera : NetworkBehaviour
         };
     }
 
-    // Update is called once per frame
     void Update()
     {
+        if (!IsOwner)
+            return;
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             mouseFree = !mouseFree;
@@ -80,11 +81,13 @@ public class PlayerCamera : NetworkBehaviour
         float mouseX = Input.GetAxisRaw("Mouse X") * xSensitivity;
         float mouseY = Input.GetAxisRaw("Mouse Y") * ySensitivity;
 
-        Rotate(mouseX, mouseY, true, playerMovement.IsMoving());
+        Rotate(mouseX, mouseY, true);
     }
 
     void FixedUpdate()
     {
+        // This is done on all clients in order to have the aimTarget position / spine rig aiming
+        // synced across all clients.
         SetAimTarget();
     }
 
@@ -125,19 +128,17 @@ public class PlayerCamera : NetworkBehaviour
     /// <param name="y">Degrees to rotate up or down</param>
     /// <param name="triggerEvent">Whether to trigger the OnRotate event</param>
     /// <param name="rotatePlayerRoot">Whether to rotate the player root instead of the camera pivot</param>
-    public void Rotate(float x, float y, bool triggerEvent = true, bool rotatePlayerRoot = false)
+    public void Rotate(float x, float y, bool triggerEvent = true)
     {
         yRotation += x;
         xRotation -= y;
-        if (xRotation > 180f)
-            xRotation -= 360f;
+        xRotation.NormalizeRotationTo180();
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        if (rotatePlayerRoot)
+        if (playerMovement.IsMoving())
         {
             transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
             player.rotation = Quaternion.Euler(0f, yRotation, 0f);
-            Debug.Log("Player root rotation: " + player.rotation.eulerAngles);
         }
         else
         {
@@ -153,6 +154,7 @@ public class PlayerCamera : NetworkBehaviour
         xRotation = x;
         yRotation = y;
         transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0f);
-        Logger.Default.Log("Camera rotation set to: " + transform.localRotation.eulerAngles);
+
+        OnRotationChange?.Invoke(x, y);
     }
 }

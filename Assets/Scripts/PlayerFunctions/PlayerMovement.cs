@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Multiplayer.Samples.Utilities.ClientAuthority;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -19,6 +20,7 @@ public class PlayerMovement : NetworkBehaviour
 
     public event Action<bool> OnMovementChange;
 
+    ClientNetworkTransform clientNetworkTransform;
     CharacterController characterController;
     Animator animator;
 
@@ -32,12 +34,16 @@ public class PlayerMovement : NetworkBehaviour
 
     void Start()
     {
+        clientNetworkTransform = GetComponent<ClientNetworkTransform>();
         characterController = GetComponent<CharacterController>();
         animator = GetComponentInChildren<Animator>();
     }
 
     void Update()
     {
+        if (!IsOwner)
+            return;
+
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
 
@@ -68,11 +74,13 @@ public class PlayerMovement : NetworkBehaviour
         {
             isMoving = false;
             OnMovementChange?.Invoke(isMoving);
+            clientNetworkTransform.Interpolate = false;
         }
         else if (!isMoving && (curSpeedX != 0 || curSpeedY != 0))
         {
             isMoving = true;
             OnMovementChange?.Invoke(isMoving);
+            clientNetworkTransform.Interpolate = true;
         }
     }
 

@@ -64,6 +64,40 @@ public static class Utility
         }
     }
 
+    /// <summary>
+    /// Normalize a rotation value around -180 to 180 degrees.
+    /// <para>e.g. 270 degrees becomes -90 degrees.</para>
+    /// </summary>
+    public static void NormalizeRotationTo180(this ref float rotation)
+    {
+        rotation %= 360f;
+        if (rotation < -180f)
+            rotation += 360f;
+        else if (rotation > 180f)
+            rotation -= 360f;
+    }
+
+    /// <summary>
+    /// Normalize a rotation vector2 to -180 to 180 degrees.
+    /// </summary>
+    /// <param name="rotation"></param>
+    public static void NormalizeRotationTo180(this ref Vector2 rotation)
+    {
+        NormalizeRotationTo180(ref rotation.x);
+        NormalizeRotationTo180(ref rotation.y);
+    }
+
+    /// <summary>
+    /// Normalize a rotation vector3 to -180 to 180 degrees.
+    /// </summary>
+    /// <param name="rotation"></param>
+    public static void NormalizeRotationTo180(this ref Vector3 rotation)
+    {
+        NormalizeRotationTo180(ref rotation.x);
+        NormalizeRotationTo180(ref rotation.y);
+        NormalizeRotationTo180(ref rotation.z);
+    }
+
     // Drawing Gizmos
     public static void DrawCube(Vector3 position, Vector3 size, Color color, float duration)
     {
