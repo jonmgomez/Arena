@@ -15,7 +15,8 @@ public abstract class Weapon : NetworkBehaviour
     WeaponState[] states = new WeaponState[Enum.GetNames(typeof(WeaponState.State)).Length];
     WeaponState currentState;
     WeaponRecoil recoilController;
-    Renderer[] renderers;
+    Renderer[] renderers = new Renderer[0];
+    Renderer[] thirdPersonModelRenderers = new Renderer[0];
 
     [Header("General")]
     public string Name = "Weapon";
@@ -116,6 +117,11 @@ public abstract class Weapon : NetworkBehaviour
 
         recoilController = GetComponent<WeaponRecoil>();
         renderers = GetComponentsInChildren<Renderer>();
+
+        if (ThirdPersonWeapon != null)
+        {
+            thirdPersonModelRenderers = ThirdPersonWeapon.GetComponentsInChildren<Renderer>();
+        }
     }
 
     protected virtual void Start()
@@ -213,6 +219,7 @@ public abstract class Weapon : NetworkBehaviour
         }
 
         Array.ForEach(renderers, r => r.enabled = enabled);
+        Array.ForEach(thirdPersonModelRenderers, r => r.enabled = enabled);
     }
 
     public float GetFireRate() => FireRate;

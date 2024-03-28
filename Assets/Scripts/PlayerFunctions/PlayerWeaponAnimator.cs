@@ -46,7 +46,6 @@ public class PlayerWeaponAnimator : NetworkBehaviour
     [SerializeField] private Transform thirdPersonHand;
     [SerializeField] private Transform thirdPersonParent;
 
-    private Transform thirdPersonWeapon;
     [SerializeField] private MultiAimConstraint thirdPersonHandRig;
     [SerializeField] private MultiAimConstraint thirdPersonHeadRig;
     [SerializeField] private MultiAimConstraint thirdPersonChestRig;
@@ -56,8 +55,6 @@ public class PlayerWeaponAnimator : NetworkBehaviour
     bool isMoving = false;
 
     [SerializeField] private float maxTurnAngleDegrees = 15f;
-
-    private readonly Dictionary<Transform, PositionAndRotation> originalPositions = new();
 
     private PlayerMovement playerMovement;
     private PlayerWeapon playerWeapon;
@@ -210,10 +207,7 @@ public class PlayerWeaponAnimator : NetworkBehaviour
     public void WeaponChanged(Weapon weapon)
     {
         weaponAnimator = weapon.Animator;
-        thirdPersonWeapon = weapon.ThirdPersonWeapon.transform;
         thirdPersonWeaponAnimator = weapon.ThirdPersonWeaponAnimator;
-
-        originalPositions[thirdPersonWeapon] = new PositionAndRotation(thirdPersonWeapon.localPosition, thirdPersonWeapon.localRotation);
     }
 
     private void PlayAnimationForController(Animator animator, string animation)
