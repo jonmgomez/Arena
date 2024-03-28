@@ -11453,7 +11453,7 @@ MonoBehaviour:
   - {fileID: 1862352503}
   - {fileID: 841879884}
   respawnDelay: 3
-  debugSingleSpawn: 0
+  debugSingleSpawn: 1
 --- !u!1 &913646690
 GameObject:
   m_ObjectHideFlags: 0

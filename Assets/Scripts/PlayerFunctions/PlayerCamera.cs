@@ -123,10 +123,14 @@ public class PlayerCamera : NetworkBehaviour
     /// </summary>
     /// <param name="x">Degrees to rotate left or right</param>
     /// <param name="y">Degrees to rotate up or down</param>
+    /// <param name="triggerEvent">Whether to trigger the OnRotate event</param>
+    /// <param name="rotatePlayerRoot">Whether to rotate the player root instead of the camera pivot</param>
     public void Rotate(float x, float y, bool triggerEvent = true, bool rotatePlayerRoot = false)
     {
         yRotation += x;
         xRotation -= y;
+        if (xRotation > 180f)
+            xRotation -= 360f;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
         if (rotatePlayerRoot)
@@ -137,10 +141,18 @@ public class PlayerCamera : NetworkBehaviour
         }
         else
         {
-            transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0);
+            transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0f);
         }
 
         if ((x != 0 || y != 0) && triggerEvent)
             OnRotate?.Invoke(x, y);
+    }
+
+    public void SetRotation(float x, float y)
+    {
+        xRotation = x;
+        yRotation = y;
+        transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0f);
+        Logger.Default.Log("Camera rotation set to: " + transform.localRotation.eulerAngles);
     }
 }

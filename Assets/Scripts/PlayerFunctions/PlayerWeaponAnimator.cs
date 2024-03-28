@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
@@ -65,6 +66,8 @@ public class PlayerWeaponAnimator : MonoBehaviour
     [SerializeField] Transform spineBone;
     [SerializeField] Transform aimTarget;
 
+    Coroutine animationEndCoroutine;
+    Coroutine animationCallbackCoroutine;
     Coroutine turningCoroutine;
 
     void Awake()
@@ -79,22 +82,23 @@ public class PlayerWeaponAnimator : MonoBehaviour
         {
             if (isMoving)
             {
-                PlayAnimationForController(playerThirdPersonAnimator, "MovementBlend");
+                playerThirdPersonAnimator.CrossFade("MovementBlend", 0.25f);
 
                 if (turningCoroutine != null)
                     StopCoroutine(turningCoroutine);
+                turningCoroutine = null;
 
                 done = false;
             }
             else
             {
-                PlayAnimationForController(playerThirdPersonAnimator, "MoveIdle");
+                playerThirdPersonAnimator.CrossFade("MoveIdle", 0.25f);
                 currentYRotation = 0f;
             }
         };
 
         playerCamera = GetComponentInChildren<PlayerCamera>();
-        currentYRotation = playerCamera.transform.localRotation.eulerAngles.y;
+        currentYRotation = playerCamera.transform.localEulerAngles.y;
 
         playerWeapon.OnActiveWeaponChanged += WeaponChanged;
         WeaponChanged(playerWeapon.GetActiveWeapon());
@@ -138,90 +142,96 @@ public class PlayerWeaponAnimator : MonoBehaviour
 
     private void CheckForTurn()
     {
-        Vector3 rotation = playerCamera.transform.localRotation.eulerAngles;
-
+        Vector3 rotation = playerCamera.transform.localEulerAngles;
         if (rotation.y > 180f)
         {
             rotation.y -= 360f;
         }
+        //Debug.LogWarning($"Rotation: {rotation.y}, Current: {currentYRotation}");
 
-        if (Math.Abs(rotation.y - currentYRotation) > maxTurnAngleDegrees)
+        float difference = rotation.y - currentYRotation;
+        bool turnRight = difference > 0f;
+        difference = Math.Abs(difference);
+
+        if (difference > maxTurnAngleDegrees * 2.5f)
         {
-            if (done)
+            Vector3 newForward;
+            if (turnRight)
             {
-                return;
+                newForward = Quaternion.Euler(0f, maxTurnAngleDegrees / 2, 0f).normalized * transform.forward;
             }
-            Debug.Log(rotation);
-            done = true;
-
-            currentYRotation = playerCamera.transform.localRotation.eulerAngles.y;
-            // playerCamera.transform.localRotation = Quaternion.Euler(playerCamera.transform.localRotation.eulerAngles.x, 0f, playerCamera.transform.localRotation.eulerAngles.z);
-
-            PlayAnimationForController(playerThirdPersonAnimator, "TurnLeft");
-
-            float animationLength = 0f;
-            AnimationClip[] clips = playerThirdPersonAnimator.runtimeAnimatorController.animationClips;
-
-            foreach (AnimationClip clip in clips)
+            else
             {
-                // Note that the clip name refers to the name of the animation file itself, not what it is referred to in the animator
-                // So check if the clip ends with "Fire" or "Reload" etc.
-                if (clip.name.EndsWith("TurnLeft"))
-                {
-                    animationLength = clip.length;
-                    break;
-                }
+                newForward = Quaternion.Euler(0f, -maxTurnAngleDegrees / 2, 0f).normalized * transform.forward;
             }
 
-            turningCoroutine = StartCoroutine(AnimationCallback(animationLength * 3f, () =>
-            {
-
-
-                // Vector3 playerForward = playerCamera.transform.forward;
-                // Vector3 newForward = new(playerForward.x, 0f, playerForward.z);
-                // Debug.DrawRay(playerCamera.transform.position, newForward * 10f, Color.red, 3f);
-
-                Vector3 newForward = new(hipsBone.forward.x, 0f, hipsBone.forward.z);
-                Debug.DrawRay(hipsBone.position, newForward * 10f, Color.blue, 3f);
-
-                // playerCamera.transform.localRotation = Quaternion.Euler(playerCamera.transform.localRotation.eulerAngles.x, 0f, playerCamera.transform.localRotation.eulerAngles.z);
-
-                // Get the difference in degrees between the transforms forward and the player camera forward
-
-                Quaternion savedRotation = playerCamera.transform.rotation;
-                Vector3 forward = playerCamera.transform.forward;
-                Debug.DrawRay(playerCamera.transform.position, forward * 10f, Color.green, 3f);
-
-                Vector3 aimTargetPosition = aimTarget.position;
-                transform.rotation = Quaternion.LookRotation(newForward);
-                aimTarget.position = aimTargetPosition;
-
-                Vector3 cameraForward = new(playerCamera.transform.forward.x, 0f, playerCamera.transform.forward.z);
-                //playerCamera.transform.localRotation = Quaternion.LookRotation(newForward);
-                Debug.DrawRay(playerCamera.transform.position, playerCamera.transform.forward * 10f, Color.red, 3f);
-                float angle = Vector3.SignedAngle(playerCamera.transform.forward, forward, Vector3.up);
-
-                playerCamera.Rotate(angle, 0f);
-                currentYRotation = playerCamera.transform.localRotation.eulerAngles.y;
-                //playerCamera.transform.localRotation = Quaternion.LookRotation(forward);
-                // playerCamera.xRotation = angle;
-                Debug.Log(angle);
-
-                // Use the forward vector to set the rotation of the this transform
-                //transform.rotation = Quaternion.LookRotation(newForward);
-                //Debug.Log(playerCamera.xRotation);
-                //playerCamera.SetRotation(playerCamera.xRotation, 0f);
-
-                playerThirdPersonAnimator.Play("MoveIdle", -1, 0f);
-                // playerThirdPersonAnimator.CrossFade("MoveIdle", 0.1f, -1, 0.9f);
-
-                //thirdPersonChestRig.weight = 0f;
-                // Look toward aimTarget
-                //spineBone.LookAt(playerCamera.transform.position + playerCamera.transform.forward * 10f, Vector3.up);
-
-                //reenableRig = true;
-            }));
+            Debug.DrawRay(hipsBone.position, newForward * 10f, Color.black, 3f);
+            RotatePlayerToNewForward(newForward);
         }
+        else if  (difference > maxTurnAngleDegrees && turningCoroutine == null)
+        {
+            string animation = turnRight ? "TurnRight" : "TurnLeft";
+            PlayAnimationForController(playerThirdPersonAnimator, animation);
+
+            float animationLength = GetAnimationLength(playerThirdPersonAnimator, animation);
+            turningCoroutine = StartCoroutine(TurnPlayer(animationLength));
+            // turningCoroutine = StartCoroutine(AnimationCallback(animationLength, () =>
+            // {
+            //     Debug.Log("Calculating new forward");
+            //     Vector3 newPlayerForward = new(hipsBone.forward.x, 0f, hipsBone.forward.z);
+            //     Debug.DrawRay(hipsBone.position, newPlayerForward * 10f, Color.blue, 3f);
+
+            //     Quaternion savedRotation = playerCamera.transform.rotation;
+            //     Vector3 cameraForward = new(playerCamera.transform.forward.x, 0f, playerCamera.transform.forward.z);
+            //     Debug.DrawRay(playerCamera.transform.position, cameraForward * 10f, Color.green, 3f);
+
+            //     Vector3 aimTargetPosition = aimTarget.position;
+            //     transform.rotation = Quaternion.LookRotation(newPlayerForward);
+            //     aimTarget.position = aimTargetPosition;
+
+            //     // After the player root has been rotated, the camera is now offset based on its local rotation.
+            //     // Adjust its rotation so that its forward lines up with where it used to be.
+            //     float angleDifference = Vector3.SignedAngle(playerCamera.transform.forward, cameraForward, Vector3.up);
+            //     playerCamera.Rotate(angleDifference, 0f);
+            //     currentYRotation = 0f;
+
+            //     PlayAnimationForController(playerThirdPersonAnimator, "MoveIdle");
+
+            //     Debug.Log("Turned player root");
+            //     turningCoroutine = null;
+            // }));
+        }
+    }
+
+    IEnumerator TurnPlayer(float animationLength)
+    {
+        yield return new WaitForSeconds(animationLength);
+
+        Vector3 newPlayerForward = new(hipsBone.forward.x, 0f, hipsBone.forward.z);
+        Debug.DrawRay(hipsBone.position, newPlayerForward * 10f, Color.blue, 3f);
+
+        RotatePlayerToNewForward(newPlayerForward);
+        PlayAnimationForController(playerThirdPersonAnimator, "MoveIdle");
+
+        turningCoroutine = null;
+    }
+
+    private void RotatePlayerToNewForward(Vector3 forward)
+    {
+        Vector3 cameraForward = new(playerCamera.transform.forward.x, 0f, playerCamera.transform.forward.z);
+        Vector3 aimTargetPosition = aimTarget.position;
+        transform.rotation = Quaternion.LookRotation(forward);
+        aimTarget.position = aimTargetPosition;
+
+        // After the player root has been rotated, the camera is now offset based on its local rotation.
+        // Adjust its rotation so that its forward lines up with where it used to be.
+        // float angleDifference = Vector3.SignedAngle(playerCamera.transform.forward, cameraForward, Vector3.up);
+        // playerCamera.Rotate(angleDifference, 0f);
+        // currentYRotation = 0f;
+
+        Vector3 rotation = Quaternion.FromToRotation(transform.forward, cameraForward).eulerAngles;
+        logger.Log($"Rotation: {rotation} current rotation: {playerCamera.transform.localRotation.eulerAngles}");
+        playerCamera.SetRotation(playerCamera.transform.localEulerAngles.x, rotation.y);
     }
 
     public void WeaponChanged(Weapon weapon)
@@ -263,7 +273,11 @@ public class PlayerWeaponAnimator : MonoBehaviour
     /// <param name="animation">Weapon animation enum</param>
     public void PlayAnimation(WeaponAnimation animation)
     {
-        StopAllCoroutines();
+        if (animationEndCoroutine != null)
+            StopCoroutine(animationEndCoroutine);
+
+        if (animationCallbackCoroutine != null)
+            StopCoroutine(animationCallbackCoroutine);
 
         if (weaponAnimator == null)
         {
@@ -292,28 +306,29 @@ public class PlayerWeaponAnimator : MonoBehaviour
     {
         PlayAnimation(animation);
 
-        float animationLength = 0f;
-        if (!HasAnimation(animation))
-        {
-            animationLength = 0.01f;
-        }
-        else
-        {
-            AnimationClip[] clips = weaponAnimator.runtimeAnimatorController.animationClips;
+        float animationLength = GetAnimationLength(weaponAnimator, AnimationEnumToString(animation));
+        animationLength = animationLength == 0f ? 0.01f : animationLength;
 
-            foreach (AnimationClip clip in clips)
+        animationEndCoroutine = StartCoroutine(AnimationCallback(animationLength, OnFinished));
+    }
+
+    private float GetAnimationLength(Animator animator, string animation)
+    {
+        if (animator == null) return 0f;
+
+        AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
+
+        foreach (AnimationClip clip in clips)
+        {
+            // Note that the clip name refers to the name of the animation file itself, not what it is referred to in the animator
+            // So check if the clip ends with "Fire" or "Reload" etc.
+            if (clip.name.EndsWith(animation))
             {
-                // Note that the clip name refers to the name of the animation file itself, not what it is referred to in the animator
-                // So check if the clip ends with "Fire" or "Reload" etc.
-                if (clip.name.EndsWith(AnimationEnumToString(animation)))
-                {
-                    animationLength = clip.length;
-                    break;
-                }
+                return clip.length;
             }
         }
 
-        StartCoroutine(AnimationCallback(animationLength, OnFinished));
+        return 0f;
     }
 
     /// <summary>
@@ -333,7 +348,7 @@ public class PlayerWeaponAnimator : MonoBehaviour
         }
         else
         {
-            StartCoroutine(AnimationCallback(callbackTime, CallbackFunction));
+            animationCallbackCoroutine = StartCoroutine(AnimationCallback(callbackTime, CallbackFunction));
         }
     }
 
