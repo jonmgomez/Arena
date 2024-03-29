@@ -162,5 +162,8 @@ MonoBehaviour:
   speed: 500
   hitScan: 1
   startFromBarrel: 1
+  hitScanCollisionMask:
+    serializedVersion: 2
+    m_Bits: 255
   maxDistance: 100
   showHitScanRay: 0

@@ -95,10 +95,8 @@ public class PlayerCamera : NetworkBehaviour
     private void SwapToPlayerRootRotation()
     {
         Vector3 forward = new(transform.forward.x, 0f, transform.forward.z);
-        Debug.DrawRay(transform.position, forward * 10f, Color.white, 3f);
 
         player.rotation = Quaternion.LookRotation(forward, Vector3.up);
-        Debug.DrawRay(player.position, player.forward * 10f, Color.red, 3f);
         transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
         yRotation = player.rotation.eulerAngles.y;
     }

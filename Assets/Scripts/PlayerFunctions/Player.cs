@@ -14,6 +14,7 @@ public class Player : NetworkBehaviour
 {
     static Vector3 OFF_SCREEN = new(0f, -100f, 0f);
     private readonly Logger logger = new("PLAYR");
+    private const string SELF_LAYER = "PlayerSelf";
 
     [SerializeField] TextMeshPro playerNameText;
 
@@ -85,6 +86,15 @@ public class Player : NetworkBehaviour
 
         GameState.Instance.SetPlayer(this);
         playerNameText.text = GameState.Instance.GetClientData(OwnerClientId).clientName;
+
+        if (IsOwner)
+        {
+            Transform[] children = GetComponentsInChildren<Transform>();
+            foreach (Transform child in children)
+            {
+                child.gameObject.layer = LayerMask.NameToLayer(SELF_LAYER);
+            }
+        }
     }
 
     void Start()

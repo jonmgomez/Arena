@@ -9,16 +9,20 @@ public class Projectile : MonoBehaviour
 
     [SerializeField] float damage = 10f;
     [SerializeField] float speed = 100f;
+
+    [Header("Hit Scan Settings")]
     [SerializeField] bool hitScan = false;
     [Tooltip("Hitscan only --- Originates the projectile from the barrel of the gun rather than the camera." +
              "Note that hitscan will still act as originating from the camera. A render thing only.")]
     [SerializeField] bool startFromBarrel = false;
-    Vector3 originalPosition;
+    [SerializeField] LayerMask hitScanCollisionMask;
     [SerializeField] float maxDistance = 100f;
-    Vector3 previousPosition;
 
     [Header("Debug")]
     [SerializeField] bool showHitScanRay = false;
+
+    Vector3 originalPosition;
+    Vector3 previousPosition;
 
     bool calculateCollisions = true;
     ulong firedFromClientId; // Who shot this projectile
@@ -33,22 +37,27 @@ public class Projectile : MonoBehaviour
         if (hitScan)
         {
             Vector3 startPosition = startFromBarrel ? originalPosition : transform.position;
-            if (Physics.Raycast(startPosition, transform.forward, out RaycastHit hit, maxDistance))
+            bool hitCollider = Physics.Raycast(startPosition, transform.forward, out RaycastHit hit, maxDistance, hitScanCollisionMask);
+            if (hitCollider)
             {
                 OnCollision(hit.collider);
                 destroyTimer.SetDestroyTimer(Vector3.Distance(transform.position, hit.point) / speed);
-
-                if (startFromBarrel)
-                    transform.LookAt(hit.point);
             }
-            else if (startFromBarrel)
+
+            if (startFromBarrel)
             {
-                transform.LookAt(transform.position + transform.forward * maxDistance);
+                if (hitCollider)
+                    transform.LookAt(hit.point);
+                else
+                    transform.LookAt(transform.position + transform.forward * maxDistance);
             }
 
             if (showHitScanRay)
             {
-                Debug.DrawRay(startPosition, transform.forward * maxDistance, Color.red, 5f);
+                if (hitCollider)
+                    Debug.DrawLine(startPosition, hit.point, Color.red, 5f);
+                else
+                    Debug.DrawRay(startPosition, transform.forward * maxDistance, Color.red, 5f);
             }
         }
         else
@@ -93,9 +102,9 @@ public class Projectile : MonoBehaviour
 
     private void OnCollision(Collider collider)
     {
-        if (collider.CompareTag("Player"))
+        if (collider.transform.root.CompareTag("Player"))
         {
-            Player player = collider.GetComponent<Player>();
+            Player player = collider.transform.root.GetComponent<Player>();
 
             if (!BelongsToPlayer(player)) // Don't deal damage to self
             {
