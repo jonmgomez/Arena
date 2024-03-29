@@ -43,25 +43,18 @@ public class PlayerWeaponAnimator : NetworkBehaviour
     [SerializeField] private Animator playerFirstPersonAnimator;
     [SerializeField] private Animator playerThirdPersonAnimator;
 
-    [SerializeField] private Transform thirdPersonHand;
-    [SerializeField] private Transform thirdPersonParent;
-
-    [SerializeField] private MultiAimConstraint thirdPersonHandRig;
     [SerializeField] private MultiAimConstraint thirdPersonHeadRig;
     [SerializeField] private MultiAimConstraint thirdPersonChestRig;
     private float currentRigsWeight = 1f;
     private bool rigVisible = true;
     [SerializeField] private float rigRestoreSpeed = 2f;
-    bool isMoving = false;
 
     [SerializeField] private float maxTurnAngleDegrees = 15f;
 
     private PlayerMovement playerMovement;
     private PlayerWeapon playerWeapon;
     private PlayerCamera playerCamera;
-    private float currentYRotation;
     [SerializeField] Transform hipsBone;
-    [SerializeField] Transform spineBone;
     [SerializeField] Transform aimTarget;
 
     Coroutine animationEndCoroutine;
@@ -71,6 +64,8 @@ public class PlayerWeaponAnimator : NetworkBehaviour
     void Awake()
     {
         playerWeapon = GetComponent<PlayerWeapon>();
+        playerWeapon.OnActiveWeaponChanged += WeaponChanged;
+        WeaponChanged(playerWeapon.GetActiveWeapon());
     }
 
     void Start()
@@ -86,46 +81,27 @@ public class PlayerWeaponAnimator : NetworkBehaviour
 
                 if (turningCoroutine != null)
                     StopCoroutine(turningCoroutine);
-                turningCoroutine = null;
-
-                done = false;
             }
             else
             {
                 playerThirdPersonAnimator.CrossFade("MoveIdle", 0.25f);
-                currentYRotation = 0f;
             }
         };
 
         playerCamera = GetComponentInChildren<PlayerCamera>();
-        currentYRotation = playerCamera.transform.localEulerAngles.y;
-
-        playerWeapon.OnActiveWeaponChanged += WeaponChanged;
-        WeaponChanged(playerWeapon.GetActiveWeapon());
     }
-
-    bool done = false;
-    bool reenableRig = false;
 
     void Update()
     {
         if (!IsOwner) return;
 
-        if (reenableRig)
-        {
-            reenableRig = false;
-            thirdPersonChestRig.weight = 1f;
-        }
-
-        float targetWeight = rigVisible ? 1f : 0f;
-
         if (rigVisible && currentRigsWeight != 1f ||
             !rigVisible && currentRigsWeight != 0f)
         {
+            float targetWeight = rigVisible ? 1f : 0f;
             currentRigsWeight = Mathf.MoveTowards(currentRigsWeight, targetWeight, Time.deltaTime * rigRestoreSpeed);
-            // thirdPersonHandRig.weight = currentRigsWeight;
             thirdPersonHeadRig.weight = currentRigsWeight;
-            //thirdPersonChestRig.weight = currentRigsWeight;
+            thirdPersonChestRig.weight = currentRigsWeight;
         }
 
         if (playerThirdPersonAnimator != null)
@@ -207,6 +183,11 @@ public class PlayerWeaponAnimator : NetworkBehaviour
     public void WeaponChanged(Weapon weapon)
     {
         weaponAnimator = weapon.Animator;
+        if (weaponAnimator == null)
+        {
+            logger.LogError($"Weapon animator is null for {weapon.name}!");
+            return;
+        }
         thirdPersonWeaponAnimator = weapon.ThirdPersonWeaponAnimator;
     }
 
@@ -214,15 +195,25 @@ public class PlayerWeaponAnimator : NetworkBehaviour
     {
         if (animator == null)
         {
-            logger.LogError($"Animator is null for {playerWeapon.GetActiveWeaponName()}! Animation: {animation}");
+            logger.LogError($"An animator is null for {playerWeapon.GetActiveWeaponName()}! Animation: {animation}");
             return;
         }
 
         #if UNITY_EDITOR
-        if (!animator.HasState(0, Animator.StringToHash(animation)))
+        bool found = false;
+        for (int i = 0; i < animator.layerCount; i++)
         {
-            logger.LogError($"Animation {animation} not found in {animator.name}");
-            //return;
+            if (animator.HasState(i, Animator.StringToHash(animation)))
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            logger.LogError($"Animation {animation} not found in {animator.name}! Layers checked: (0 - {animator.layerCount})");
+            return;
         }
         #endif
 
@@ -331,6 +322,9 @@ public class PlayerWeaponAnimator : NetworkBehaviour
         {
             case WeaponAnimation.Reload:
             case WeaponAnimation.ReloadEmpty:
+            case WeaponAnimation.ReloadStart:
+            case WeaponAnimation.ReloadOne:
+            case WeaponAnimation.ReloadEnd:
                 SetThirdPersonRigVisibility(false);
                 break;
             default:
@@ -342,24 +336,6 @@ public class PlayerWeaponAnimator : NetworkBehaviour
     private void SetThirdPersonRigVisibility(bool visible)
     {
         rigVisible = visible;
-
-        // if (visible)
-        // {
-        //     if (thirdPersonWeapon != null)
-        //     {
-        //         thirdPersonWeapon.parent = thirdPersonHand;
-
-        //         if (originalPositions.ContainsKey(thirdPersonWeapon))
-        //         {
-        //             thirdPersonWeapon.SetLocalPositionAndRotation(originalPositions[thirdPersonWeapon].position, originalPositions[thirdPersonWeapon].rotation);
-        //         }
-        //     }
-        // }
-        // else
-        // {
-        //     if (thirdPersonWeapon != null)
-        //         thirdPersonWeapon.parent = thirdPersonParent;
-        // }
     }
 
     public bool HasAnimation(WeaponAnimation animation)

@@ -48,14 +48,13 @@ public class PlayerCamera : NetworkBehaviour
         defaultCamera = Camera.main;
         CameraManager.Instance.SetActiveCamera(playersCamera);
 
-        // aimTarget.parent = null;
-
         playerMovement = transform.root.GetComponent<PlayerMovement>();
         playerMovement.OnMovementChange += (isMoving) =>
         {
-            Debug.Log("Player is moving: " + isMoving);
             if (isMoving)
+            {
                 SwapToPlayerRootRotation();
+            }
             else
             {
                 yRotation = 0f;

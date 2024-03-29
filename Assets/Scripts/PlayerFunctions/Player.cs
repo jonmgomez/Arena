@@ -68,13 +68,19 @@ public class Player : NetworkBehaviour
 
     void NetworkSpawn()
     {
+        Renderer[] renderers;
         if (IsOwner && !showThirdPersonMesh)
         {
-            thirdPersonMesh.SetActive(false);
+            renderers = thirdPersonMesh.GetComponentsInChildren<Renderer>();
         }
         else
         {
-            firstPersonMesh.SetActive(false);
+            renderers = firstPersonMesh.GetComponentsInChildren<Renderer>();
+        }
+
+        foreach (Renderer renderer in renderers)
+        {
+            renderer.enabled = false;
         }
 
         GameState.Instance.SetPlayer(this);
