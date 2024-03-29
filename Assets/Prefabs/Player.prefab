@@ -216,6 +216,7 @@ MonoBehaviour:
   playerCamera: {fileID: 6232771696667572888}
   thirdPersonMesh: {fileID: 3783882937617923771}
   firstPersonMesh: {fileID: 3434647888190722554}
+  headCollider: {fileID: 1558961953383612074}
   showThirdPersonMesh: 0
 --- !u!114 &6835946693310315376
 MonoBehaviour:

@@ -41,6 +41,9 @@ public class Player : NetworkBehaviour
     [SerializeField] GameObject thirdPersonMesh;
     [SerializeField] GameObject firstPersonMesh;
 
+    [Tooltip("Specify the head collider box. Collisions to this will deal more damage")]
+    [SerializeField] private Collider headCollider;
+
     [Header("Debug")]
     [SerializeField] private bool showThirdPersonMesh = false;
 
@@ -314,6 +317,6 @@ public class Player : NetworkBehaviour
     }
 
     public string GetName() => playerNameText.text;
-
+    public bool IsHeadCollider(Collider collider) => headCollider == collider;
     public bool ShowFirstPersonMesh() => IsOwner && !showThirdPersonMesh;
 }

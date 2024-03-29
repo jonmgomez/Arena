@@ -8,6 +8,7 @@ public class Projectile : MonoBehaviour
     const float SPEED_FOR_MISSED_COLLISIONS = 100f;
 
     [SerializeField] float damage = 10f;
+    [SerializeField] float headShotDamageMultiplier = 2f;
     [SerializeField] float speed = 100f;
 
     [Header("Hit Scan Settings")]
@@ -109,7 +110,10 @@ public class Projectile : MonoBehaviour
             if (!BelongsToPlayer(player)) // Don't deal damage to self
             {
                 if (calculateCollisions)
-                    player.TakeDamage(damage, firedFromClientId);
+                {
+                    float damageToDeal = player.IsHeadCollider(collider) ? damage * headShotDamageMultiplier : damage;
+                    player.TakeDamage(damageToDeal, firedFromClientId);
+                }
 
                 // This may need to be done over the network by the player who shot rather than locally for clients.
                 // Clients need to do more processing to determine if they hit a player and destroy this way,
