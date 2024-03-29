@@ -8,7 +8,12 @@ public class KillZone : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
-            other.GetComponent<Player>().TakeDamageAnonymous(DEATH_DAMAGE);
+        if (other.transform.root.CompareTag("Player"))
+        {
+            Player player = other.transform.root.GetComponent<Player>();
+
+            if (player.IsOwner) // Clients calculate their own damage (avoids some interpolation-caused issues)
+                player.TakeDamageAnonymous(DEATH_DAMAGE);
+        }
     }
 }
