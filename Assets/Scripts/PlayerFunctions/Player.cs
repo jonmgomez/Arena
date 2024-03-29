@@ -40,6 +40,9 @@ public class Player : NetworkBehaviour
     [SerializeField] GameObject thirdPersonMesh;
     [SerializeField] GameObject firstPersonMesh;
 
+    [Header("Debug")]
+    [SerializeField] private bool showThirdPersonMesh = false;
+
     // Necessary to prevent regen coroutine from running multiple times. Only using the method name does not work
     Coroutine regenHealthCoroutine = null;
 
@@ -65,13 +68,19 @@ public class Player : NetworkBehaviour
 
     void NetworkSpawn()
     {
-        if (IsOwner)
+        Renderer[] renderers;
+        if (IsOwner && !showThirdPersonMesh)
         {
-            thirdPersonMesh.SetActive(false);
+            renderers = thirdPersonMesh.GetComponentsInChildren<Renderer>(true);
         }
         else
         {
-            firstPersonMesh.SetActive(false);
+            renderers = firstPersonMesh.GetComponentsInChildren<Renderer>(true);
+        }
+
+        foreach (Renderer renderer in renderers)
+        {
+            renderer.enabled = false;
         }
 
         GameState.Instance.SetPlayer(this);
@@ -295,4 +304,6 @@ public class Player : NetworkBehaviour
     }
 
     public string GetName() => playerNameText.text;
+
+    public bool ShowFirstPersonMesh() => IsOwner && !showThirdPersonMesh;
 }

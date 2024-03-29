@@ -1,7 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 public enum WeaponAnimation
 {
@@ -19,36 +22,192 @@ public enum WeaponAnimation
     AimFire
 }
 
-public class PlayerWeaponAnimator : MonoBehaviour
+class PositionAndRotation
 {
+    public Vector3 position;
+    public Quaternion rotation;
+
+    public PositionAndRotation(Vector3 position, Quaternion rotation)
+    {
+        this.position = position;
+        this.rotation = rotation;
+    }
+}
+
+public class PlayerWeaponAnimator : NetworkBehaviour
+{
+    private readonly Logger logger = new("PLYRANIM");
+
     private Animator weaponAnimator;
+    private Animator thirdPersonWeaponAnimator;
     [SerializeField] private Animator playerFirstPersonAnimator;
     [SerializeField] private Animator playerThirdPersonAnimator;
 
+    [SerializeField] private MultiAimConstraint thirdPersonHeadRig;
+    private float currentRigsWeight = 1f;
+    private bool rigVisible = true;
+    [SerializeField] private float rigRestoreSpeed = 2f;
+
+    [SerializeField] private float maxTurnAngleDegrees = 15f;
+
+    private PlayerMovement playerMovement;
     private PlayerWeapon playerWeapon;
+    private PlayerCamera playerCamera;
+    [SerializeField] Transform hipsBone;
+    [SerializeField] Transform aimTarget;
+
+    Coroutine animationEndCoroutine;
+    Coroutine animationCallbackCoroutine;
+    Coroutine turningCoroutine;
 
     void Awake()
     {
         playerWeapon = GetComponent<PlayerWeapon>();
-        weaponAnimator = playerWeapon.GetActiveWeapon().GetComponent<Animator>();
+        playerWeapon.OnActiveWeaponChanged += WeaponChanged;
+        WeaponChanged(playerWeapon.GetActiveWeapon());
     }
 
     void Start()
     {
-        playerWeapon.OnActiveWeaponChanged += WeaponChanged;
+        if (!IsOwner) return;
+
+        playerMovement = GetComponent<PlayerMovement>();
+        playerMovement.OnMovementChange += (isMoving) =>
+        {
+            if (isMoving)
+            {
+                playerThirdPersonAnimator.CrossFade("MovementBlend", 0.25f);
+
+                if (turningCoroutine != null)
+                    StopCoroutine(turningCoroutine);
+            }
+            else
+            {
+                playerThirdPersonAnimator.CrossFade("MoveIdle", 0.25f);
+            }
+        };
+
+        playerCamera = GetComponentInChildren<PlayerCamera>();
+    }
+
+    void Update()
+    {
+        if (!IsOwner) return;
+
+        if (rigVisible && currentRigsWeight != 1f ||
+            !rigVisible && currentRigsWeight != 0f)
+        {
+            float targetWeight = rigVisible ? 1f : 0f;
+            currentRigsWeight = Mathf.MoveTowards(currentRigsWeight, targetWeight, Time.deltaTime * rigRestoreSpeed);
+            thirdPersonHeadRig.weight = currentRigsWeight;
+        }
+
+        if (playerThirdPersonAnimator != null)
+        {
+            if (playerMovement.IsMoving())
+            {
+                playerThirdPersonAnimator.SetFloat("Horizontal", Input.GetAxis("Horizontal"));
+                playerThirdPersonAnimator.SetFloat("Vertical", Input.GetAxis("Vertical"));
+            }
+            else
+            {
+                CheckForTurn();
+            }
+        }
+    }
+
+    private void CheckForTurn()
+    {
+        Vector3 rotation = playerCamera.transform.localEulerAngles;
+        if (rotation.y > 180f)
+        {
+            rotation.y -= 360f;
+        }
+
+        bool turnRight = rotation.y > 0f;
+        float difference = Mathf.Abs(rotation.y);
+
+        if (difference > maxTurnAngleDegrees * 2.5f)
+        {
+            Vector3 newForward;
+            if (turnRight)
+            {
+                newForward = Quaternion.Euler(0f, maxTurnAngleDegrees / 2, 0f).normalized * transform.forward;
+            }
+            else
+            {
+                newForward = Quaternion.Euler(0f, -maxTurnAngleDegrees / 2, 0f).normalized * transform.forward;
+            }
+
+            RotatePlayerToNewForward(newForward);
+        }
+        else if  (difference > maxTurnAngleDegrees && turningCoroutine == null)
+        {
+            string animation = turnRight ? "TurnRight" : "TurnLeft";
+            PlayAnimationForController(playerThirdPersonAnimator, animation);
+
+            float animationLength = GetAnimationLength(playerThirdPersonAnimator, animation);
+            turningCoroutine = StartCoroutine(TurnPlayer(animationLength));
+        }
+    }
+
+    IEnumerator TurnPlayer(float animationLength)
+    {
+        yield return new WaitForSeconds(animationLength);
+
+        Vector3 newPlayerForward = new(hipsBone.forward.x, 0f, hipsBone.forward.z);
+        RotatePlayerToNewForward(newPlayerForward);
+        PlayAnimationForController(playerThirdPersonAnimator, "MoveIdle");
+
+        turningCoroutine = null;
+    }
+
+    private void RotatePlayerToNewForward(Vector3 forward)
+    {
+        Vector3 cameraForward = new(playerCamera.transform.forward.x, 0f, playerCamera.transform.forward.z);
+        Vector3 aimTargetPosition = aimTarget.position;
+        transform.rotation = Quaternion.LookRotation(forward);
+        aimTarget.position = aimTargetPosition;
+
+        // After the player root has been rotated, the camera is now offset based on its local rotation.
+        // Adjust its rotation so that its forward lines up with where it used to be.
+        Vector3 rotation = Quaternion.FromToRotation(transform.forward, cameraForward).eulerAngles;
+        playerCamera.SetRotation(playerCamera.transform.localEulerAngles.x, rotation.y);
     }
 
     public void WeaponChanged(Weapon weapon)
     {
-        weaponAnimator = weapon.GetComponent<Animator>();
+        weaponAnimator = weapon.Animator;
+        if (weaponAnimator == null)
+        {
+            logger.LogError($"Weapon animator is null for {weapon.name}!");
+            return;
+        }
+        thirdPersonWeaponAnimator = weapon.ThirdPersonWeaponAnimator;
     }
 
     private void PlayAnimationForController(Animator animator, string animation)
     {
-        #if UNITY_EDITOR
-        if (!animator.HasState(0, Animator.StringToHash(animation)))
+        if (animator == null)
         {
-            Logger.Default.LogError($"Animation {animation} not found in {animator.name}");
+            logger.LogError($"An animator is null for {playerWeapon.GetActiveWeaponName()}! Animation: {animation}");
+            return;
+        }
+
+        #if UNITY_EDITOR
+        bool found = false;
+        for (int i = 0; i < animator.layerCount; i++)
+        {
+            if (animator.HasState(i, Animator.StringToHash(animation)))
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            logger.LogError($"Animation {animation} not found in {animator.name}! Layers checked: (0 - {animator.layerCount})");
             return;
         }
         #endif
@@ -67,11 +226,15 @@ public class PlayerWeaponAnimator : MonoBehaviour
     /// <param name="animation">Weapon animation enum</param>
     public void PlayAnimation(WeaponAnimation animation)
     {
-        StopAllCoroutines();
+        if (animationEndCoroutine != null)
+            StopCoroutine(animationEndCoroutine);
+
+        if (animationCallbackCoroutine != null)
+            StopCoroutine(animationCallbackCoroutine);
 
         if (weaponAnimator == null)
         {
-            Logger.Default.LogError($"Weapon animator is null for {playerWeapon.GetActiveWeaponName()}! Animation: {animation}");
+            logger.LogError($"Weapon animator is null for {playerWeapon.GetActiveWeaponName()}! Animation: {animation}");
             return;
         }
 
@@ -79,7 +242,10 @@ public class PlayerWeaponAnimator : MonoBehaviour
         string weaponName = playerWeapon.GetActiveWeaponName();
         string playerAnimation = $"{weaponName}_{weaponAnimation}";
 
+        OnAnimationStart(animation);
+
         PlayAnimationForController(weaponAnimator, weaponAnimation);
+        PlayAnimationForController(thirdPersonWeaponAnimator, weaponAnimation);
         PlayAnimationForController(playerFirstPersonAnimator, playerAnimation);
         PlayAnimationForController(playerThirdPersonAnimator, playerAnimation);
     }
@@ -93,28 +259,29 @@ public class PlayerWeaponAnimator : MonoBehaviour
     {
         PlayAnimation(animation);
 
-        float animationLength = 0f;
-        if (!HasAnimation(animation))
-        {
-            animationLength = 0.01f;
-        }
-        else
-        {
-            AnimationClip[] clips = weaponAnimator.runtimeAnimatorController.animationClips;
+        float animationLength = GetAnimationLength(weaponAnimator, AnimationEnumToString(animation));
+        animationLength = animationLength == 0f ? 0.01f : animationLength;
 
-            foreach (AnimationClip clip in clips)
+        animationEndCoroutine = StartCoroutine(AnimationCallback(animationLength, OnFinished));
+    }
+
+    private float GetAnimationLength(Animator animator, string animation)
+    {
+        if (animator == null) return 0f;
+
+        AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
+
+        foreach (AnimationClip clip in clips)
+        {
+            // Note that the clip name refers to the name of the animation file itself, not what it is referred to in the animator
+            // So check if the clip ends with "Fire" or "Reload" etc.
+            if (clip.name.EndsWith(animation))
             {
-                // Note that the clip name refers to the name of the animation file itself, not what it is referred to in the animator
-                // So check if the clip ends with "Fire" or "Reload" etc.
-                if (clip.name.EndsWith(AnimationEnumToString(animation)))
-                {
-                    animationLength = clip.length;
-                    break;
-                }
+                return clip.length;
             }
         }
 
-        StartCoroutine(AnimationCallback(animationLength, OnFinished));
+        return 0f;
     }
 
     /// <summary>
@@ -134,7 +301,7 @@ public class PlayerWeaponAnimator : MonoBehaviour
         }
         else
         {
-            StartCoroutine(AnimationCallback(callbackTime, CallbackFunction));
+            animationCallbackCoroutine = StartCoroutine(AnimationCallback(callbackTime, CallbackFunction));
         }
     }
 
@@ -142,6 +309,28 @@ public class PlayerWeaponAnimator : MonoBehaviour
     {
         yield return new WaitForSeconds(time);
         function();
+    }
+
+    private void OnAnimationStart(WeaponAnimation animation)
+    {
+        switch (animation)
+        {
+            case WeaponAnimation.Reload:
+            case WeaponAnimation.ReloadEmpty:
+            case WeaponAnimation.ReloadStart:
+            case WeaponAnimation.ReloadOne:
+            case WeaponAnimation.ReloadEnd:
+                SetThirdPersonRigVisibility(false);
+                break;
+            default:
+                SetThirdPersonRigVisibility(true);
+                break;
+        }
+    }
+
+    private void SetThirdPersonRigVisibility(bool visible)
+    {
+        rigVisible = visible;
     }
 
     public bool HasAnimation(WeaponAnimation animation)
@@ -155,7 +344,36 @@ public class PlayerWeaponAnimator : MonoBehaviour
         string playerAnimation = $"{playerWeapon.GetActiveWeaponName()}_{weaponAnimation}";
 
         return weaponAnimator.HasState(0, Animator.StringToHash(weaponAnimation)) ||
+               thirdPersonWeaponAnimator.HasState(0, Animator.StringToHash(weaponAnimation)) ||
                playerFirstPersonAnimator.HasState(0, Animator.StringToHash(playerAnimation)) ||
+               playerThirdPersonAnimator.HasState(0, Animator.StringToHash(playerAnimation));
+    }
+
+    public bool HasFirstPersonAnimation(WeaponAnimation animation)
+    {
+        if (weaponAnimator == null)
+        {
+            return false;
+        }
+
+        string weaponAnimation = AnimationEnumToString(animation);
+        string playerAnimation = $"{playerWeapon.GetActiveWeaponName()}_{weaponAnimation}";
+
+        return weaponAnimator.HasState(0, Animator.StringToHash(weaponAnimation)) ||
+               playerFirstPersonAnimator.HasState(0, Animator.StringToHash(playerAnimation));
+    }
+
+    public bool HasThirdPersonAnimation(WeaponAnimation animation)
+    {
+        if (weaponAnimator == null)
+        {
+            return false;
+        }
+
+        string weaponAnimation = AnimationEnumToString(animation);
+        string playerAnimation = $"{playerWeapon.GetActiveWeaponName()}_{weaponAnimation}";
+
+        return thirdPersonWeaponAnimator.HasState(0, Animator.StringToHash(weaponAnimation)) ||
                playerThirdPersonAnimator.HasState(0, Animator.StringToHash(playerAnimation));
     }
 }

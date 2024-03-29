@@ -1,20 +1,26 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Multiplayer.Samples.Utilities.ClientAuthority;
 using Unity.Netcode;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : NetworkBehaviour
 {
-    [SerializeField] float walkSpeed = 6f;
-    [SerializeField] float runSpeed = 12f;
-    [SerializeField] float jumpPower = 7f;
-    [SerializeField] float gravity = 10f;
+    [SerializeField] private float walkSpeed = 6f;
+    [SerializeField] private float runSpeed = 12f;
+    [SerializeField] private float jumpPower = 7f;
+    [SerializeField] private float gravity = 10f;
 
-    Vector3 moveDirection = Vector3.zero;
+    private Vector3 moveDirection = Vector3.zero;
 
-    [SerializeField] bool canMove = true;
+    [SerializeField] private bool canMove = true;
+    private bool isMoving = false;
 
+    public event Action<bool> OnMovementChange;
+
+    ClientNetworkTransform clientNetworkTransform;
     CharacterController characterController;
     Animator animator;
 
@@ -28,12 +34,16 @@ public class PlayerMovement : NetworkBehaviour
 
     void Start()
     {
+        clientNetworkTransform = GetComponent<ClientNetworkTransform>();
         characterController = GetComponent<CharacterController>();
         animator = GetComponentInChildren<Animator>();
     }
 
     void Update()
     {
+        if (!IsOwner)
+            return;
+
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
 
@@ -59,5 +69,20 @@ public class PlayerMovement : NetworkBehaviour
         }
 
         characterController.Move(moveDirection * Time.deltaTime);
+
+        if (isMoving && curSpeedX == 0 && curSpeedY == 0)
+        {
+            isMoving = false;
+            OnMovementChange?.Invoke(isMoving);
+            clientNetworkTransform.Interpolate = false;
+        }
+        else if (!isMoving && (curSpeedX != 0 || curSpeedY != 0))
+        {
+            isMoving = true;
+            OnMovementChange?.Invoke(isMoving);
+            clientNetworkTransform.Interpolate = true;
+        }
     }
+
+    public bool IsMoving() => isMoving;
 }

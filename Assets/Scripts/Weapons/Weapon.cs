@@ -15,7 +15,8 @@ public abstract class Weapon : NetworkBehaviour
     WeaponState[] states = new WeaponState[Enum.GetNames(typeof(WeaponState.State)).Length];
     WeaponState currentState;
     WeaponRecoil recoilController;
-    Renderer[] renderers;
+    Renderer[] renderers = new Renderer[0];
+    Renderer[] thirdPersonModelRenderers = new Renderer[0];
 
     [Header("General")]
     public string Name = "Weapon";
@@ -53,6 +54,7 @@ public abstract class Weapon : NetworkBehaviour
     [SerializeField] Projectile projectilePrefab;
     [SerializeField] GameObject muzzleFlashPrefab;
 
+    [NonSerialized] public Player Player;
     [NonSerialized] public PlayerWeaponAnimator WeaponAnimator;
     [NonSerialized] public PlayerCamera PlayerCamera;
     [NonSerialized] public Crosshair Crosshair;
@@ -108,6 +110,7 @@ public abstract class Weapon : NetworkBehaviour
         currentState = states[(int) WeaponState.State.Readying];
         Debug.Assert(states.Length == Enum.GetNames(typeof(WeaponState.State)).Length, "Weapon states are not equal to the number of states in the WeaponState enum.");
 
+        Player = transform.root.GetComponent<Player>();
         WeaponAnimator = transform.root.GetComponentInChildren<PlayerWeaponAnimator>();
         PlayerCamera = transform.root.GetComponentInChildren<PlayerCamera>();
         Crosshair = FindObjectOfType<Crosshair>(true);
@@ -116,6 +119,11 @@ public abstract class Weapon : NetworkBehaviour
 
         recoilController = GetComponent<WeaponRecoil>();
         renderers = GetComponentsInChildren<Renderer>();
+
+        if (ThirdPersonWeapon != null)
+        {
+            thirdPersonModelRenderers = ThirdPersonWeapon.GetComponentsInChildren<Renderer>();
+        }
     }
 
     protected virtual void Start()
@@ -212,7 +220,11 @@ public abstract class Weapon : NetworkBehaviour
                 SetState(WeaponState.State.Disabled);
         }
 
-        Array.ForEach(renderers, r => r.enabled = enabled);
+
+        if (Player.ShowFirstPersonMesh())
+            Array.ForEach(renderers, r => r.enabled = enabled);
+        else
+            Array.ForEach(thirdPersonModelRenderers, r => r.enabled = enabled);
     }
 
     public float GetFireRate() => FireRate;
