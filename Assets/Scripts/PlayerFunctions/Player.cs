@@ -115,7 +115,7 @@ public class Player : NetworkBehaviour
         }
     }
 
-    void Start()
+    void Awake()
     {
         clientNetworkTransform = GetComponent<ClientNetworkTransform>();
         characterController = GetComponent<CharacterController>();
@@ -125,6 +125,12 @@ public class Player : NetworkBehaviour
         playerScore = GetComponent<PlayerScore>();
         playerCamera = GetComponentInChildren<PlayerCamera>();
 
+        if (!IsOwner)
+            return;
+    }
+
+    void Start()
+    {
         if (!IsOwner)
             return;
 

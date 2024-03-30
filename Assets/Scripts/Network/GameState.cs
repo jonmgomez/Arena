@@ -192,6 +192,7 @@ public class GameState : NetworkBehaviour
             {
                 Player spawnedPlayer = PlayerSpawnController.Instance.SpawnNewPlayerPrefab(clientId);
                 clientData.player = spawnedPlayer;
+                InGameController.Instance.PlayerJoined(spawnedPlayer);
             }
             else
             {
@@ -252,6 +253,19 @@ public class GameState : NetworkBehaviour
             return client.player;
 
         return null;
+    }
+
+    public List<Player> GetPlayers()
+    {
+        List<Player> players = new();
+
+        foreach (ClientData client in connectedClients)
+        {
+            if (client.player != null)
+                players.Add(client.player);
+        }
+
+        return players;
     }
     #endregion
 }

@@ -19,6 +19,7 @@ public class InGameController : NetworkBehaviour
 
     private readonly Dictionary<ulong, PlayerDamagedState> players = new();
     private EliminationFeed eliminationFeed;
+    private ScoreBoard scoreBoard;
 
     private void Awake()
     {
@@ -30,7 +31,8 @@ public class InGameController : NetworkBehaviour
 
         Instance = this;
 
-        eliminationFeed = FindObjectOfType<EliminationFeed>();
+        eliminationFeed = FindObjectOfType<EliminationFeed>(true);
+        scoreBoard = FindObjectOfType<ScoreBoard>(true);
     }
 
     private void Update()
@@ -50,6 +52,11 @@ public class InGameController : NetworkBehaviour
             Logger.Default.Log($"Player {key} last damaged timeout expired");
             players.Remove(key);
         }
+    }
+
+    public void PlayerJoined(Player player)
+    {
+        scoreBoard.CreatePlayerScoreCards(GameState.Instance.GetPlayers());
     }
 
     public void PlayerDamaged(Player player, ulong clientId, bool isAnonymous)

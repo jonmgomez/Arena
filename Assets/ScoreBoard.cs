@@ -4,9 +4,14 @@ using UnityEngine;
 
 public class ScoreBoard : MonoBehaviour
 {
-    [SerializeField] GameObject scoreBoard;
-    [SerializeField] GameObject playerScorePrefab;
-    [SerializeField] Transform playerScoreParent;
+    [SerializeField] private GameObject scoreBoard;
+    [SerializeField] private ScoreCard playerScorePrefab;
+    [SerializeField] private Vector3 playerScoreOffset;
+    [SerializeField] private float playerScoreSpacing;
+    [SerializeField] private Transform playerScoreParent;
+
+    private Dictionary<PlayerScore, ScoreCard> playerScores = new();
+    private float currentYOffset = 0;
 
     void Start()
     {
@@ -28,15 +33,33 @@ public class ScoreBoard : MonoBehaviour
 
     void UpdateScoreBoard()
     {
-        foreach (Transform child in playerScoreParent)
+        foreach (var playerScorePair in playerScores)
         {
-            Destroy(child.gameObject);
+            PlayerScore score = playerScorePair.Key;
+            ScoreCard scoreCard = playerScorePair.Value;
+            scoreCard.SetScore(score.GetScore(ScoreType.Elimination),
+                               score.GetScore(ScoreType.Death),
+                               score.GetScore(ScoreType.Assist));
         }
+    }
 
-        // foreach (var player in GameState.Instance.Players)
-        // {
-        //     GameObject playerScore = Instantiate(playerScorePrefab, playerScoreParent);
-        //     playerScore.GetComponent<PlayerScore>().SetPlayer(player);
-        // }
+    public void CreatePlayerScoreCards(List<Player> players)
+    {
+        Debug.Log(players.Count);
+        foreach (var player in players)
+        {
+            Debug.Log(player);
+            Debug.Log(player.GetPlayerScore());
+            if (playerScores.ContainsKey(player.GetPlayerScore()))
+                continue;
+
+            ScoreCard scoreCard = Instantiate(playerScorePrefab, playerScoreParent);
+            scoreCard.SetName(player.GetName());
+
+            scoreCard.transform.localPosition = new Vector3(playerScoreOffset.x, playerScoreOffset.y + currentYOffset, playerScoreOffset.z);
+            currentYOffset -= playerScoreSpacing;
+
+            playerScores.Add(player.GetPlayerScore(), scoreCard);
+        }
     }
 }
