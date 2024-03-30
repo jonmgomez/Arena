@@ -218,7 +218,6 @@ public abstract class Weapon : NetworkBehaviour
                 SetState(WeaponState.State.Disabled);
         }
 
-
         if (Player.ShowFirstPersonMesh())
             Array.ForEach(renderers, r => r.enabled = enabled);
         else

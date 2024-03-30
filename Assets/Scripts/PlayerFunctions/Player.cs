@@ -5,6 +5,7 @@ using TMPro;
 using Unity.Collections;
 using Unity.Multiplayer.Samples.Utilities.ClientAuthority;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -32,6 +33,7 @@ public class Player : NetworkBehaviour
     [SerializeField] private Renderer[] thirdPersonRenderers;
     [Tooltip("First person mesh of the player. This is the mesh that the player sees")]
     [SerializeField] private GameObject firstPersonMesh;
+    [SerializeField] private GameObject firstPersonWeapons;
     [SerializeField] private Renderer firstPersonRenderer;
 
     [Tooltip("TextMeshPro object to display player name")]
@@ -88,14 +90,15 @@ public class Player : NetworkBehaviour
 
     void NetworkSpawn()
     {
-        Renderer[] renderers;
+        List<Renderer> renderers = new();
         if (IsOwner && !showThirdPersonMesh)
         {
-            renderers = thirdPersonMesh.GetComponentsInChildren<Renderer>(true);
+            renderers.AddRange(thirdPersonMesh.GetComponentsInChildren<Renderer>(true));
         }
         else
         {
-            renderers = firstPersonMesh.GetComponentsInChildren<Renderer>(true);
+            renderers.AddRange(firstPersonMesh.GetComponentsInChildren<Renderer>(true));
+            renderers.AddRange(firstPersonWeapons.GetComponentsInChildren<Renderer>(true));
         }
 
         foreach (Renderer renderer in renderers)

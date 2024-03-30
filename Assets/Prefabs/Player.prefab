@@ -219,6 +219,7 @@ MonoBehaviour:
   - {fileID: 2219105867255181217}
   - {fileID: 4488747876333707068}
   firstPersonMesh: {fileID: 3434647888190722554}
+  firstPersonWeapons: {fileID: 6226178943665213407}
   firstPersonRenderer: {fileID: 7062629956391545605}
   playerNameText: {fileID: 5934668829220164790}
   headCollider: {fileID: 1558961953383612074}
