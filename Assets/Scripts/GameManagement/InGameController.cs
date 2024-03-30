@@ -20,6 +20,7 @@ public class InGameController : NetworkBehaviour
     private readonly Dictionary<ulong, PlayerDamagedState> players = new();
     private EliminationFeed eliminationFeed;
     private ScoreBoard scoreBoard;
+    private PlayerMaterialController playerMaterialController;
 
     private void Awake()
     {
@@ -33,6 +34,7 @@ public class InGameController : NetworkBehaviour
 
         eliminationFeed = FindObjectOfType<EliminationFeed>(true);
         scoreBoard = FindObjectOfType<ScoreBoard>(true);
+        playerMaterialController = GetComponent<PlayerMaterialController>();
     }
 
     private void Update()
@@ -100,5 +102,10 @@ public class InGameController : NetworkBehaviour
 
         if (lastDamagedPlayerFound)
             players.Remove(player.OwnerClientId);
+    }
+
+    public void GetPlayerMaterial(Player player)
+    {
+        playerMaterialController.GetMaterial(player.OwnerClientId);
     }
 }

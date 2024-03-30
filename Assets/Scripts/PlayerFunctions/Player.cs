@@ -28,9 +28,11 @@ public class Player : NetworkBehaviour
 
     [Header("References")]
     [Tooltip("Third person mesh of the player. This is the mesh that other players see")]
-    [SerializeField] GameObject thirdPersonMesh;
+    [SerializeField] private GameObject thirdPersonMesh;
+    [SerializeField] private Renderer[] thirdPersonRenderers;
     [Tooltip("First person mesh of the player. This is the mesh that the player sees")]
-    [SerializeField] GameObject firstPersonMesh;
+    [SerializeField] private GameObject firstPersonMesh;
+    [SerializeField] private Renderer firstPersonRenderer;
 
     [Tooltip("TextMeshPro object to display player name")]
     [SerializeField] TextMeshPro playerNameText;
@@ -104,6 +106,8 @@ public class Player : NetworkBehaviour
         GameState.Instance.SetPlayer(this);
         playerNameText.text = GameState.Instance.GetClientData(OwnerClientId).clientName;
         gameObject.name = "Player-" + OwnerClientId + " (" + playerNameText.text + ")";
+
+        InGameController.Instance.GetPlayerMaterial(this);
 
         if (IsOwner)
         {
@@ -356,6 +360,16 @@ public class Player : NetworkBehaviour
         // Interpolation from offscreen to spawn point looks bad, so disable interpolation for a short time
         clientNetworkTransform.Interpolate = false;
         this.Invoke(() => clientNetworkTransform.Interpolate = true, 0.25f);
+    }
+
+    public void SetMaterial(Material material)
+    {
+        foreach (Renderer renderer in thirdPersonRenderers)
+        {
+            renderer.material = material;
+        }
+
+        firstPersonRenderer.material = material;
     }
 
     public string GetName() => playerNameText.text;

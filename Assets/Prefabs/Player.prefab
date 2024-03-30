@@ -159,7 +159,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 231512293
+  GlobalObjectIdHash: 1429631593
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -214,7 +214,12 @@ MonoBehaviour:
   healthRegenPerSecond: 10
   healthVignetteMaxIntensity: 0.4
   thirdPersonMesh: {fileID: 3783882937617923771}
+  thirdPersonRenderers:
+  - {fileID: 4502624180410878288}
+  - {fileID: 2219105867255181217}
+  - {fileID: 4488747876333707068}
   firstPersonMesh: {fileID: 3434647888190722554}
+  firstPersonRenderer: {fileID: 7062629956391545605}
   playerNameText: {fileID: 5934668829220164790}
   headCollider: {fileID: 1558961953383612074}
   showThirdPersonMesh: 0
@@ -1431,7 +1436,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 4ef944738df6cd34285471b45a6884a5, type: 2}
+      objectReference: {fileID: 2100000, guid: 32299c421fb2c184c85f4f87fef0cc82, type: 2}
     - target: {fileID: 919132149155446097, guid: 1921c6990cb534344b22bdff942caa70,
         type: 3}
       propertyPath: m_Name
@@ -1489,6 +1494,12 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!137 &7062629956391545605 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -4510149032413608018, guid: 1921c6990cb534344b22bdff942caa70,
+    type: 3}
+  m_PrefabInstance: {fileID: 2552199444613983403}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4053913295968371690
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1501,7 +1512,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 4ef944738df6cd34285471b45a6884a5, type: 2}
+      objectReference: {fileID: 2100000, guid: 5c398a3988175264dba67fd14138bc70, type: 2}
     - target: {fileID: -8679921383154817045, guid: 9d7640f26eef3f74ca6ff3a7515878e7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1556,18 +1567,23 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 4ef944738df6cd34285471b45a6884a5, type: 2}
+      objectReference: {fileID: 2100000, guid: 5c398a3988175264dba67fd14138bc70, type: 2}
     - target: {fileID: 434976434554232022, guid: 9d7640f26eef3f74ca6ff3a7515878e7,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 4ef944738df6cd34285471b45a6884a5, type: 2}
+      objectReference: {fileID: 2100000, guid: 5c398a3988175264dba67fd14138bc70, type: 2}
     - target: {fileID: 919132149155446097, guid: 9d7640f26eef3f74ca6ff3a7515878e7,
         type: 3}
       propertyPath: m_Name
       value: PlayerNewRig
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 9d7640f26eef3f74ca6ff3a7515878e7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2063524308175803288, guid: 9d7640f26eef3f74ca6ff3a7515878e7,
         type: 3}
       propertyPath: m_IsActive
       value: 1
