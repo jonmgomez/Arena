@@ -20,7 +20,6 @@ public class GameState : NetworkBehaviour
     public static GameState Instance { get; private set; }
 
     private readonly List<ClientData> connectedClients = new();
-    private readonly List<ulong> waitingClients = new();
     private ClientNetwork clientNetwork;
     private ClientNamesSynchronizer clientNameSynchronizer;
 
@@ -28,7 +27,6 @@ public class GameState : NetworkBehaviour
     public event Action AllClientsReady;
     public event Action WaitingForClients;
 
-    float timeSinceGameStart = 0f;
     bool clientsReady = true;
 
     // Is this is a in-game scene or a lobby/menu
@@ -75,12 +73,6 @@ public class GameState : NetworkBehaviour
     void Start()
     {
         ValidateScene(SceneManager.GetActiveScene().name);
-    }
-
-    void Update()
-    {
-        if (inGameScene)
-            timeSinceGameStart += Time.deltaTime;
     }
 
     private void ValidateScene(string sceneName)

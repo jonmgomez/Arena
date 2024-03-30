@@ -7,11 +7,13 @@ public class ScoreBoard : MonoBehaviour
 {
     private class ScoreEntry
     {
+        public readonly ulong ClientId;
         public readonly PlayerScore PlayerScore;
         public readonly ScoreCard ScoreCard;
 
-        public ScoreEntry(PlayerScore playerScore, ScoreCard scoreCard)
+        public ScoreEntry(ulong clientId, PlayerScore playerScore, ScoreCard scoreCard)
         {
+            ClientId = clientId;
             PlayerScore = playerScore;
             ScoreCard = scoreCard;
         }
@@ -28,6 +30,8 @@ public class ScoreBoard : MonoBehaviour
     void Start()
     {
         scoreBoard.SetActive(false);
+
+        ClientNetwork.Instance.OnClientDisconnected += RemovePlayerScoreCard;
     }
 
     void Update()
@@ -70,14 +74,14 @@ public class ScoreBoard : MonoBehaviour
 
         ScoreCard scoreCard = Instantiate(playerScorePrefab, playerScoreParent);
         scoreCard.SetName(player.GetName());
-        scoreEntries.Add(new ScoreEntry(player.GetPlayerScore(), scoreCard));
+        scoreEntries.Add(new ScoreEntry(player.OwnerClientId, player.GetPlayerScore(), scoreCard));
 
         UpdateScoreBoard();
     }
 
-    public void RemovePlayerScoreCard(Player player)
+    public void RemovePlayerScoreCard(ulong clientId)
     {
-        ScoreEntry entry = scoreEntries.FirstOrDefault(x => x.PlayerScore == player.GetPlayerScore());
+        ScoreEntry entry = scoreEntries.FirstOrDefault(x => x.ClientId == clientId);
         if (entry != null)
         {
             scoreEntries.Remove(entry);

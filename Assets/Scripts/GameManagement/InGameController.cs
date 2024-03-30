@@ -61,11 +61,6 @@ public class InGameController : NetworkBehaviour
         scoreBoard.CreatePlayerScoreCard(player);
     }
 
-    public void PlayerDespawned(Player player)
-    {
-        scoreBoard.RemovePlayerScoreCard(player);
-    }
-
     public void PlayerDamaged(Player player, ulong clientId, bool isAnonymous)
     {
         if (isAnonymous) return;
