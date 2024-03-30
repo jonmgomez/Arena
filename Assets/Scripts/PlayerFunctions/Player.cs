@@ -197,12 +197,7 @@ public class Player : NetworkBehaviour
         if (health > 0f && health - damage <= 0f)
         {
             logger.Log($"[S] {Utility.PlayerNameToString(OwnerClientId)} died");
-            // InGameController.Instance.PlayerDied(this, clientId, isAnonymous);
             PlayerSpawnController.Instance.RespawnPlayer(this);
-        }
-        else
-        {
-            // InGameController.Instance.PlayerDamaged(this, clientId, isAnonymous);
         }
 
         if (Net.IsServerOnly)
@@ -217,7 +212,6 @@ public class Player : NetworkBehaviour
     [ClientRpc]
     private void TakeDamageClientRpc(float damage, ulong clientId, bool isAnonymous = false)
     {
-        logger.Log($"[C] " + health + " " + clientId + " " + isAnonymous + " " + Net.LocalClientId);
         if (health <= 0f)
             return;
 

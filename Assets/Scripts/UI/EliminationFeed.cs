@@ -8,6 +8,7 @@ public class EliminationFeed : MonoBehaviour
     [SerializeField] float entrySpacing = 50f;
     [SerializeField] float entryLifetime = 5f;
     [SerializeField] int maxEntries = 5;
+    [SerializeField] float fadeOutDuration = 1f;
 
     readonly List<EliminationFeedEntry> entries = new();
 
@@ -26,7 +27,13 @@ public class EliminationFeed : MonoBehaviour
 
     private IEnumerator RemoveEntryAfterDelay(EliminationFeedEntry entry)
     {
-        yield return new WaitForSeconds(entryLifetime);
+        float timeBeforeFadeOut = entryLifetime - fadeOutDuration;
+        Debug.Assert(timeBeforeFadeOut >= 0f, "Entry lifetime must be greater than fade out duration");
+
+        yield return new WaitForSeconds(timeBeforeFadeOut);
+        entry.FadeOut(fadeOutDuration);
+
+        yield return new WaitForSeconds(fadeOutDuration);
         if (entries.Contains(entry))
         {
             entries.Remove(entry);
