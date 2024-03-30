@@ -12,40 +12,53 @@ using UnityEngine.Rendering.Universal;
 
 public class Player : NetworkBehaviour
 {
-    static Vector3 OFF_SCREEN = new(0f, -100f, 0f);
+    private static Vector3 OFF_SCREEN = new(0f, -100f, 0f);
     private readonly Logger logger = new("PLAYR");
     private const string SELF_LAYER = "PlayerSelf";
 
-    [SerializeField] TextMeshPro playerNameText;
+    [Header("Health")]
+    [Tooltip("Starting and max health of the player")]
+    [SerializeField] private float health = 100f;
+    [Tooltip("Time in seconds before health starts regenerating")]
+    [SerializeField] private float healthRegenDelay = 5f;
+    [Tooltip("Amount of health regenerated per second")]
+    [SerializeField] private float healthRegenPerSecond = 10f;
+    [Tooltip("Maximum intensity of the health vignette. This is the maximum red overlay on the screen when health is low.")]
+    [SerializeField] float healthVignetteMaxIntensity = 0.4f;
 
-    [SerializeField] float health = 100f;
-    // Internal variable to track health on the client before the server has a chance to update it
-    float clientSideHealth = 100f;
-    float maxHealth = 100f;
-    bool isDead = false;
-
-    bool regeneratingHealth = false;
-    [SerializeField] float healthRegenDelay = 5f;
-    [SerializeField] float healthRegenPerSecond = 10f;
-
-    Vignette vignette;
-    [SerializeField] float vignetteMaxIntensity = 0.4f;
-
-    ClientNetworkTransform clientNetworkTransform;
-    CharacterController characterController;
-    PlayerMovement playerMovement;
-    PlayerWeapon playerWeapon;
-    [NonSerialized] public PlayerHUD HUD;
-    [SerializeField] PlayerCamera playerCamera;
-
+    [Header("References")]
+    [Tooltip("Third person mesh of the player. This is the mesh that other players see")]
     [SerializeField] GameObject thirdPersonMesh;
+    [Tooltip("First person mesh of the player. This is the mesh that the player sees")]
     [SerializeField] GameObject firstPersonMesh;
+
+    [Tooltip("TextMeshPro object to display player name")]
+    [SerializeField] TextMeshPro playerNameText;
 
     [Tooltip("Specify the head collider box. Collisions to this will deal more damage")]
     [SerializeField] private Collider headCollider;
 
     [Header("Debug")]
+    [Tooltip("Show the third person mesh instead of the first person mesh for the local player")]
     [SerializeField] private bool showThirdPersonMesh = false;
+
+    // Health ----------------
+    // Internal variable to track health on the client before the server has a chance to update it
+    private float clientSideHealth = 100f;
+    private float maxHealth = 100f;
+    private bool isDead = false;
+    private bool regeneratingHealth = false;
+    Vignette healthVignette;
+
+    // Components ----------------
+    private ClientNetworkTransform clientNetworkTransform;
+    private CharacterController characterController;
+    private PlayerMovement playerMovement;
+    private PlayerWeapon playerWeapon;
+    private PlayerWeaponAnimator playerWeaponAnimator;
+    // private PlayerScore playerScore;
+    private PlayerCamera playerCamera;
+    [NonSerialized] public PlayerHUD HUD;
 
     // Necessary to prevent regen coroutine from running multiple times. Only using the method name does not work
     Coroutine regenHealthCoroutine = null;
@@ -106,6 +119,9 @@ public class Player : NetworkBehaviour
         characterController = GetComponent<CharacterController>();
         playerMovement = GetComponent<PlayerMovement>();
         playerWeapon = GetComponent<PlayerWeapon>();
+        playerWeaponAnimator = playerWeapon.GetComponent<PlayerWeaponAnimator>();
+        // playerScore = GetComponent<PlayerScore>();
+        playerCamera = GetComponentInChildren<PlayerCamera>();
 
         if (!IsOwner)
             return;
@@ -119,8 +135,8 @@ public class Player : NetworkBehaviour
         maxHealth = health;
 
         Volume volume = FindObjectOfType<Volume>();
-        volume.profile.TryGet<Vignette>(out vignette);
-        vignette.intensity.value = 0f;
+        volume.profile.TryGet<Vignette>(out healthVignette);
+        healthVignette.intensity.value = 0f;
     }
 
     void Update()
@@ -254,7 +270,7 @@ public class Player : NetworkBehaviour
 
     private void RecalculateHealthVignette()
     {
-        vignette.intensity.value = (1f - health / maxHealth) * vignetteMaxIntensity;
+        healthVignette.intensity.value = (1f - health / maxHealth) * healthVignetteMaxIntensity;
     }
 
     private void OnDeath()
@@ -269,7 +285,7 @@ public class Player : NetworkBehaviour
 
         if (IsOwner) // Client specific references
         {
-            vignette.intensity.value = 0f;
+            healthVignette.intensity.value = 0f;
             playerMovement.enabled = false;
             playerWeapon.SetEnabled(false);
             playerCamera.SetEnabled(false);
@@ -294,7 +310,7 @@ public class Player : NetworkBehaviour
 
         if (IsOwner)
         {
-            vignette.intensity.value = 0f;
+            healthVignette.intensity.value = 0f;
             playerMovement.enabled = true;
             playerWeapon.SetEnabled(true);
             playerCamera.SetEnabled(true);
@@ -319,4 +335,10 @@ public class Player : NetworkBehaviour
     public string GetName() => playerNameText.text;
     public bool IsHeadCollider(Collider collider) => headCollider == collider;
     public bool ShowFirstPersonMesh() => IsOwner && !showThirdPersonMesh;
+
+    public PlayerMovement GetPlayerMovement() => playerMovement;
+    public PlayerWeapon GetPlayerWeapon() => playerWeapon;
+    public PlayerWeaponAnimator GetPlayerWeaponAnimator() => playerWeaponAnimator;
+    public PlayerCamera GetPlayerCamera() => playerCamera;
+    // public PlayerScore GetPlayerScore() => playerScore;
 }

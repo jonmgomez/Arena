@@ -95,6 +95,7 @@ GameObject:
   - component: {fileID: 6835946693310315376}
   - component: {fileID: 7195662288568213887}
   - component: {fileID: 4605815893360409202}
+  - component: {fileID: 5014746645069013865}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -158,7 +159,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1429631593
+  GlobalObjectIdHash: 231512293
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -208,14 +209,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d1cf0099d7f57d4d832f247135c12a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerNameText: {fileID: 5934668829220164790}
   health: 100
   healthRegenDelay: 5
   healthRegenPerSecond: 10
-  vignetteMaxIntensity: 0.5
-  playerCamera: {fileID: 6232771696667572888}
+  healthVignetteMaxIntensity: 0.4
   thirdPersonMesh: {fileID: 3783882937617923771}
   firstPersonMesh: {fileID: 3434647888190722554}
+  playerNameText: {fileID: 5934668829220164790}
   headCollider: {fileID: 1558961953383612074}
   showThirdPersonMesh: 0
 --- !u!114 &6835946693310315376
@@ -273,6 +273,18 @@ MonoBehaviour:
   maxTurnAngleDegrees: 40
   hipsBone: {fileID: 6489807172686585120}
   aimTarget: {fileID: 8550155198920081427}
+--- !u!114 &5014746645069013865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3021317606462415145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d161998acfe20fa4eb0dc11b3ba40dd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3482308833131350286
 GameObject:
   m_ObjectHideFlags: 0
