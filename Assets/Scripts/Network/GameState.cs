@@ -192,7 +192,6 @@ public class GameState : NetworkBehaviour
             {
                 Player spawnedPlayer = PlayerSpawnController.Instance.SpawnNewPlayerPrefab(clientId);
                 clientData.player = spawnedPlayer;
-                InGameController.Instance.PlayerJoined(spawnedPlayer);
             }
             else
             {

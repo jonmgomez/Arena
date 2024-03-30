@@ -56,9 +56,14 @@ public class InGameController : NetworkBehaviour
         }
     }
 
-    public void PlayerJoined(Player player)
+    public void PlayerSpawned(Player player)
     {
-        scoreBoard.CreatePlayerScoreCards(GameState.Instance.GetPlayers());
+        scoreBoard.CreatePlayerScoreCard(player);
+    }
+
+    public void PlayerDespawned(Player player)
+    {
+        scoreBoard.RemovePlayerScoreCard(player);
     }
 
     public void PlayerDamaged(Player player, ulong clientId, bool isAnonymous)
@@ -101,7 +106,13 @@ public class InGameController : NetworkBehaviour
         eliminationFeed.AddEliminationEntry(eliminatorName, player.GetName());
 
         if (lastDamagedPlayerFound)
+        {
             players.Remove(player.OwnerClientId);
+
+            eliminator.GetPlayerScore().IncreaseScore(ScoreType.Elimination);
+        }
+
+        player.GetPlayerScore().IncreaseScore(ScoreType.Death);
     }
 
     public void GetPlayerMaterial(Player player)

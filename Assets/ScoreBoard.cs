@@ -1,17 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ScoreBoard : MonoBehaviour
 {
+    private class ScoreEntry
+    {
+        public readonly PlayerScore PlayerScore;
+        public readonly ScoreCard ScoreCard;
+
+        public ScoreEntry(PlayerScore playerScore, ScoreCard scoreCard)
+        {
+            PlayerScore = playerScore;
+            ScoreCard = scoreCard;
+        }
+    }
+
     [SerializeField] private GameObject scoreBoard;
     [SerializeField] private ScoreCard playerScorePrefab;
     [SerializeField] private Vector3 playerScoreOffset;
     [SerializeField] private float playerScoreSpacing;
     [SerializeField] private Transform playerScoreParent;
 
-    private Dictionary<PlayerScore, ScoreCard> playerScores = new();
-    private float currentYOffset = 0;
+    private readonly List<ScoreEntry> scoreEntries = new();
 
     void Start()
     {
@@ -33,33 +45,44 @@ public class ScoreBoard : MonoBehaviour
 
     void UpdateScoreBoard()
     {
-        foreach (var playerScorePair in playerScores)
+        foreach (var entry in scoreEntries)
         {
-            PlayerScore score = playerScorePair.Key;
-            ScoreCard scoreCard = playerScorePair.Value;
+            PlayerScore score = entry.PlayerScore;
+            ScoreCard scoreCard = entry.ScoreCard;
             scoreCard.SetScore(score.GetScore(ScoreType.Elimination),
                                score.GetScore(ScoreType.Death),
                                score.GetScore(ScoreType.Assist));
         }
+
+        scoreEntries.Sort((a, b) => b.PlayerScore.GetScore(ScoreType.Elimination) - a.PlayerScore.GetScore(ScoreType.Elimination));
+
+        float currentYOffset = 0;
+        foreach (var entry in scoreEntries)
+        {
+            entry.ScoreCard.transform.localPosition = new Vector3(playerScoreOffset.x, playerScoreOffset.y + currentYOffset, playerScoreOffset.z);
+            currentYOffset -= playerScoreSpacing;
+        }
     }
 
-    public void CreatePlayerScoreCards(List<Player> players)
+    public void CreatePlayerScoreCard(Player player)
     {
-        Debug.Log(players.Count);
-        foreach (var player in players)
+        Debug.Assert(scoreEntries.All(x => x.PlayerScore != player.GetPlayerScore()), "Player score card already exists");
+
+        ScoreCard scoreCard = Instantiate(playerScorePrefab, playerScoreParent);
+        scoreCard.SetName(player.GetName());
+        scoreEntries.Add(new ScoreEntry(player.GetPlayerScore(), scoreCard));
+
+        UpdateScoreBoard();
+    }
+
+    public void RemovePlayerScoreCard(Player player)
+    {
+        ScoreEntry entry = scoreEntries.FirstOrDefault(x => x.PlayerScore == player.GetPlayerScore());
+        if (entry != null)
         {
-            Debug.Log(player);
-            Debug.Log(player.GetPlayerScore());
-            if (playerScores.ContainsKey(player.GetPlayerScore()))
-                continue;
-
-            ScoreCard scoreCard = Instantiate(playerScorePrefab, playerScoreParent);
-            scoreCard.SetName(player.GetName());
-
-            scoreCard.transform.localPosition = new Vector3(playerScoreOffset.x, playerScoreOffset.y + currentYOffset, playerScoreOffset.z);
-            currentYOffset -= playerScoreSpacing;
-
-            playerScores.Add(player.GetPlayerScore(), scoreCard);
+            scoreEntries.Remove(entry);
+            Destroy(entry.ScoreCard.gameObject);
+            UpdateScoreBoard();
         }
     }
 }
