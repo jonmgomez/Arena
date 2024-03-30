@@ -34,7 +34,9 @@ public class PlayerSpawnController : NetworkBehaviour
     public Player SpawnNewPlayerPrefab(ulong clientId)
     {
         logger.Log($"Spawning player for client {clientId}");
-        Player player = Instantiate(playerPrefab, GetSpawnPoint(), Quaternion.identity);
+        Vector3 spawnPoint = GetSpawnPoint();
+        spawnPoint.y += 0.5f;
+        Player player = Instantiate(playerPrefab, spawnPoint, Quaternion.identity);
         player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
 
         return player;
@@ -56,7 +58,7 @@ public class PlayerSpawnController : NetworkBehaviour
         yield return new WaitForSeconds(respawnDelay);
 
         Vector3 spawnPoint = GetSpawnPoint();
-        spawnPoint.y += player.GetComponent<CharacterController>().height / 4f;
+        spawnPoint.y += player.GetComponent<CharacterController>().height / 2f;
         player.RespawnOnServer(spawnPoint);
         logger.Log($"Respawning player {PlayerToString(player)} at {spawnPoint}");
     }

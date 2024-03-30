@@ -67,10 +67,6 @@ public class GameState : NetworkBehaviour
         clientNetwork = GetComponent<ClientNetwork>();
         clientNetwork.ClientSynced += ClientNetworkSynced;
         clientNetwork.WaitingForClient += ClientsNoLongerReady;
-        clientNetwork.OnConnectToServer += (clientId) =>
-        {
-            OnClientReady(clientId);
-        };
 
         clientNameSynchronizer = GetComponent<ClientNamesSynchronizer>();
         clientNameSynchronizer.ClientSynced += ClientNamesSynced;
@@ -148,8 +144,8 @@ public class GameState : NetworkBehaviour
         {
             if (clientNetwork.IsClientSynced(clientId) && clientNameSynchronizer.IsClientSynced(clientId))
             {
-                OnClientReady(clientId);
                 ClientReady?.Invoke(clientId);
+                OnClientReady(clientId);
 
                 CheckAllClientsReady();
 

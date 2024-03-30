@@ -56,17 +56,18 @@ public class Player : NetworkBehaviour
     private PlayerMovement playerMovement;
     private PlayerWeapon playerWeapon;
     private PlayerWeaponAnimator playerWeaponAnimator;
-    // private PlayerScore playerScore;
+    private PlayerScore playerScore;
     private PlayerCamera playerCamera;
     [NonSerialized] public PlayerHUD HUD;
 
-    // Necessary to prevent regen coroutine from running multiple times. Only using the method name does not work
     Coroutine regenHealthCoroutine = null;
 
     public override void OnNetworkSpawn()
     {
         // If this player has just connected and immediately loads in a game scene,
         // then we must wait for the client to be ready before properly setting player data
+        // Note that the local player instance has not spawned (and will when synced),
+        // but the other players have already spawned due to Unity spawning all NetworkObjects
         if (GameState.Instance.GetConnectedClients().Count <= 0)
         {
             GameState.Instance.ClientReady += (clientId) =>
@@ -102,6 +103,7 @@ public class Player : NetworkBehaviour
 
         GameState.Instance.SetPlayer(this);
         playerNameText.text = GameState.Instance.GetClientData(OwnerClientId).clientName;
+        gameObject.name = "Player-" + OwnerClientId + " (" + playerNameText.text + ")";
 
         if (IsOwner)
         {
@@ -120,12 +122,13 @@ public class Player : NetworkBehaviour
         playerMovement = GetComponent<PlayerMovement>();
         playerWeapon = GetComponent<PlayerWeapon>();
         playerWeaponAnimator = playerWeapon.GetComponent<PlayerWeaponAnimator>();
-        // playerScore = GetComponent<PlayerScore>();
+        playerScore = GetComponent<PlayerScore>();
         playerCamera = GetComponentInChildren<PlayerCamera>();
 
         if (!IsOwner)
             return;
 
+        characterController.enabled = true;
         playerNameText.gameObject.SetActive(false);
 
         HUD = FindObjectOfType<PlayerHUD>(true);
@@ -151,15 +154,7 @@ public class Player : NetworkBehaviour
     #region Health
     public void TakeDamage(float damage, ulong damagerClientId)
     {
-        clientSideHealth -= damage;
-        if (clientSideHealth <= 0f)
-        {
-            logger.Log($"[CLIENT] Player-{OwnerClientId} died");
-            OnDeath();
-        }
-        logger.Log($"[CLIENT] Player-{OwnerClientId} took {damage} damage from Player-{damagerClientId}, Health {health}, client-side health {clientSideHealth}");
-
-        TakeDamageServerRpc(damage, damagerClientId);
+        TakeDamageInternal(damage, damagerClientId, false);
     }
 
     /// <summary>
@@ -169,15 +164,31 @@ public class Player : NetworkBehaviour
     /// <param name="damage">Amount of damage to deal to player</param>
     public void TakeDamageAnonymous(float damage)
     {
+        TakeDamageInternal(damage, Net.LocalClientId, true);
+    }
+
+    private void TakeDamageInternal(float damage, ulong damagerClientId, bool isAnonymous)
+    {
+        if (clientSideHealth <= 0f) return;
+
         clientSideHealth -= damage;
+        if (!isAnonymous)
+            logger.Log($"{Utility.PlayerNameToString(OwnerClientId)} took {damage} damage from {Utility.PlayerNameToString(damagerClientId)}, Health {health}, client-side health {clientSideHealth}");
+        else
+            logger.Log($"{Utility.PlayerNameToString(OwnerClientId)} took {damage} damage, Health {health}, client-side health {clientSideHealth}");
+
         if (clientSideHealth <= 0f)
         {
-            logger.Log($"[CLIENT] Player-{OwnerClientId} died");
+            logger.Log($"{Utility.PlayerNameToString(OwnerClientId)} died");
             OnDeath();
+            InGameController.Instance.PlayerDied(this, damagerClientId, isAnonymous);
         }
-        logger.Log($"[CLIENT] Player {OwnerClientId} took {damage} damage, Health {health}, client-side health {clientSideHealth}");
+        else
+        {
+            InGameController.Instance.PlayerDamaged(this, damagerClientId, isAnonymous);
+        }
 
-        TakeDamageServerRpc(damage, 0, true);
+        TakeDamageServerRpc(damage, damagerClientId, isAnonymous);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -185,13 +196,13 @@ public class Player : NetworkBehaviour
     {
         if (health > 0f && health - damage <= 0f)
         {
-            logger.Log($"[SERVER] Player {OwnerClientId} died");
-            InGameController.Instance.PlayerDied(this, clientId, isAnonymous);
+            logger.Log($"[S] {Utility.PlayerNameToString(OwnerClientId)} died");
+            // InGameController.Instance.PlayerDied(this, clientId, isAnonymous);
             PlayerSpawnController.Instance.RespawnPlayer(this);
         }
         else
         {
-            InGameController.Instance.PlayerDamaged(this, clientId, isAnonymous);
+            // InGameController.Instance.PlayerDamaged(this, clientId, isAnonymous);
         }
 
         if (Net.IsServerOnly)
@@ -200,36 +211,51 @@ public class Player : NetworkBehaviour
         TakeDamageClientRpc(damage, clientId, isAnonymous);
 
         regeneratingHealth = false;
-        if (regenHealthCoroutine != null)
-            StopCoroutine(regenHealthCoroutine);
-        regenHealthCoroutine = StartCoroutine(StartHealthRegenOnServer());
+        regenHealthCoroutine = this.RestartCoroutine(StartHealthRegenOnServer(), regenHealthCoroutine);
     }
 
     [ClientRpc]
     private void TakeDamageClientRpc(float damage, ulong clientId, bool isAnonymous = false)
     {
+        logger.Log($"[C] " + health + " " + clientId + " " + isAnonymous + " " + Net.LocalClientId);
+        if (health <= 0f)
+            return;
+
+        // Client side health tracks local changes. Health changes are verified by the server
         health -= damage;
+
+        // If this is not executing on the player that dealt the damage, update the client-side health
+        // Otherwise, client-side health was already updated by the client that dealt the damage
+        if (Net.IsLocalClient(clientId))
+            return;
 
         if (!isAnonymous)
         {
-            // If this is not executing on the player that dealt the damage, update the client-side health
-            // Otherwise, client-side health was already updated by the client that dealt the damage
-            if (clientId != NetworkManager.Singleton.LocalClientId)
-            {
-                logger.Log($"[CLIENT] Player {OwnerClientId} took {damage} damage from another Player (Player-{clientId}), " +
-                          $"Health: {health}, Client-Side Health: {clientSideHealth}");
-                clientSideHealth -= damage;
-            }
+            clientSideHealth -= damage;
+            logger.Log($"{Utility.PlayerNameToString(OwnerClientId)} took {damage} damage from {Utility.PlayerNameToString(clientId)}, " +
+                       $"Health: {health}, Client-Side Health: {clientSideHealth}");
+        }
+        else
+        {
+            clientSideHealth -= damage;
+            logger.Log($"{Utility.PlayerNameToString(OwnerClientId)} took {damage} damage, Health: {health}, Client-Side Health: {clientSideHealth}");
         }
 
         if (clientSideHealth <= 0f)
         {
-            logger.Log($"[CLIENT] Player {OwnerClientId} died");
+            logger.Log($"{Utility.PlayerNameToString(OwnerClientId)} died");
             OnDeath();
+
+            InGameController.Instance.PlayerDied(this, clientId, isAnonymous);
         }
-        else if (IsOwner)
+        else
         {
-            RecalculateHealthVignette();
+            if (IsOwner)
+            {
+                RecalculateHealthVignette();
+            }
+
+            InGameController.Instance.PlayerDamaged(this, clientId, isAnonymous);
         }
     }
 
@@ -340,5 +366,5 @@ public class Player : NetworkBehaviour
     public PlayerWeapon GetPlayerWeapon() => playerWeapon;
     public PlayerWeaponAnimator GetPlayerWeaponAnimator() => playerWeaponAnimator;
     public PlayerCamera GetPlayerCamera() => playerCamera;
-    // public PlayerScore GetPlayerScore() => playerScore;
+    public PlayerScore GetPlayerScore() => playerScore;
 }

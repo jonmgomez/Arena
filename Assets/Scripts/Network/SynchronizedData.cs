@@ -155,4 +155,20 @@ public class SynchronizedData : NetworkBehaviour
         syncingNewClient[clientId].Remove(syncedClient);
         CheckIfClientIsSynced(clientId);
     }
+
+    /// <summary>
+    /// ---- SERVER ONLY. ----
+    /// <para> "Force" a client to sync with all other clients
+    /// Sends the waiting/synced events so any listeners will think the client has synced
+    /// This is only meant for use with the host/server since they do not need to wait for
+    /// any other clients to sync because all data is local </para>
+    /// </summary>
+    protected void ForceSyncForServer(ulong clientId)
+    {
+        Debug.Assert(Net.IsLocalClient(clientId), "Only the server should be forcing sync!");
+        syncingNewClient.Add(clientId, new List<ulong>());
+        syncingCurrentClients.Add(clientId, new List<ulong>());
+        WaitingForClient?.Invoke(clientId);
+        ClientSynced?.Invoke(clientId);
+    }
 }

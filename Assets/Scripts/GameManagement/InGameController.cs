@@ -14,12 +14,11 @@ public class InGameController : NetworkBehaviour
 
     public static InGameController Instance { get; private set; }
 
-    readonly Dictionary<ulong, PlayerDamagedState> players = new();
-
     [Tooltip("Time in seconds to wait before the last player that damaged another player is forgotten")]
     [SerializeField] private float timeoutLastPlayerDamaged = 5f;
 
-    EliminationFeed eliminationFeed;
+    private readonly Dictionary<ulong, PlayerDamagedState> players = new();
+    private EliminationFeed eliminationFeed;
 
     private void Awake()
     {
@@ -86,6 +85,7 @@ public class InGameController : NetworkBehaviour
         else if (!isAnonymous)
         {
             eliminator = GameState.Instance.GetPlayer(clientId);
+            Debug.Log(eliminator);
         }
 
         string eliminatorName = eliminator != null ? eliminator.GetName() : null;

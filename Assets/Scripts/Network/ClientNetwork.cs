@@ -76,6 +76,8 @@ public class ClientNetwork : SynchronizedData
         if (Net.IsLocalClient(clientId))
         {
             OnConnectToServer?.Invoke(clientId);
+
+            ForceSyncForServer(clientId);
         }
         else if (IsServer)
         {

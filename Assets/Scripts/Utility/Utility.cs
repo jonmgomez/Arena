@@ -52,8 +52,15 @@ public static class Utility
     public static string ClientNameToString(ulong clientId)
     {
         ClientData clientData = GameState.Instance.GetClientData(clientId);
-        string name = string.IsNullOrEmpty(clientData.clientName) ? " (" + clientData?.clientName + ")" : "";
+        string name = !string.IsNullOrEmpty(clientData.clientName) ? " (" + clientData?.clientName + ")" : "";
         return $"[{clientId}{name}" + (clientId == NetworkManager.Singleton.LocalClientId ? " (Self)" : "") + "]";
+    }
+
+    public static string PlayerNameToString(ulong clientId)
+    {
+        ClientData clientData = GameState.Instance.GetClientData(clientId);
+        string name = !string.IsNullOrEmpty(clientData.clientName) ? " (" + clientData?.clientName + ")" : "";
+        return $"Player-[{clientId}{name}" + (clientId == NetworkManager.Singleton.LocalClientId ? " (Self)" : "") + "]";
     }
 
     public static void Loop(int times, Action function)

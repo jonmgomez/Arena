@@ -32,6 +32,7 @@ public class ClientNamesSynchronizer : SynchronizedData
     private void OnClientConnected(ulong clientId)
     {
         logger.Log($"Client {Utility.ClientIdToString(clientId)} connected");
+
         // The server will start by adding new clients to a waiting list.
         // If the server is also this client, it will shortcut any list since it can sync
         // The client is responsible for syncing its own data to the server, then the server will sync the client's data to all other clients
@@ -51,10 +52,14 @@ public class ClientNamesSynchronizer : SynchronizedData
 
     private void OnSelfConnected(ulong clientId)
     {
+        logger.Log($"Connected to server with id {clientId}");
+
         if (IsServer)
         {
             thisClientName = GetValidClientName(thisClientName);
             SetClientName(clientId, thisClientName);
+
+            ForceSyncForServer(clientId);
         }
         else
         {
@@ -177,6 +182,8 @@ public class ClientNamesSynchronizer : SynchronizedData
 
         logger.Log($"Setting current client name {Utility.ClientIdToString(clientId)}: {playerName}");
         SetClientName(clientId, playerName.ToString());
+
+        logger.Log("Testing client name set: " + gameState.GetClientData(clientId).clientName);
 
         // Acknowledge the server that this client has synced the data
         AcknowledgeCurrentClientDataServerRpc(clientId, Net.LocalClientId);
