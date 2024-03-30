@@ -2,8 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
-using Unity.Profiling;
-using UnityEditor.Animations;
 using UnityEngine;
 
 public abstract class Weapon : NetworkBehaviour

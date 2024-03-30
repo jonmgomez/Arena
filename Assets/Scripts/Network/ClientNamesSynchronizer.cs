@@ -2,8 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Netcode;
-using Unity.VisualScripting;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class ClientNamesSynchronizer : SynchronizedData
