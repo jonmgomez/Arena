@@ -110,7 +110,6 @@ public class Player : NetworkBehaviour
         playerNameText.text = GameState.Instance.GetClientData(OwnerClientId).clientName;
         gameObject.name = "Player-" + OwnerClientId + " (" + playerNameText.text + ")";
 
-
         if (IsOwner)
         {
             Transform[] children = GetComponentsInChildren<Transform>();
@@ -119,9 +118,6 @@ public class Player : NetworkBehaviour
                 child.gameObject.layer = LayerMask.NameToLayer(SELF_LAYER);
             }
         }
-
-        InGameController.Instance.GetPlayerMaterial(this);
-        InGameController.Instance.PlayerSpawned(this);
     }
 
     void Awake()

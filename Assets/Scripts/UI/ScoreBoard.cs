@@ -30,8 +30,6 @@ public class ScoreBoard : MonoBehaviour
     void Start()
     {
         scoreBoard.SetActive(false);
-
-        ClientNetwork.Instance.OnClientDisconnected += RemovePlayerScoreCard;
     }
 
     void Update()

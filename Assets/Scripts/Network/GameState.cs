@@ -64,6 +64,7 @@ public class GameState : NetworkBehaviour
         clientNetwork = GetComponent<ClientNetwork>();
         clientNetwork.ClientSynced += ClientNetworkSynced;
         clientNetwork.WaitingForClient += ClientsNoLongerReady;
+        clientNetwork.OnClientDisconnected += OnClientDisconnect;
 
         clientNameSynchronizer = GetComponent<ClientNamesSynchronizer>();
         clientNameSynchronizer.ClientSynced += ClientNamesSynced;
@@ -175,6 +176,15 @@ public class GameState : NetworkBehaviour
         }
     }
 
+    private void OnClientDisconnect(ulong clientId)
+    {
+        if (IsServer)
+        {
+            if (inGameScene) // Clients only have a player prefab in in-game scenes
+                DespawnClientPlayerPrefab(clientId);
+        }
+    }
+
     private void SpawnClientPlayerPrefab(ulong clientId)
     {
         if (IsServer)
@@ -184,12 +194,19 @@ public class GameState : NetworkBehaviour
             {
                 Player spawnedPlayer = PlayerSpawnController.Instance.SpawnNewPlayerPrefab(clientId);
                 clientData.player = spawnedPlayer;
+
+                InGameController.Instance.PlayerSpawned(spawnedPlayer);
             }
             else
             {
                 logger.LogError($"Cannot spawn player for client {clientId}. Client not found in connections list");
             }
         }
+    }
+
+    private void DespawnClientPlayerPrefab(ulong clientId)
+    {
+        InGameController.Instance.PlayerDespawned(clientId);
     }
 
     /// <summary>

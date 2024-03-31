@@ -17,10 +17,12 @@ public class InGameController : NetworkBehaviour
     [Tooltip("Time in seconds to wait before the last player that damaged another player is forgotten")]
     [SerializeField] private float timeoutLastPlayerDamaged = 5f;
 
+    private bool gameStarted = false;
     private readonly Dictionary<ulong, PlayerDamagedState> players = new();
     private EliminationFeed eliminationFeed;
     private ScoreBoard scoreBoard;
     private PlayerMaterialController playerMaterialController;
+    private WeaponSpawner[] weaponSpawners;
 
     private void Awake()
     {
@@ -35,6 +37,7 @@ public class InGameController : NetworkBehaviour
         eliminationFeed = FindObjectOfType<EliminationFeed>(true);
         scoreBoard = FindObjectOfType<ScoreBoard>(true);
         playerMaterialController = GetComponent<PlayerMaterialController>();
+        weaponSpawners = FindObjectsOfType<WeaponSpawner>();
     }
 
     private void Update()
@@ -58,8 +61,31 @@ public class InGameController : NetworkBehaviour
 
     public void PlayerSpawned(Player player)
     {
+        GameSetup();
+
+        GetPlayerMaterial(player);
         scoreBoard.CreatePlayerScoreCard(player);
         player.GetPlayerScore().SyncScore();
+    }
+
+    public void PlayerDespawned(ulong clientId)
+    {
+        scoreBoard.RemovePlayerScoreCard(clientId);
+    }
+
+    public void GameSetup()
+    {
+        if (!IsServer) return;
+
+        if (!gameStarted)
+        {
+            gameStarted = true;
+
+            foreach (var spawner in weaponSpawners)
+            {
+                spawner.SpawnWeaponOnStart();
+            }
+        }
     }
 
     public void PlayerDamaged(Player player, ulong clientId, bool isAnonymous)
