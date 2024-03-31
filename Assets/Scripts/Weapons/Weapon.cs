@@ -224,6 +224,11 @@ public abstract class Weapon : NetworkBehaviour
             Array.ForEach(thirdPersonModelRenderers, r => r.enabled = enabled);
     }
 
+    public void Reset()
+    {
+        Ammo = MaxAmmo;
+    }
+
     public float GetFireRate() => FireRate;
     public Vector3 GetAimPositionOffset() => aimPositionOffset;
 }

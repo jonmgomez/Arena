@@ -178,11 +178,8 @@ public class GameState : NetworkBehaviour
 
     private void OnClientDisconnect(ulong clientId)
     {
-        if (IsServer)
-        {
-            if (inGameScene) // Clients only have a player prefab in in-game scenes
-                DespawnClientPlayerPrefab(clientId);
-        }
+        if (inGameScene) // Clients only have a player prefab in in-game scenes
+            DespawnClientPlayerPrefab(clientId);
     }
 
     private void SpawnClientPlayerPrefab(ulong clientId)
@@ -206,6 +203,8 @@ public class GameState : NetworkBehaviour
 
     private void DespawnClientPlayerPrefab(ulong clientId)
     {
+        // Unity will automatically despawn the player prefab.
+        // So this is to cleanup any other data that needs to be removed
         InGameController.Instance.PlayerDespawned(clientId);
     }
 

@@ -118,6 +118,8 @@ public class Player : NetworkBehaviour
                 child.gameObject.layer = LayerMask.NameToLayer(SELF_LAYER);
             }
         }
+
+        InGameController.Instance.PlayerSpawned(this);
     }
 
     void Awake()
@@ -316,6 +318,7 @@ public class Player : NetworkBehaviour
 
         if (IsOwner) // Client specific references
         {
+            HUD.gameObject.SetActive(false);
             healthVignette.intensity.value = 0f;
             playerMovement.enabled = false;
             playerWeapon.SetEnabled(false);
@@ -341,9 +344,11 @@ public class Player : NetworkBehaviour
 
         if (IsOwner)
         {
+            HUD.gameObject.SetActive(true);
             healthVignette.intensity.value = 0f;
             playerMovement.enabled = true;
             playerWeapon.SetEnabled(true);
+            playerWeapon.ResetWeapons();
             playerCamera.SetEnabled(true);
         }
     }

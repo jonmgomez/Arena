@@ -5,18 +5,23 @@ using UnityEngine;
 
 public class PlayerWeapon : NetworkBehaviour
 {
-    Player player;
-    [SerializeField] Weapon activeWeapon;
-    [SerializeField] Weapon mainWeapon;
-    [SerializeField] Weapon sideWeapon;
-    [SerializeField] Weapon[] allWeapons;
+    private Player player;
+    [SerializeField] private Weapon activeWeapon;
+    [SerializeField] private Weapon mainWeapon;
+    [SerializeField] private Weapon sideWeapon;
+    [SerializeField] private Weapon[] allWeapons;
+
+    private Weapon[] startingWeapons;
 
     public event System.Action<Weapon> OnActiveWeaponChanged;
 
-    Crosshair crosshair;
+    private Crosshair crosshair;
 
     void Start()
     {
+        startingWeapons = new Weapon[] { mainWeapon, sideWeapon };
+        Debug.Assert(activeWeapon == mainWeapon || activeWeapon == sideWeapon, "Active weapon must be either the main or side weapon!");
+
         // Disable all weapons except the active weapon
         // Includes all non-owner clients
         foreach (var weapon in allWeapons)
@@ -25,6 +30,12 @@ public class PlayerWeapon : NetworkBehaviour
                 weapon.SetEnabled(false);
             else
                 weapon.SetEnabled(true);
+
+            weapon.OnAmmoChanged += (ammo) =>
+            {
+                if (weapon == activeWeapon)
+                    player.HUD.UpdateCurrentAmmo(ammo);
+            };
         }
 
         if (!IsOwner)
@@ -35,7 +46,6 @@ public class PlayerWeapon : NetworkBehaviour
 
         player = GetComponent<Player>();
         player.HUD.UpdateWeapon(activeWeapon.Name, activeWeapon.Ammo, activeWeapon.MaxAmmo);
-        activeWeapon.OnAmmoChanged += (ammo) => player.HUD.UpdateCurrentAmmo(ammo);
 
         crosshair = FindObjectOfType<Crosshair>(true);
         crosshair.gameObject.SetActive(true);
@@ -77,6 +87,12 @@ public class PlayerWeapon : NetworkBehaviour
     public void PickupWeapon(int weaponId)
     {
         Weapon weapon = allWeapons[weaponId];
+        if (weapon == activeWeapon || weapon == mainWeapon || weapon == sideWeapon)
+        {
+            Logger.Default.LogError($"Weapon {weapon.name} [{weaponId}] already equipped!");
+            return;
+        }
+
         activeWeapon.SetEnabled(false);
 
         if (MainWeaponEquipped())
@@ -107,8 +123,6 @@ public class PlayerWeapon : NetworkBehaviour
     {
         if (activeWeapon == weapon) return;
 
-        activeWeapon.OnAmmoChanged -= (ammo) => player.HUD.UpdateCurrentAmmo(ammo);
-
         activeWeapon.SetEnabled(false);
 
         activeWeapon = weapon;
@@ -119,7 +133,6 @@ public class PlayerWeapon : NetworkBehaviour
         if (IsOwner)
         {
             player.HUD.UpdateWeapon(weapon.Name, weapon.Ammo, weapon.MaxAmmo);
-            activeWeapon.OnAmmoChanged += (ammo) => player.HUD.UpdateCurrentAmmo(ammo);
         }
     }
 
@@ -141,6 +154,18 @@ public class PlayerWeapon : NetworkBehaviour
     {
         crosshair.gameObject.SetActive(enabled);
         activeWeapon.SetEnabled(enabled);
+    }
+
+    public void ResetWeapons()
+    {
+        foreach (var weapon in allWeapons)
+        {
+            weapon.Reset();
+        }
+
+        mainWeapon = startingWeapons[0];
+        sideWeapon = startingWeapons[1];
+        SetActiveWeaponNetworked(mainWeapon);
     }
 
     private int GetWeaponIndex(Weapon weapon)

@@ -12,12 +12,14 @@ public class InGameController : NetworkBehaviour
         public float lastDamagedTimeOut = 0f;
     }
 
+    private readonly Logger logger = new("GAME");
     public static InGameController Instance { get; private set; }
 
     [Tooltip("Time in seconds to wait before the last player that damaged another player is forgotten")]
     [SerializeField] private float timeoutLastPlayerDamaged = 5f;
 
     private bool gameStarted = false;
+    private List<Player> acknowledgedPlayers = new();
     private readonly Dictionary<ulong, PlayerDamagedState> players = new();
     private EliminationFeed eliminationFeed;
     private ScoreBoard scoreBoard;
@@ -54,37 +56,57 @@ public class InGameController : NetworkBehaviour
 
         foreach (var key in toRemove)
         {
-            Logger.Default.Log($"Player {key} last damaged timeout expired");
+            logger.Log($"Player {key} last damaged timeout expired");
             players.Remove(key);
         }
     }
 
     public void PlayerSpawned(Player player)
     {
-        GameSetup();
+        if (!gameStarted)
+            GameSetup();
 
-        GetPlayerMaterial(player);
-        scoreBoard.CreatePlayerScoreCard(player);
-        player.GetPlayerScore().SyncScore();
+        if (!acknowledgedPlayers.Contains(player))
+        {
+            GetPlayerMaterial(player);
+            scoreBoard.CreatePlayerScoreCard(player);
+            player.GetPlayerScore().SyncScore();
+
+            acknowledgedPlayers.Add(player);
+        }
     }
 
     public void PlayerDespawned(ulong clientId)
     {
         scoreBoard.RemovePlayerScoreCard(clientId);
+
+        foreach (var player in players)
+        {
+            if (player.Value.lastClientId == clientId)
+            {
+                players.Remove(player.Key);
+                break;
+            }
+        }
+
+        foreach (var player in acknowledgedPlayers)
+        {
+            if (player == null)
+            {
+                acknowledgedPlayers.Remove(player);
+            }
+        }
     }
 
     public void GameSetup()
     {
         if (!IsServer) return;
 
-        if (!gameStarted)
-        {
-            gameStarted = true;
+        gameStarted = true;
 
-            foreach (var spawner in weaponSpawners)
-            {
-                spawner.SpawnWeaponOnStart();
-            }
+        foreach (var spawner in weaponSpawners)
+        {
+            spawner.SpawnWeaponOnStart();
         }
     }
 
