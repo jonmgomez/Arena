@@ -207,19 +207,25 @@ public class Player : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void TakeDamageServerRpc(float damage, ulong clientId, bool isAnonymous = false)
     {
-        if (health > 0f && health - damage <= 0f)
+        // Avoid a secondary death event if the player is already dead
+        if (health <= 0f) return;
+
+        bool isDead = health - damage <= 0f;
+        if (isDead)
         {
             logger.Log($"[S] {Utility.PlayerNameToString(OwnerClientId)} died");
             PlayerSpawnController.Instance.RespawnPlayer(this);
         }
+        else
+        {
+            regeneratingHealth = false;
+            regenHealthCoroutine = this.RestartCoroutine(StartHealthRegenOnServer(), regenHealthCoroutine);
+        }
 
-        if (Net.IsServerOnly)
+        if (Net.IsServerOnly) // Hosts will subtract health in client RPC
             health -= damage;
 
         TakeDamageClientRpc(damage, clientId, isAnonymous);
-
-        regeneratingHealth = false;
-        regenHealthCoroutine = this.RestartCoroutine(StartHealthRegenOnServer(), regenHealthCoroutine);
     }
 
     [ClientRpc]
