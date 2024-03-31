@@ -72,7 +72,9 @@ public class ScoreBoard : MonoBehaviour
         Debug.Assert(scoreEntries.All(x => x.PlayerScore != player.GetPlayerScore()), "Player score card already exists");
 
         ScoreCard scoreCard = Instantiate(playerScorePrefab, playerScoreParent);
-        scoreCard.SetName(player.GetName());
+
+        bool isLocalPlayer = Net.IsLocalClient(player.OwnerClientId);
+        scoreCard.SetName(player.GetName(), isLocalPlayer);
         scoreEntries.Add(new ScoreEntry(player.OwnerClientId, player.GetPlayerScore(), scoreCard));
 
         UpdateScoreBoard();
