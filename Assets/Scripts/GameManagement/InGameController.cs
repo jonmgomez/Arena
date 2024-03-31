@@ -158,6 +158,16 @@ public class InGameController : NetworkBehaviour
         player.GetPlayerScore().IncreaseScore(ScoreType.Death);
     }
 
+    public void PlayerHit(Player player, ulong clientId, float damage, bool headShot)
+    {
+        Player playerWhoShot = GameState.Instance.GetPlayer(clientId);
+        if (playerWhoShot == null)
+        {
+            logger.LogError($"Player {clientId} not found");
+            return;
+        }
+    }
+
     public void GetPlayerMaterial(Player player)
     {
         playerMaterialController.GetMaterial(player.OwnerClientId);

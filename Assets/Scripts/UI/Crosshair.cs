@@ -42,7 +42,7 @@ public class Crosshair : MonoBehaviour
         }
     }
 
-    [SerializeField] Transform[] initalCrosshairBars;
+    [SerializeField] Transform[] initialCrosshairBars;
     [SerializeField] Transform crosshairCenter;
     [SerializeField] float bloomMaximum = 3.5f;
     float currentBloomPercentage = 0f;
@@ -56,10 +56,10 @@ public class Crosshair : MonoBehaviour
 
     void Start()
     {
-        crosshairBars = new CrosshairBar[initalCrosshairBars.Length];
+        crosshairBars = new CrosshairBar[initialCrosshairBars.Length];
         for (int i = 0; i < crosshairBars.Length; i++)
         {
-            crosshairBars[i] = new CrosshairBar{ mTransform = initalCrosshairBars[i] };
+            crosshairBars[i] = new CrosshairBar{ mTransform = initialCrosshairBars[i] };
             crosshairBars[i].mIdlePosition = crosshairBars[i].mTransform.localPosition;
             crosshairBars[i].mBloomTargetPosition = crosshairBars[i].mTransform.localPosition;
         }

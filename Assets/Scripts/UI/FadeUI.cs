@@ -6,14 +6,38 @@ public class FadeUI : MonoBehaviour
 {
     [SerializeField] private CanvasGroup canvasGroup;
 
-    public void FadeIn(float duration)
+    Coroutine currentFadeCoroutine;
+
+    public void FadeIn(float duration, float delay = 0f)
     {
-        StartCoroutine(FadeInCoroutine(duration));
+        Fade(true, duration, delay);
     }
 
-    public void FadeOut(float duration)
+    public void FadeOut(float duration, float delay = 0f)
     {
-        StartCoroutine(FadeOutCoroutine(duration));
+        Fade(false, duration, delay);
+    }
+
+    private void Fade(bool fadeIn, float duration, float delay = 0f)
+    {
+        if (duration == 0)
+        {
+            canvasGroup.alpha = fadeIn ? 1f : 0f;
+            return;
+        }
+
+        if (delay > 0)
+            currentFadeCoroutine = this.RestartCoroutine(Delay(fadeIn, duration), currentFadeCoroutine);
+        else if (fadeIn)
+            currentFadeCoroutine = this.RestartCoroutine(FadeInCoroutine(duration), currentFadeCoroutine);
+        else
+            currentFadeCoroutine = this.RestartCoroutine(FadeOutCoroutine(duration), currentFadeCoroutine);
+    }
+
+    private IEnumerator Delay(bool fadeIn, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        Fade(fadeIn, duration);
     }
 
     private IEnumerator FadeInCoroutine(float duration)

@@ -63,6 +63,7 @@ public class Player : NetworkBehaviour
     private PlayerScore playerScore;
     private PlayerCamera playerCamera;
     [NonSerialized] public PlayerHUD HUD;
+    [NonSerialized] public HitMarker hitMarker;
 
     Coroutine regenHealthCoroutine = null;
 
@@ -147,6 +148,9 @@ public class Player : NetworkBehaviour
         HUD = FindObjectOfType<PlayerHUD>(true);
         HUD.gameObject.SetActive(true);
 
+        hitMarker = FindObjectOfType<HitMarker>(true);
+        hitMarker.gameObject.SetActive(true);
+
         clientSideHealth = health;
         maxHealth = health;
 
@@ -162,6 +166,11 @@ public class Player : NetworkBehaviour
 
         if (!IsOwner)
             return;
+    }
+
+    public void DealtDamage(Player otherPlayer, float damage, bool headShot)
+    {
+        hitMarker.Hit(headShot);
     }
 
     #region Health
@@ -309,7 +318,8 @@ public class Player : NetworkBehaviour
 
     private void RecalculateHealthVignette()
     {
-        healthVignette.intensity.value = (1f - health / maxHealth) * healthVignetteMaxIntensity;
+        float intensity = (1f - health / maxHealth) * healthVignetteMaxIntensity;
+        healthVignette.intensity.value = Mathf.Clamp(intensity, 0f, healthVignetteMaxIntensity);
     }
 
     private void OnDeath()

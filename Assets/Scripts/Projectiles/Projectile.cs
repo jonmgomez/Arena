@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -111,8 +112,19 @@ public class Projectile : MonoBehaviour
             {
                 if (calculateCollisions)
                 {
-                    float damageToDeal = player.IsHeadCollider(collider) ? damage * headShotDamageMultiplier : damage;
+                    bool headShot = player.IsHeadCollider(collider);
+
+                    float damageToDeal = headShot ? damage * headShotDamageMultiplier : damage;
                     player.TakeDamage(damageToDeal, firedFromClientId);
+
+                    Player ownerPlayer = GameState.Instance.GetPlayer(firedFromClientId);
+                    if (ownerPlayer == null)
+                    {
+                        Logger.Default.LogError($"Player {firedFromClientId} not found");
+                        return;
+                    }
+
+                    ownerPlayer.DealtDamage(player, damageToDeal, headShot);
                 }
 
                 // This may need to be done over the network by the player who shot rather than locally for clients.
