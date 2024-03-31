@@ -39,7 +39,6 @@ public class ScoreBoard : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             scoreBoard.SetActive(true);
-            UpdateScoreBoard();
         }
         else if (Input.GetKeyUp(KeyCode.Tab))
         {
@@ -47,7 +46,7 @@ public class ScoreBoard : MonoBehaviour
         }
     }
 
-    void UpdateScoreBoard()
+    public void UpdateScoreBoard()
     {
         foreach (var entry in scoreEntries)
         {

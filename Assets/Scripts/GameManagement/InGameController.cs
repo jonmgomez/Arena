@@ -59,6 +59,7 @@ public class InGameController : NetworkBehaviour
     public void PlayerSpawned(Player player)
     {
         scoreBoard.CreatePlayerScoreCard(player);
+        player.GetPlayerScore().SyncScore();
     }
 
     public void PlayerDamaged(Player player, ulong clientId, bool isAnonymous)
@@ -94,7 +95,6 @@ public class InGameController : NetworkBehaviour
         else if (!isAnonymous)
         {
             eliminator = GameState.Instance.GetPlayer(clientId);
-            Debug.Log(eliminator);
         }
 
         string eliminatorName = eliminator != null ? eliminator.GetName() : null;
@@ -113,5 +113,10 @@ public class InGameController : NetworkBehaviour
     public void GetPlayerMaterial(Player player)
     {
         playerMaterialController.GetMaterial(player.OwnerClientId);
+    }
+
+    public void UpdateScoreBoard()
+    {
+        scoreBoard.UpdateScoreBoard();
     }
 }
