@@ -45,8 +45,10 @@ public abstract class Weapon : NetworkBehaviour
     [SerializeField] private Vector3 aimPositionOffset;
 
     [Header("Spawn Points")]
-    [SerializeField] protected Transform firePoint;
-    [SerializeField] Transform muzzle;
+    [SerializeField] private Transform firePoint;
+    [SerializeField] private Transform muzzle;
+    [SerializeField] private Transform thirdPersonFirePoint;
+    [SerializeField] private Transform thirdPersonMuzzle;
 
     [Header("Spawn Prefabs")]
     [SerializeField] Projectile projectilePrefab;
@@ -173,13 +175,18 @@ public abstract class Weapon : NetworkBehaviour
         if (!IsOwner)
         {
             SpawnProjectile(spawn, direction, firedFromClientId);
+            SpawnFiringEffects(thirdPersonMuzzle, thirdPersonFirePoint);
         }
     }
 
     private void SpawnProjectileNetworked(Vector3 spawn, Vector3 direction, ulong firedFromClientId)
     {
-        SpawnProjectile(spawn, direction, firedFromClientId);
-        SpawnProjectileServerRpc(spawn, direction, firedFromClientId);
+        // On the local client the prefab instantiate on the first person model.
+        // On other clients the prefab instantiates on the third person model.
+        SpawnProjectile(firePoint.position, direction, firedFromClientId);
+        SpawnFiringEffects(muzzle, firePoint);
+
+        SpawnProjectileServerRpc(thirdPersonFirePoint.position, direction, firedFromClientId);
     }
 
     private void SpawnProjectile(Vector3 spawn, Vector3 direction, ulong firedFromClientId)
@@ -187,15 +194,17 @@ public abstract class Weapon : NetworkBehaviour
         var bullet = Instantiate(projectilePrefab, spawn, Quaternion.LookRotation(direction));
         bullet.SetFiredFromClient(IsServer, IsHost, firedFromClientId);
         bullet.SetSpawnDetails(spawn, muzzle.position);
-        SpawnFiringEffects();
     }
     #endregion
 
-    private void SpawnFiringEffects()
+    private void SpawnFiringEffects(Transform instantiateAt, Transform rotationAt)
     {
+        if (instantiateAt == null || rotationAt == null)
+            return;
+
         // Muzzle flash
-        var obj = Instantiate(muzzleFlashPrefab, muzzle.position, firePoint.rotation);
-        obj.transform.parent = muzzle;
+        var obj = Instantiate(muzzleFlashPrefab, instantiateAt.position, rotationAt.rotation);
+        obj.transform.parent = instantiateAt;
     }
 
     public void SetEnabled(bool enabled)

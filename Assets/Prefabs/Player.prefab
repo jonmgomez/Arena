@@ -159,7 +159,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1429631593
+  GlobalObjectIdHash: 9262945
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -223,7 +223,7 @@ MonoBehaviour:
   firstPersonRenderer: {fileID: 7062629956391545605}
   playerNameText: {fileID: 5934668829220164790}
   headCollider: {fileID: 1558961953383612074}
-  showThirdPersonMesh: 1
+  showThirdPersonMesh: 0
 --- !u!114 &6835946693310315376
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -321,6 +321,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7670432669172023333}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3866361011318007831
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7731155928032177516}
+  m_Layer: 0
+  m_Name: Muzzle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7731155928032177516
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3866361011318007831}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: 0, z: 0.004828}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8332413601641099528}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3948491138130005740
 GameObject:
@@ -1132,6 +1163,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4940968574052619042}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &9090730252475208985
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 932953421571382696}
+  m_Layer: 0
+  m_Name: Muzzle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &932953421571382696
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9090730252475208985}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: 0.007682, z: 0.000146}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2698007144695147379}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &24469633103068484
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1307,7 +1369,9 @@ MonoBehaviour:
   ThirdPersonWeaponAnimator: {fileID: 6508329408613750729}
   aimPositionOffset: {x: -0.11, y: -0.037, z: 0.051}
   firePoint: {fileID: 8593457842578009674}
+  thirdPersonFirePoint: {fileID: 3676419777166815530}
   muzzle: {fileID: 8354073682433407004}
+  thirdPersonMuzzle: {fileID: 3676419777166815530}
   projectilePrefab: {fileID: 5770585688798484500, guid: 749c4ec493decfd488c37d9f4424e1ed,
     type: 3}
   muzzleFlashPrefab: {fileID: 100000, guid: 8eaaa4f553116f44b8459bc24201c514, type: 3}
@@ -2282,7 +2346,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -6549844933479989917, guid: e7bf112bb0b0cab44aba332401170059,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7731155928032177516}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e7bf112bb0b0cab44aba332401170059,
         type: 3}
@@ -2322,6 +2390,12 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!4 &8332413601641099528 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -6549844933479989917, guid: e7bf112bb0b0cab44aba332401170059,
+    type: 3}
+  m_PrefabInstance: {fileID: 6249000369636707435}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7028885370855894593
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2483,7 +2557,9 @@ MonoBehaviour:
   ThirdPersonWeaponAnimator: {fileID: 4449826988290443993}
   aimPositionOffset: {x: -0.109, y: 0.038, z: 0}
   firePoint: {fileID: 8593457842578009674}
+  thirdPersonFirePoint: {fileID: 7731155928032177516}
   muzzle: {fileID: 1103593197596932361}
+  thirdPersonMuzzle: {fileID: 7731155928032177516}
   projectilePrefab: {fileID: -5989285370160078759, guid: 723c519e7a191094691e7bb58fa27435,
     type: 3}
   muzzleFlashPrefab: {fileID: 100000, guid: 8eaaa4f553116f44b8459bc24201c514, type: 3}
@@ -2590,13 +2666,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 4642362478137610906, guid: 4553c4f8239b7594592998dbdb1adcd9,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 932953421571382696}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4553c4f8239b7594592998dbdb1adcd9,
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 2696424646444523652}
   m_SourcePrefab: {fileID: 100100000, guid: 4553c4f8239b7594592998dbdb1adcd9, type: 3}
+--- !u!4 &2698007144695147379 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4642362478137610906, guid: 4553c4f8239b7594592998dbdb1adcd9,
+    type: 3}
+  m_PrefabInstance: {fileID: 7286194347899075049}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7104281467123326466 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 4553c4f8239b7594592998dbdb1adcd9,
@@ -2785,7 +2871,9 @@ MonoBehaviour:
   ThirdPersonWeaponAnimator: {fileID: 2696424646444523652}
   aimPositionOffset: {x: 0, y: 0, z: 0}
   firePoint: {fileID: 8593457842578009674}
+  thirdPersonFirePoint: {fileID: 932953421571382696}
   muzzle: {fileID: 6027002092878213410}
+  thirdPersonMuzzle: {fileID: 932953421571382696}
   projectilePrefab: {fileID: -968605872070277169, guid: 040d8a700a3103349a2ec0fc6727e606,
     type: 3}
   muzzleFlashPrefab: {fileID: 100000, guid: 8eaaa4f553116f44b8459bc24201c514, type: 3}
