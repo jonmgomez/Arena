@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEngine;
@@ -19,46 +20,53 @@ public enum WeaponAnimation
     AimIn,
     AimOut,
     AimIdle,
-    AimFire
-}
+    AimFire,
 
-class PositionAndRotation
-{
-    public Vector3 position;
-    public Quaternion rotation;
-
-    public PositionAndRotation(Vector3 position, Quaternion rotation)
-    {
-        this.position = position;
-        this.rotation = rotation;
-    }
+    // Third Person Body Only
+    TP_BODY_ANIMATIONS_START,
+    TurnLeft,
+    TurnRight,
+    MoveIdle,
+    MovementBlend
 }
 
 public class PlayerWeaponAnimator : NetworkBehaviour
 {
     private readonly Logger logger = new("PLYRANIM");
 
-    private Animator weaponAnimator;
-    private Animator thirdPersonWeaponAnimator;
+    [Header("Player Animators")]
     [SerializeField] private Animator playerFirstPersonAnimator;
     [SerializeField] private Animator playerThirdPersonAnimator;
 
+    [Header("Rig")]
     [SerializeField] private MultiAimConstraint thirdPersonHeadRig;
-    private float currentRigsWeight = 1f;
-    private bool rigVisible = true;
+    [Tooltip("Speed at which the rig is restored to full visibility when the player is not aiming or reloading")]
     [SerializeField] private float rigRestoreSpeed = 2f;
 
-    [SerializeField] private float maxTurnAngleDegrees = 15f;
+    [Header("Stationary Turning")]
+    [Tooltip("The maximum angle the player can turn before playing a turning animation")]
+    [SerializeField] private float maxTurnAngleDegrees = 30f;
+
+    [Header("References")]
+    [SerializeField] Transform hipsBone;
+    [SerializeField] Transform aimTarget;
+
+    private Animator weaponAnimator;
+    private Animator thirdPersonWeaponAnimator;
+
+    private float currentRigsWeight = 1f;
+    private bool rigVisible = true;
 
     private PlayerMovement playerMovement;
     private PlayerWeapon playerWeapon;
     private PlayerCamera playerCamera;
-    [SerializeField] Transform hipsBone;
-    [SerializeField] Transform aimTarget;
 
-    Coroutine animationEndCoroutine;
-    Coroutine animationCallbackCoroutine;
-    Coroutine turningCoroutine;
+    private Coroutine animationEndCoroutine;
+    private Coroutine animationCallbackCoroutine;
+    private Coroutine turningCoroutine;
+
+    private const float SEND_MOVEMENT_VALUES_INTERVAL = 0.33f;
+    private float lastMovementValuesSent = 0f;
 
     void Awake()
     {
@@ -76,14 +84,16 @@ public class PlayerWeaponAnimator : NetworkBehaviour
         {
             if (isMoving)
             {
-                playerThirdPersonAnimator.CrossFade("MovementBlend", 0.25f);
+                // playerThirdPersonAnimator.CrossFade("MovementBlend", 0.25f);
+                PlayAnimation(WeaponAnimation.MovementBlend);
 
                 if (turningCoroutine != null)
                     StopCoroutine(turningCoroutine);
             }
             else
             {
-                playerThirdPersonAnimator.CrossFade("MoveIdle", 0.25f);
+                // playerThirdPersonAnimator.CrossFade("MoveIdle", 0.25f);
+                PlayAnimation(WeaponAnimation.MoveIdle);
             }
         };
 
@@ -92,8 +102,6 @@ public class PlayerWeaponAnimator : NetworkBehaviour
 
     void Update()
     {
-        if (!IsOwner) return;
-
         if (rigVisible && currentRigsWeight != 1f ||
             !rigVisible && currentRigsWeight != 0f)
         {
@@ -102,12 +110,27 @@ public class PlayerWeaponAnimator : NetworkBehaviour
             thirdPersonHeadRig.weight = currentRigsWeight;
         }
 
+        if (!IsOwner)
+        {
+            return;
+        }
+
         if (playerThirdPersonAnimator != null)
         {
             if (playerMovement.IsMoving())
             {
-                playerThirdPersonAnimator.SetFloat("Horizontal", Input.GetAxis("Horizontal"));
-                playerThirdPersonAnimator.SetFloat("Vertical", Input.GetAxis("Vertical"));
+                if (SEND_MOVEMENT_VALUES_INTERVAL - lastMovementValuesSent <= 0f)
+                {
+                    SetAnimatorFloatValue("Horizontal", Input.GetAxis("Horizontal"));
+                    SetAnimatorFloatValue("Vertical", Input.GetAxis("Vertical"));
+                    lastMovementValuesSent = 0f;
+                }
+                else
+                {
+                    playerThirdPersonAnimator.SetFloat("Horizontal", Input.GetAxis("Horizontal"));
+                    playerThirdPersonAnimator.SetFloat("Vertical", Input.GetAxis("Vertical"));
+                    lastMovementValuesSent += Time.deltaTime;
+                }
             }
             else
             {
@@ -143,9 +166,10 @@ public class PlayerWeaponAnimator : NetworkBehaviour
         }
         else if  (difference > maxTurnAngleDegrees && turningCoroutine == null)
         {
-            string animation = turnRight ? "TurnRight" : "TurnLeft";
-            PlayAnimationForController(playerThirdPersonAnimator, animation);
+            WeaponAnimation weaponAnimation = turnRight ? WeaponAnimation.TurnRight : WeaponAnimation.TurnLeft;
+            PlayAnimation(weaponAnimation);
 
+            string animation = AnimationEnumToString(weaponAnimation);
             float animationLength = GetAnimationLength(playerThirdPersonAnimator, animation);
             turningCoroutine = StartCoroutine(TurnPlayer(animationLength));
         }
@@ -157,7 +181,7 @@ public class PlayerWeaponAnimator : NetworkBehaviour
 
         Vector3 newPlayerForward = new(hipsBone.forward.x, 0f, hipsBone.forward.z);
         RotatePlayerToNewForward(newPlayerForward);
-        PlayAnimationForController(playerThirdPersonAnimator, "MoveIdle");
+        PlayAnimation(WeaponAnimation.MoveIdle);
 
         turningCoroutine = null;
     }
@@ -220,12 +244,19 @@ public class PlayerWeaponAnimator : NetworkBehaviour
         return animation.ToString();
     }
 
+    #region Play Animation
     /// <summary>
     /// Play an animation given a weapon animation enum
     /// </summary>
     /// <param name="animation">Weapon animation enum</param>
     public void PlayAnimation(WeaponAnimation animation)
     {
+        if (animation == WeaponAnimation.TP_BODY_ANIMATIONS_START)
+        {
+            logger.LogError($"Enum value {animation} is not a valid animation!");
+            return;
+        }
+
         if (animationEndCoroutine != null)
             StopCoroutine(animationEndCoroutine);
 
@@ -244,10 +275,20 @@ public class PlayerWeaponAnimator : NetworkBehaviour
 
         OnAnimationStart(animation);
 
-        PlayAnimationForController(weaponAnimator, weaponAnimation);
-        PlayAnimationForController(thirdPersonWeaponAnimator, weaponAnimation);
-        PlayAnimationForController(playerFirstPersonAnimator, playerAnimation);
-        PlayAnimationForController(playerThirdPersonAnimator, playerAnimation);
+        if (animation < WeaponAnimation.TP_BODY_ANIMATIONS_START) // Some animations such as TurnLeft only control the lower body and only need to be played on the third person body
+        {
+            PlayAnimationForController(weaponAnimator, weaponAnimation);
+            PlayAnimationForController(playerFirstPersonAnimator, playerAnimation);
+            PlayAnimationForController(thirdPersonWeaponAnimator, weaponAnimation);
+            PlayAnimationForController(playerThirdPersonAnimator, playerAnimation);
+        }
+        else
+        {
+            // Animations exclusive to the third person body do not have the WeaponName_ prefix
+            PlayAnimationForController(playerThirdPersonAnimator, weaponAnimation);
+        }
+
+        AnimationPlayedServerRpc(weaponAnimation);
     }
 
     /// <summary>
@@ -263,25 +304,6 @@ public class PlayerWeaponAnimator : NetworkBehaviour
         animationLength = animationLength == 0f ? 0.01f : animationLength;
 
         animationEndCoroutine = StartCoroutine(AnimationCallback(animationLength, OnFinished));
-    }
-
-    private float GetAnimationLength(Animator animator, string animation)
-    {
-        if (animator == null) return 0f;
-
-        AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
-
-        foreach (AnimationClip clip in clips)
-        {
-            // Note that the clip name refers to the name of the animation file itself, not what it is referred to in the animator
-            // So check if the clip ends with "Fire" or "Reload" etc.
-            if (clip.name.EndsWith(animation))
-            {
-                return clip.length;
-            }
-        }
-
-        return 0f;
     }
 
     /// <summary>
@@ -303,6 +325,117 @@ public class PlayerWeaponAnimator : NetworkBehaviour
         {
             animationCallbackCoroutine = StartCoroutine(AnimationCallback(callbackTime, CallbackFunction));
         }
+    }
+
+    private void PlayNetworkedAnimation(WeaponAnimation animation)
+    {
+        if (weaponAnimator == null)
+        {
+            logger.LogError($"Weapon animator is null for {playerWeapon.GetActiveWeaponName()}! Animation: {animation}");
+            return;
+        }
+
+        string weaponAnimation = AnimationEnumToString(animation);
+        string weaponName = playerWeapon.GetActiveWeaponName();
+        string playerAnimation = $"{weaponName}_{weaponAnimation}";
+
+        OnAnimationStart(animation);
+
+        if (animation < WeaponAnimation.TP_BODY_ANIMATIONS_START) // Some animations such as TurnLeft only control the lower body and only need to be played on the third person body
+        {
+            PlayAnimationForController(thirdPersonWeaponAnimator, weaponAnimation);
+            PlayAnimationForController(playerThirdPersonAnimator, playerAnimation);
+        }
+        else
+        {
+            // Animations exclusive to the third person body do not have the WeaponName_ prefix
+            PlayAnimationForController(playerThirdPersonAnimator, weaponAnimation);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void AnimationPlayedServerRpc(FixedString128Bytes animation)
+    {
+        if (Net.IsServerOnly)
+        {
+            logger.Log($"animation: {animation}");
+            PlayNetworkedAnimation((WeaponAnimation)Enum.Parse(typeof(WeaponAnimation), animation.ToString()));
+        }
+
+        AnimationPlayedClientRpc(animation);
+    }
+
+    [ClientRpc]
+    private void AnimationPlayedClientRpc(FixedString128Bytes animations)
+    {
+        logger.Log($"animations: {animations}");
+        logger.Log("Current weapon animator: " + weaponAnimator.name);
+
+        if (!IsOwner)
+        {
+            PlayNetworkedAnimation((WeaponAnimation)Enum.Parse(typeof(WeaponAnimation), animations.ToString()));
+        }
+    }
+    #endregion Play Animation
+
+    #region Animation Parameters
+    private void SetAnimatorFloatValue(string valueName, float value)
+    {
+        // This function assumes that the animator is the third person body animator for now
+        playerThirdPersonAnimator.SetFloat(valueName, value);
+
+        SetAnimatorFloatValueServerRpc(valueName, value);
+    }
+
+    private void SetNetworkedAnimatorFloatValue(string valueName, float value)
+    {
+        playerThirdPersonAnimator.SetFloat(valueName, value);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetAnimatorFloatValueServerRpc(FixedString64Bytes valueName, float value)
+    {
+        if (Net.IsServerOnly)
+        {
+            SetAnimatorFloatValue(valueName.ToString(), value);
+        }
+
+        SetAnimatorFloatValueClientRpc(valueName, value);
+    }
+
+    [ClientRpc]
+    private void SetAnimatorFloatValueClientRpc(FixedString64Bytes valueName, float value)
+    {
+        if (!IsOwner)
+        {
+            SetNetworkedAnimatorFloatValue(valueName.ToString(), value);
+        }
+    }
+    #endregion Animation Parameters
+
+    /// <summary>
+    /// Get the length of an animation
+    /// </summary>
+    /// <param name="animator">Animator to search into</param>
+    /// <param name="animation">Animation name to search for</param>
+    /// <returns>float time of animation. 0 if non-existent.</returns>
+    private float GetAnimationLength(Animator animator, string animation)
+    {
+        if (animator == null) return 0f;
+
+        AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
+
+        foreach (AnimationClip clip in clips)
+        {
+            // Note that the clip name refers to the name of the animation file itself, not what it is referred to in the animator
+            // So check if the clip ends with "Fire" or "Reload" etc.
+            if (clip.name.EndsWith(animation))
+            {
+                return clip.length;
+            }
+        }
+
+        return 0f;
     }
 
     IEnumerator AnimationCallback(float time, Action function)

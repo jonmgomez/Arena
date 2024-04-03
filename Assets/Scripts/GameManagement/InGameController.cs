@@ -80,22 +80,22 @@ public class InGameController : NetworkBehaviour
     {
         scoreBoard.RemovePlayerScoreCard(clientId);
 
+        List<ulong> toRemove = new();
         foreach (var player in players)
         {
             if (player.Value.lastClientId == clientId)
             {
-                players.Remove(player.Key);
+                toRemove.Add(player.Key);
                 break;
             }
         }
 
-        foreach (var player in acknowledgedPlayers)
+        foreach (ulong id in toRemove)
         {
-            if (player == null)
-            {
-                acknowledgedPlayers.Remove(player);
-            }
+            players.Remove(id);
         }
+
+        acknowledgedPlayers.RemoveAll(p => p == null);
     }
 
     public void GameSetup()
