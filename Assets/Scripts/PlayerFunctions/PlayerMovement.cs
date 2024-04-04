@@ -86,7 +86,7 @@ public class PlayerMovement : NetworkBehaviour
 
     public void SetEnableControls(bool enable)
     {
-        enabled = enable;
+        canMove = enable;
     }
 
     public bool IsMoving() => isMoving;

@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DebugMenu : MonoBehaviour
+public class DebugMenu : UIMenu
 {
     [SerializeField] private GameObject menu;
 
@@ -23,18 +23,18 @@ public class DebugMenu : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.F1))
         {
-            if (menu.activeSelf)
-            {
-                menu.SetActive(false);
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-            }
-            else
-            {
-                menu.SetActive(true);
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-            }
+            TrySetMenuEnabled();
+        }
+    }
+
+    public override void SetMenuEnabled(bool enabled)
+    {
+        menu.SetActive(enabled);
+
+        Player player = GameState.Instance.GetLocalPlayer();
+        if (player != null)
+        {
+            player.SetEnableControls(!enabled);
         }
     }
 

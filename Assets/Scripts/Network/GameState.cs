@@ -262,6 +262,15 @@ public class GameState : NetworkBehaviour
         return null;
     }
 
+    /// <summary>
+    /// Get the local player for the client (The player that the client controls)
+    /// </summary>
+    /// <returns>Local Player instance</returns>
+    public Player GetLocalPlayer()
+    {
+        return GetPlayer(Net.LocalClientId);
+    }
+
     public List<Player> GetPlayers()
     {
         List<Player> players = new();

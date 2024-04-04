@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class ScoreBoard : MonoBehaviour
+public class ScoreBoard : UIMenu
 {
     private class ScoreEntry
     {
@@ -36,12 +36,13 @@ public class ScoreBoard : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Tab))
         {
-            scoreBoard.SetActive(true);
+            TrySetMenuEnabled();
         }
-        else if (Input.GetKeyUp(KeyCode.Tab))
-        {
-            scoreBoard.SetActive(false);
-        }
+    }
+
+    public override void SetMenuEnabled(bool enabled)
+    {
+        scoreBoard.SetActive(enabled);
     }
 
     public void UpdateScoreBoard()

@@ -103,7 +103,7 @@ public class PlayerCamera : NetworkBehaviour
     public void SetEnableControls(bool enabled)
     {
         this.enabled = enabled;
-        Cursor.lockState = enabled ? CursorLockMode.Locked : CursorLockMode.None;
+        Cursor.lockState = enabled ? CursorLockMode.Locked : CursorLockMode.Confined;
         Cursor.visible = !enabled;
     }
 

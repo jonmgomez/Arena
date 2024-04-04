@@ -167,11 +167,6 @@ public class Player : NetworkBehaviour
 
         if (!IsOwner)
             return;
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            SetEnableControls(!controlsEnabled);
-        }
     }
 
     /// <summary>
