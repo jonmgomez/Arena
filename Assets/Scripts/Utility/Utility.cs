@@ -135,4 +135,9 @@ public static class Utility
         Debug.DrawLine(vertices[2], vertices[6], color, duration);
         Debug.DrawLine(vertices[3], vertices[7], color, duration);
     }
+
+    public static void DrawCube(Vector3 position, float size, Color color, float duration)
+    {
+        DrawCube(position, new Vector3(size, size, size), color, duration);
+    }
 }

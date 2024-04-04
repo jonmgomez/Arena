@@ -358,7 +358,6 @@ public class PlayerWeaponAnimator : NetworkBehaviour
     {
         if (Net.IsServerOnly)
         {
-            logger.Log($"animation: {animation}");
             PlayNetworkedAnimation((WeaponAnimation)Enum.Parse(typeof(WeaponAnimation), animation.ToString()));
         }
 
@@ -368,9 +367,6 @@ public class PlayerWeaponAnimator : NetworkBehaviour
     [ClientRpc]
     private void AnimationPlayedClientRpc(FixedString128Bytes animations)
     {
-        logger.Log($"animations: {animations}");
-        logger.Log("Current weapon animator: " + weaponAnimator.name);
-
         if (!IsOwner)
         {
             PlayNetworkedAnimation((WeaponAnimation)Enum.Parse(typeof(WeaponAnimation), animations.ToString()));

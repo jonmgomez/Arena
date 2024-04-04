@@ -21,6 +21,8 @@ public abstract class Weapon : NetworkBehaviour
     public bool IsAutomatic = false;
     [Tooltip("The number of projectiles to spawn per shot.")]
     [SerializeField] private int projectilesPerShot = 1;
+    [Tooltip("The maximum angle spread of the weapon when hip firing.")]
+    [SerializeField] private float hipFireSpreadAngle = 2f;
 
     [Header("Reload")]
     [Tooltip("The current ammo count / starting ammo count of the weapon.")]
@@ -37,9 +39,6 @@ public abstract class Weapon : NetworkBehaviour
     public bool ReloadSingles = false;
     [Tooltip("The amount of ammo to replenish per reload when ReloadSingles is true.")]
     public int ReloadSinglesAmount = 1;
-
-    [Header("Bloom")]
-    public float BloomPerShotPercent = 0.1f;
 
     [Header("Animation")]
     public Animator Animator;
@@ -70,7 +69,6 @@ public abstract class Weapon : NetworkBehaviour
     [NonSerialized] public PlayerWeaponAnimator WeaponAnimator;
     [NonSerialized] public PlayerCamera PlayerCamera;
     [NonSerialized] public Crosshair Crosshair;
-    [NonSerialized] public Bloom Bloom;
     [NonSerialized] public AimDownSightsViewer ADSViewer;
 
     [NonSerialized] public int MaxAmmo = 30;
@@ -130,7 +128,6 @@ public abstract class Weapon : NetworkBehaviour
         WeaponAnimator = transform.root.GetComponentInChildren<PlayerWeaponAnimator>();
         PlayerCamera = transform.root.GetComponentInChildren<PlayerCamera>();
         Crosshair = FindObjectOfType<Crosshair>(true);
-        Bloom = GetComponent<Bloom>();
         ADSViewer = transform.root.GetComponentInChildren<AimDownSightsViewer>();
 
         recoilController = GetComponent<WeaponRecoil>();
@@ -166,7 +163,9 @@ public abstract class Weapon : NetworkBehaviour
             Vector3 direction = firePoint.forward;
             if (!AimedIn)
             {
-                direction = Bloom.AdjustForBloom(direction);
+                direction = Quaternion.Euler(UnityEngine.Random.Range(-hipFireSpreadAngle, hipFireSpreadAngle),
+                                             UnityEngine.Random.Range(-hipFireSpreadAngle, hipFireSpreadAngle),
+                                             UnityEngine.Random.Range(-hipFireSpreadAngle, hipFireSpreadAngle)) * direction;
             }
 
             SpawnProjectileNetworked(firePoint.position, direction, OwnerClientId);

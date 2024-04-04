@@ -65,21 +65,10 @@ public class WeaponReadyState : WeaponState
             else
                 weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.Fire, () => weapon.WeaponAnimator.PlayAnimation(WeaponAnimation.Idle));
 
-            if (!weapon.AimedIn)
-            {
-                CalculateBloom();
-            }
-
             if (weapon.FireRate > 0)
             {
                 weapon.SetState(State.Recovering);
             }
         }
-    }
-
-    private void CalculateBloom()
-    {
-        weapon.Crosshair.Bloom(weapon.BloomPerShotPercent);
-        weapon.Bloom.AddBloom(weapon.BloomPerShotPercent);
     }
 }

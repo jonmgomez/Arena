@@ -13,7 +13,6 @@ public class PlayerHUD : MonoBehaviour
 
     public void UpdateCurrentAmmo(int ammo)
     {
-        Debug.Log("Updated ammo: " + ammo);
         currentAmmo = ammo;
         ammoText.text = GetAmmoString();
     }
@@ -25,8 +24,6 @@ public class PlayerHUD : MonoBehaviour
 
         weaponNameText.text = weaponName;
         ammoText.text = GetAmmoString();
-
-        Debug.Log("Updated weapon: " + weaponName + " with ammo: " + ammo + " / " + maxAmmo);
     }
 
     private string GetAmmoString()

@@ -160,7 +160,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 10
   headShotDamageMultiplier: 2
-  speed: 500
+  speed: 1000
   hitScan: 1
   startFromBarrel: 1
   hitScanCollisionMask:
