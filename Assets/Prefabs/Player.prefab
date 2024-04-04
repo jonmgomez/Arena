@@ -159,7 +159,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 9262945
+  GlobalObjectIdHash: 1429631593
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -1354,6 +1354,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Pistol
   CanADS: 1
+  adsPositionOffset: {x: -0.11, y: -0.037, z: 0.051}
   FireRate: 0.05
   IsAutomatic: 0
   projectilesPerShot: 1
@@ -1367,10 +1368,9 @@ MonoBehaviour:
   Animator: {fileID: 2946398284778855464}
   ThirdPersonWeapon: {fileID: 8955872215679137442}
   ThirdPersonWeaponAnimator: {fileID: 6508329408613750729}
-  aimPositionOffset: {x: -0.11, y: -0.037, z: 0.051}
   firePoint: {fileID: 8593457842578009674}
-  thirdPersonFirePoint: {fileID: 3676419777166815530}
   muzzle: {fileID: 8354073682433407004}
+  thirdPersonFirePoint: {fileID: 3676419777166815530}
   thirdPersonMuzzle: {fileID: 3676419777166815530}
   projectilePrefab: {fileID: 5770585688798484500, guid: 749c4ec493decfd488c37d9f4424e1ed,
     type: 3}
@@ -2542,6 +2542,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: AK47
   CanADS: 1
+  adsPositionOffset: {x: -0.109, y: 0.038, z: 0}
   FireRate: 0.05
   IsAutomatic: 1
   projectilesPerShot: 1
@@ -2555,10 +2556,9 @@ MonoBehaviour:
   Animator: {fileID: 7936530633819161415}
   ThirdPersonWeapon: {fileID: 6519384234932973882}
   ThirdPersonWeaponAnimator: {fileID: 4449826988290443993}
-  aimPositionOffset: {x: -0.109, y: 0.038, z: 0}
   firePoint: {fileID: 8593457842578009674}
-  thirdPersonFirePoint: {fileID: 7731155928032177516}
   muzzle: {fileID: 1103593197596932361}
+  thirdPersonFirePoint: {fileID: 7731155928032177516}
   thirdPersonMuzzle: {fileID: 7731155928032177516}
   projectilePrefab: {fileID: -5989285370160078759, guid: 723c519e7a191094691e7bb58fa27435,
     type: 3}
@@ -2856,6 +2856,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Shotgun
   CanADS: 0
+  adsPositionOffset: {x: 0, y: 0, z: 0}
   FireRate: 0.25
   IsAutomatic: 0
   projectilesPerShot: 5
@@ -2869,10 +2870,9 @@ MonoBehaviour:
   Animator: {fileID: 316444918686582671}
   ThirdPersonWeapon: {fileID: 7628159843118253240}
   ThirdPersonWeaponAnimator: {fileID: 2696424646444523652}
-  aimPositionOffset: {x: 0, y: 0, z: 0}
   firePoint: {fileID: 8593457842578009674}
-  thirdPersonFirePoint: {fileID: 932953421571382696}
   muzzle: {fileID: 6027002092878213410}
+  thirdPersonFirePoint: {fileID: 932953421571382696}
   thirdPersonMuzzle: {fileID: 932953421571382696}
   projectilePrefab: {fileID: -968605872070277169, guid: 040d8a700a3103349a2ec0fc6727e606,
     type: 3}

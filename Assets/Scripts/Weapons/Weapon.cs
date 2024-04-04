@@ -8,41 +8,43 @@ public abstract class Weapon : NetworkBehaviour
 {
     const int LEFT_MOUSE_BUTTON = 0;
 
-    public event Action<int> OnAmmoChanged;
-
-    WeaponState[] states = new WeaponState[Enum.GetNames(typeof(WeaponState.State)).Length];
-    WeaponState currentState;
-    WeaponRecoil recoilController;
-    Renderer[] renderers = new Renderer[0];
-    Renderer[] thirdPersonModelRenderers = new Renderer[0];
-
     [Header("General")]
+    [Tooltip("The name of the weapon.")]
     public string Name = "Weapon";
+    [Tooltip("If true this weapon is able to aim down sights.")]
     public bool CanADS = false;
+    [Tooltip("The position offset when aiming down sights.")]
+    [SerializeField] private Vector3 adsPositionOffset;
+    [Tooltip("Delay in seconds before the weapon can fire again.")]
     public float FireRate = 0.1f;
+    [Tooltip("If true, the weapon will fire automatically when the fire button is held down.")]
     public bool IsAutomatic = false;
-    [NonSerialized] public bool AimedIn = false;
-    [NonSerialized] public bool AttemptingFire = false;
+    [Tooltip("The number of projectiles to spawn per shot.")]
     [SerializeField] private int projectilesPerShot = 1;
 
     [Header("Reload")]
+    [Tooltip("The current ammo count / starting ammo count of the weapon.")]
     [SerializeField] private int ammo = 0;
                      public int Ammo { get => ammo; set { ammo = value; OnAmmoChanged?.Invoke(ammo); } }
-    [NonSerialized] public int MaxAmmo = 30;
+    [Tooltip("The time it takes to reload the weapon. This replenishes the ammo count at this time regardless of the animation.")]
     public float ReloadTime = 1f;
+    [Tooltip("The time it takes to reload when the weapon is empty. This replenishes the ammo count at this time regardless of the animation.")]
     public float EmptyReloadTime = 1f;
+    [Tooltip("The delay before the weapon will automatically reload after firing the last bullet and attempting to fire again.")]
     public float AutoReloadDelay = 0.5f;
+    [Tooltip("If true, the weapon will reload in separate bullets instead of all at once. " +
+             "Uses the ReloadStart, One, and End animations instead of Reload and ReloadEmpty")]
     public bool ReloadSingles = false;
+    [Tooltip("The amount of ammo to replenish per reload when ReloadSingles is true.")]
     public int ReloadSinglesAmount = 1;
 
     [Header("Bloom")]
     public float BloomPerShotPercent = 0.1f;
 
+    [Header("Animation")]
     public Animator Animator;
     public GameObject ThirdPersonWeapon;
     public Animator ThirdPersonWeaponAnimator;
-
-    [SerializeField] private Vector3 aimPositionOffset;
 
     [Header("Spawn Points")]
     [SerializeField] private Transform firePoint;
@@ -51,8 +53,18 @@ public abstract class Weapon : NetworkBehaviour
     [SerializeField] private Transform thirdPersonMuzzle;
 
     [Header("Spawn Prefabs")]
-    [SerializeField] Projectile projectilePrefab;
-    [SerializeField] GameObject muzzleFlashPrefab;
+    [SerializeField] private Projectile projectilePrefab;
+    [SerializeField] private GameObject muzzleFlashPrefab;
+
+
+
+    private WeaponState[] states = new WeaponState[Enum.GetNames(typeof(WeaponState.State)).Length];
+    private WeaponState currentState;
+    private WeaponRecoil recoilController;
+    private Renderer[] renderers = new Renderer[0];
+    private Renderer[] thirdPersonModelRenderers = new Renderer[0];
+
+    public event Action<int> OnAmmoChanged;
 
     [NonSerialized] public Player Player;
     [NonSerialized] public PlayerWeaponAnimator WeaponAnimator;
@@ -60,6 +72,10 @@ public abstract class Weapon : NetworkBehaviour
     [NonSerialized] public Crosshair Crosshair;
     [NonSerialized] public Bloom Bloom;
     [NonSerialized] public AimDownSightsViewer ADSViewer;
+
+    [NonSerialized] public int MaxAmmo = 30;
+    [NonSerialized] public bool AimedIn = false;
+    [NonSerialized] public bool AttemptingFire = false;
 
     protected abstract void OnFire();
 
@@ -239,5 +255,5 @@ public abstract class Weapon : NetworkBehaviour
     }
 
     public float GetFireRate() => FireRate;
-    public Vector3 GetAimPositionOffset() => aimPositionOffset;
+    public Vector3 GetAimPositionOffset() => adsPositionOffset;
 }

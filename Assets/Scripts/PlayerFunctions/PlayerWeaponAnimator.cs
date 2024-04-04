@@ -257,12 +257,6 @@ public class PlayerWeaponAnimator : NetworkBehaviour
             return;
         }
 
-        if (animationEndCoroutine != null)
-            StopCoroutine(animationEndCoroutine);
-
-        if (animationCallbackCoroutine != null)
-            StopCoroutine(animationCallbackCoroutine);
-
         if (weaponAnimator == null)
         {
             logger.LogError($"Weapon animator is null for {playerWeapon.GetActiveWeaponName()}! Animation: {animation}");
@@ -277,6 +271,12 @@ public class PlayerWeaponAnimator : NetworkBehaviour
 
         if (animation < WeaponAnimation.TP_BODY_ANIMATIONS_START) // Some animations such as TurnLeft only control the lower body and only need to be played on the third person body
         {
+            if (animationEndCoroutine != null)
+                StopCoroutine(animationEndCoroutine);
+
+            if (animationCallbackCoroutine != null)
+                StopCoroutine(animationCallbackCoroutine);
+
             PlayAnimationForController(weaponAnimator, weaponAnimation);
             PlayAnimationForController(playerFirstPersonAnimator, playerAnimation);
             PlayAnimationForController(thirdPersonWeaponAnimator, weaponAnimation);
