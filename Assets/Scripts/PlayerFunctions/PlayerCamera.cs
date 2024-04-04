@@ -15,8 +15,6 @@ public class PlayerCamera : NetworkBehaviour
     private float xRotation;
     private float yRotation;
 
-    private bool mouseFree = false;
-
     // Triggered when the camera is rotated with either x or y value != 0.
     public event Action<float, float> OnRotate;
     public event Action<float, float> OnRotationChange;
@@ -69,16 +67,6 @@ public class PlayerCamera : NetworkBehaviour
         if (!IsOwner)
             return;
 
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            mouseFree = !mouseFree;
-            Cursor.lockState = mouseFree ? CursorLockMode.None : CursorLockMode.Locked;
-            Cursor.visible = mouseFree;
-        }
-
-        if (mouseFree)
-            return;
-
         float mouseX = Input.GetAxisRaw("Mouse X") * xSensitivity;
         float mouseY = Input.GetAxisRaw("Mouse Y") * ySensitivity;
 
@@ -110,6 +98,13 @@ public class PlayerCamera : NetworkBehaviour
     {
         this.enabled = enabled;
         CameraManager.Instance.SetActiveCamera(enabled ? playersCamera : defaultCamera);
+    }
+
+    public void SetEnableControls(bool enabled)
+    {
+        this.enabled = enabled;
+        Cursor.lockState = enabled ? CursorLockMode.Locked : CursorLockMode.None;
+        Cursor.visible = !enabled;
     }
 
     /// <summary>

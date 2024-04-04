@@ -84,5 +84,10 @@ public class PlayerMovement : NetworkBehaviour
         }
     }
 
+    public void SetEnableControls(bool enable)
+    {
+        enabled = enable;
+    }
+
     public bool IsMoving() => isMoving;
 }

@@ -156,6 +156,11 @@ public class PlayerWeapon : NetworkBehaviour
         activeWeapon.SetEnabled(enabled);
     }
 
+    public void SetEnableControls(bool enable)
+    {
+        enabled = enable;
+    }
+
     public void ResetWeapons()
     {
         foreach (var weapon in allWeapons)

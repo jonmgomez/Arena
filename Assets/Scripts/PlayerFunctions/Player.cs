@@ -65,7 +65,8 @@ public class Player : NetworkBehaviour
     [NonSerialized] public PlayerHUD HUD;
     [NonSerialized] public HitMarker hitMarker;
 
-    Coroutine regenHealthCoroutine = null;
+    private Coroutine regenHealthCoroutine = null;
+    private bool controlsEnabled = true;
 
     public override void OnNetworkSpawn()
     {
@@ -166,8 +167,30 @@ public class Player : NetworkBehaviour
 
         if (!IsOwner)
             return;
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SetEnableControls(!controlsEnabled);
+        }
     }
 
+    /// <summary>
+    /// Enable or disable player controls. This will disable movement, weapon firing, and camera rotation.
+    /// </summary>
+    public void SetEnableControls(bool enable)
+    {
+        controlsEnabled = enable;
+        playerWeapon.SetEnableControls(enable);
+        playerCamera.SetEnableControls(enable);
+        playerMovement.SetEnableControls(enable);
+    }
+
+    /// <summary>
+    /// Called when this player has directly dealt damage to another player.
+    /// </summary>
+    /// <param name="otherPlayer">Other player instance that was damaged</param>
+    /// <param name="damage">How much damage was dealt</param>
+    /// <param name="headShot">Was this damage dealt as a head shot or not</param>
     public void DealtDamage(Player otherPlayer, float damage, bool headShot)
     {
         hitMarker.Hit(headShot);
@@ -189,10 +212,17 @@ public class Player : NetworkBehaviour
         TakeDamageInternal(damage, Net.LocalClientId, true);
     }
 
+    /// <summary>
+    /// Take the initial damage on the client side and then send the damage to the server. This should only be called on the original client that dealt the damage.
+    /// </summary>
+    /// <param name="damage">Amount of damage to deal</param>
+    /// <param name="damagerClientId">Client id of the player that dealt damage to this player</param>
+    /// <param name="isAnonymous">Did a player deal this damage, or was it an anonymous source</param>
     private void TakeDamageInternal(float damage, ulong damagerClientId, bool isAnonymous)
     {
         if (clientSideHealth <= 0f) return;
 
+        // TODO: move this to separate method along with clientrpc to avoid duplicate code. And use debug logs instead here
         clientSideHealth -= damage;
         if (!isAnonymous)
             logger.Log($"{Utility.PlayerNameToString(OwnerClientId)} took {damage} damage from {Utility.PlayerNameToString(damagerClientId)}, Health {health}, client-side health {clientSideHealth}");
