@@ -16,15 +16,21 @@ public class Crosshair : MonoBehaviour
     [SerializeField] private Transform[] initialCrosshairBars;
     [SerializeField] private Transform crosshairCenter;
 
+    [SerializeField] private float visibilityFadeTime = 0.25f;
+
     [SerializeField] private float spreadScaler = 1f;
     [SerializeField] private float currentSpread = 0f;
     [SerializeField] private float spreadSmoothTime = 0.5f;
 
+    private FadeUI fade;
     private CrosshairBar[] crosshairBars;
     private float spreadAnimationVelocity;
 
     void Start()
     {
+        fade = GetComponent<FadeUI>();
+        fade.FadeIn(0f);
+
         crosshairBars = new CrosshairBar[initialCrosshairBars.Length];
         for (int i = 0; i < crosshairBars.Length; i++)
         {
@@ -36,7 +42,6 @@ public class Crosshair : MonoBehaviour
 
     void Update()
     {
-        Vector3 temp = Vector3.zero;
         foreach (CrosshairBar crosshairBar in crosshairBars)
         {
             crosshairBar.Transform.localPosition = Vector3.MoveTowards(crosshairBar.Transform.localPosition, crosshairBar.TargetPosition, spreadAnimationVelocity * Time.deltaTime);
@@ -57,10 +62,13 @@ public class Crosshair : MonoBehaviour
 
     public void SetVisible(bool visible)
     {
-        foreach (CrosshairBar crosshairBar in crosshairBars)
+        if (visible)
         {
-            crosshairBar.Transform.gameObject.SetActive(visible);
+            fade.FadeIn(visibilityFadeTime);
         }
-        crosshairCenter.gameObject.SetActive(visible);
+        else
+        {
+            fade.FadeOut(visibilityFadeTime);
+        }
     }
 }

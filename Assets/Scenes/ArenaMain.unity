@@ -5047,7 +5047,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 497909116}
+  - component: {fileID: 497909119}
   - component: {fileID: 497909117}
+  - component: {fileID: 497909118}
   m_Layer: 5
   m_Name: Crosshair
   m_TagString: Untagged
@@ -5097,9 +5099,35 @@ MonoBehaviour:
   - {fileID: 467726219}
   - {fileID: 49200624}
   crosshairCenter: {fileID: 985538868}
-  spreadScaler: 1
+  visibilityFadeTime: 0.15
+  spreadScaler: 3
   currentSpread: 0
   spreadSmoothTime: 0.5
+--- !u!114 &497909118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 497909115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2052a69b06a53224889c9b01ec23ba6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canvasGroup: {fileID: 497909119}
+--- !u!225 &497909119
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 497909115}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &499415428
 GameObject:
   m_ObjectHideFlags: 0
@@ -21400,7 +21428,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1268940762}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0

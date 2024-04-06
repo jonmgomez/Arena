@@ -6,7 +6,7 @@ public class FadeUI : MonoBehaviour
 {
     [SerializeField] private CanvasGroup canvasGroup;
 
-    Coroutine currentFadeCoroutine;
+    private Coroutine currentFadeCoroutine;
 
     public void FadeIn(float duration, float delay = 0f)
     {
