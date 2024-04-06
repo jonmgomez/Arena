@@ -159,7 +159,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 9262945
+  GlobalObjectIdHash: 1429631593
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -1350,11 +1350,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Pistol
   CanADS: 1
-  adsPositionOffset: {x: -0.11, y: -0.037, z: 0.051}
+  adsPositionOffset: {x: -0.118, y: -0.043, z: 0.051}
   FireRate: 0.05
   IsAutomatic: 0
   projectilesPerShot: 1
-  hipFireSpreadAngle: 2
+  stationaryHipFireSpreadAngle: 3
+  fullMovementHipFireSpreadAngle: 3
   ammo: 16
   ReloadTime: 1
   EmptyReloadTime: 1
@@ -2522,7 +2523,8 @@ MonoBehaviour:
   FireRate: 0.05
   IsAutomatic: 1
   projectilesPerShot: 1
-  hipFireSpreadAngle: 3.5
+  stationaryHipFireSpreadAngle: 5
+  fullMovementHipFireSpreadAngle: 3
   ammo: 30
   ReloadTime: 1
   EmptyReloadTime: 1
@@ -2816,7 +2818,8 @@ MonoBehaviour:
   FireRate: 0.25
   IsAutomatic: 0
   projectilesPerShot: 5
-  hipFireSpreadAngle: 2
+  stationaryHipFireSpreadAngle: 5
+  fullMovementHipFireSpreadAngle: 3
   ammo: 8
   ReloadTime: 0.3
   EmptyReloadTime: 1

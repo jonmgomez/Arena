@@ -38,7 +38,7 @@ public class AimDownSightsViewer : MonoBehaviour
 
             mainCamera.fieldOfView = Mathf.Lerp(mainCamera.fieldOfView, desiredFov, Time.deltaTime * adsSpeed);
 
-            if (Vector3.Distance(movingWeapon.position, desiredPosition) < 0.01f)
+            if (Vector3.Distance(movingWeapon.localPosition, desiredPosition) < 0.01f)
             {
                 movingWeapon = null;
             }

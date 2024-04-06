@@ -21,8 +21,11 @@ public abstract class Weapon : NetworkBehaviour
     public bool IsAutomatic = false;
     [Tooltip("The number of projectiles to spawn per shot.")]
     [SerializeField] private int projectilesPerShot = 1;
-    [Tooltip("The maximum angle spread of the weapon when hip firing.")]
-    [SerializeField] private float hipFireSpreadAngle = 2f;
+    [Tooltip("The maximum angle spread of the weapon when stationary and hip firing.")]
+    [SerializeField] private float stationaryHipFireSpreadAngle = 2f;
+    [Tooltip("The maximum angle spread of the weapon when moving at max velocity and hip firing.")]
+    [SerializeField] private float fullMovementHipFireSpreadAngle = 3f;
+
 
     [Header("Reload")]
     [Tooltip("The current ammo count / starting ammo count of the weapon.")]
@@ -74,6 +77,8 @@ public abstract class Weapon : NetworkBehaviour
     [NonSerialized] public int MaxAmmo = 30;
     [NonSerialized] public bool AimedIn = false;
     [NonSerialized] public bool AttemptingFire = false;
+
+    private float hipFireSpreadAngle;
 
     protected abstract void OnFire();
 
@@ -143,6 +148,7 @@ public abstract class Weapon : NetworkBehaviour
     {
         if (!IsOwner) return;
 
+        hipFireSpreadAngle = stationaryHipFireSpreadAngle;
         currentState.OnStateEnter(WeaponState.State.Disabled);
     }
 
@@ -154,6 +160,9 @@ public abstract class Weapon : NetworkBehaviour
                          !IsAutomatic && Input.GetMouseButtonDown(LEFT_MOUSE_BUTTON);
 
         currentState.Update();
+
+        hipFireSpreadAngle = stationaryHipFireSpreadAngle;
+        Crosshair.SetSpread(hipFireSpreadAngle);
     }
 
     public void Fire()

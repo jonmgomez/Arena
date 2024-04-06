@@ -71,6 +71,12 @@ public class PlayerCamera : NetworkBehaviour
         float mouseY = Input.GetAxisRaw("Mouse Y") * ySensitivity;
 
         Rotate(mouseX, mouseY, true);
+
+        if (Input.GetKeyDown(KeyCode.F2))
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
     }
 
     void FixedUpdate()
