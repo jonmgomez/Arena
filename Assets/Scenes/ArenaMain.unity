@@ -8131,9 +8131,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1354657540}
-        m_TargetAssemblyTypeName: EscapeMenu, Assembly-CSharp
-        m_MethodName: SetMenuEnabled
-        m_Mode: 6
+        m_TargetAssemblyTypeName: UIMenu, Assembly-CSharp
+        m_MethodName: TrySetMenuEnabled
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -22502,6 +22502,7 @@ MonoBehaviour:
   menuObject: {fileID: 949302042}
   settingsObject: {fileID: 524424445}
   exitConfirmationObject: {fileID: 1289890424}
+  showMenu: 0
 --- !u!1 &1362450213
 GameObject:
   m_ObjectHideFlags: 0

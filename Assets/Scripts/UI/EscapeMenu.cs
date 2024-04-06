@@ -8,6 +8,9 @@ public class EscapeMenu : UIMenu
     [SerializeField] private GameObject settingsObject;
     [SerializeField] private GameObject exitConfirmationObject;
 
+    [Header("Debug")]
+    [SerializeField] private bool showMenu = true;
+
     public void Start()
     {
         menuObject.SetActive(false);
@@ -31,7 +34,8 @@ public class EscapeMenu : UIMenu
             SetExitConfirmationEnabled(false);
         }
 
-        menuObject.SetActive(enabled);
+        if (showMenu)
+            menuObject.SetActive(enabled);
 
         Player player = GameState.Instance.GetLocalPlayer();
         if (player != null)
