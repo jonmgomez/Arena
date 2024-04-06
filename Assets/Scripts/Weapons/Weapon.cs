@@ -160,9 +160,6 @@ public abstract class Weapon : NetworkBehaviour
                          !IsAutomatic && Input.GetMouseButtonDown(LEFT_MOUSE_BUTTON);
 
         currentState.Update();
-
-        hipFireSpreadAngle = stationaryHipFireSpreadAngle;
-        Crosshair.SetSpread(hipFireSpreadAngle);
     }
 
     public void Fire()
@@ -260,6 +257,12 @@ public abstract class Weapon : NetworkBehaviour
     public void Reset()
     {
         Ammo = MaxAmmo;
+    }
+
+    public void CalculateMovementHipFireSpread(float percentageOfMaxSpeed)
+    {
+        hipFireSpreadAngle = Mathf.Lerp(stationaryHipFireSpreadAngle, fullMovementHipFireSpreadAngle, percentageOfMaxSpeed);
+        Crosshair.SetSpread(hipFireSpreadAngle);
     }
 
     public float GetFireRate() => FireRate;

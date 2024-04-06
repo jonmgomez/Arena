@@ -20,6 +20,7 @@ public class PlayerMovement : NetworkBehaviour
 
     public event Action<bool> OnMovementChange;
 
+    private Player player;
     ClientNetworkTransform clientNetworkTransform;
     CharacterController characterController;
     Animator animator;
@@ -34,6 +35,7 @@ public class PlayerMovement : NetworkBehaviour
 
     void Start()
     {
+        player = GetComponent<Player>();
         clientNetworkTransform = GetComponent<ClientNetworkTransform>();
         characterController = GetComponent<CharacterController>();
         animator = GetComponentInChildren<Animator>();
@@ -68,6 +70,9 @@ public class PlayerMovement : NetworkBehaviour
             moveDirection.y -= gravity * Time.deltaTime;
         }
 
+        // Update the current hip fire spread using the velocity.
+        // The y is either 0 or max, otherwise it will smooth at the top and bottom of the jump.
+        player.GetPlayerWeapon().MovementChanged(new Vector3(moveDirection.x, characterController.isGrounded ? 0 : gravity, moveDirection.z));
         characterController.Move(moveDirection * Time.deltaTime);
 
         if (isMoving && curSpeedX == 0 && curSpeedY == 0)

@@ -260,6 +260,7 @@ MonoBehaviour:
   - {fileID: 7454929919925226793}
   - {fileID: 3848623202952846163}
   - {fileID: 298634382025617759}
+  maxSpeedForMaxSpread: 6
 --- !u!114 &4605815893360409202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1355,7 +1356,7 @@ MonoBehaviour:
   IsAutomatic: 0
   projectilesPerShot: 1
   stationaryHipFireSpreadAngle: 3
-  fullMovementHipFireSpreadAngle: 3
+  fullMovementHipFireSpreadAngle: 9
   ammo: 16
   ReloadTime: 1
   EmptyReloadTime: 1
@@ -2519,12 +2520,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: AK47
   CanADS: 1
-  adsPositionOffset: {x: -0.109, y: 0.038, z: 0}
+  adsPositionOffset: {x: -0.118, y: 0.043, z: 0}
   FireRate: 0.05
   IsAutomatic: 1
   projectilesPerShot: 1
   stationaryHipFireSpreadAngle: 5
-  fullMovementHipFireSpreadAngle: 3
+  fullMovementHipFireSpreadAngle: 11
   ammo: 30
   ReloadTime: 1
   EmptyReloadTime: 1
@@ -2819,7 +2820,7 @@ MonoBehaviour:
   IsAutomatic: 0
   projectilesPerShot: 5
   stationaryHipFireSpreadAngle: 5
-  fullMovementHipFireSpreadAngle: 3
+  fullMovementHipFireSpreadAngle: 9
   ammo: 8
   ReloadTime: 0.3
   EmptyReloadTime: 1

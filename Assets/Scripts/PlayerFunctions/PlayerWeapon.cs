@@ -11,6 +11,8 @@ public class PlayerWeapon : NetworkBehaviour
     [SerializeField] private Weapon sideWeapon;
     [SerializeField] private Weapon[] allWeapons;
 
+    [SerializeField] private float maxSpeedForMaxSpread = 3f;
+
     private Weapon[] startingWeapons;
 
     public event System.Action<Weapon> OnActiveWeaponChanged;
@@ -184,6 +186,12 @@ public class PlayerWeapon : NetworkBehaviour
         }
 
         return -1;
+    }
+
+    public void MovementChanged(Vector3 velocity)
+    {
+        float percentage = velocity.magnitude / maxSpeedForMaxSpread;
+        activeWeapon.CalculateMovementHipFireSpread(percentage);
     }
 
     private bool MainWeaponEquipped() => mainWeapon == activeWeapon;
