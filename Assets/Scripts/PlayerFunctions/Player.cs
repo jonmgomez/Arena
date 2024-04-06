@@ -115,9 +115,10 @@ public class Player : NetworkBehaviour
         if (IsOwner)
         {
             Transform[] children = GetComponentsInChildren<Transform>();
+            int selfLayer = LayerMask.NameToLayer(SELF_LAYER);
             foreach (Transform child in children)
             {
-                child.gameObject.layer = LayerMask.NameToLayer(SELF_LAYER);
+                child.gameObject.layer = selfLayer;
             }
         }
 

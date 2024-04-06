@@ -36,7 +36,6 @@ public class Crosshair : MonoBehaviour
         {
             crosshairBars[i] = new CrosshairBar{ Transform = initialCrosshairBars[i] };
             crosshairBars[i].IdlePosition = crosshairBars[i].Transform.localPosition;
-            Debug.Log(crosshairBars[i].IdlePosition);
         }
     }
 
