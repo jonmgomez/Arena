@@ -5102,7 +5102,7 @@ MonoBehaviour:
   visibilityFadeTime: 0.15
   spreadScaler: 3
   currentSpread: 0
-  spreadSmoothTime: 0.5
+  spreadSmoothTime: 0.15
 --- !u!114 &497909118
 MonoBehaviour:
   m_ObjectHideFlags: 0
