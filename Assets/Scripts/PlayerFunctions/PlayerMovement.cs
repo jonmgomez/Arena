@@ -14,6 +14,8 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] private float gravity = 10f;
 
     private Vector3 moveDirection = Vector3.zero;
+    private float curSpeedX = 0;
+    private float curSpeedY = 0;
 
     [SerializeField] private bool canMove = true;
     private bool isMoving = false;
@@ -46,15 +48,22 @@ public class PlayerMovement : NetworkBehaviour
         if (!IsOwner)
             return;
 
+        float movementDirectionY = moveDirection.y;
+
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
 
-        // Press Left Shift to run
-        bool isRunning = Input.GetKey(KeyCode.LeftShift);
-        float curSpeedX = canMove ? (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Vertical") : 0;
-        float curSpeedY = canMove ? (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Horizontal") : 0;
-        float movementDirectionY = moveDirection.y;
-        moveDirection = (forward * curSpeedX) + (right * curSpeedY);
+        if (canMove)
+        {
+            bool isRunning = Input.GetKey(KeyCode.LeftShift);
+            curSpeedX = (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Vertical");
+            curSpeedY = (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Horizontal");
+            moveDirection = (forward * curSpeedX) + (right * curSpeedY);
+        }
+        else if (characterController.isGrounded)
+        {
+            moveDirection = new Vector3(0, moveDirection.y, 0);
+        }
 
         if (Input.GetButton("Jump") && canMove && characterController.isGrounded)
         {
