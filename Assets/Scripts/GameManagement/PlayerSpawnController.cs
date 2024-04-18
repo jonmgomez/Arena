@@ -7,11 +7,11 @@ using UnityEngine.UI;
 
 public class PlayerSpawnController : NetworkBehaviour
 {
-    private Logger logger = new("SPAWN");
+    private readonly Logger logger = new("SPAWN");
 
     public static PlayerSpawnController Instance { get; private set; }
 
-    private readonly List<Player> players = new();
+    private List<Player> players = new();
     [SerializeField] private Player playerPrefab;
     [SerializeField] private Transform[] spawnPoints;
     [SerializeField] private float respawnDelay = 1f;
@@ -29,6 +29,11 @@ public class PlayerSpawnController : NetworkBehaviour
         }
 
         Instance = this;
+    }
+
+    void Start()
+    {
+        InGameController.Instance.OnGameRestart += RespawnAllPlayers;
     }
 
     public Player SpawnNewPlayerPrefab(ulong clientId)
@@ -53,14 +58,28 @@ public class PlayerSpawnController : NetworkBehaviour
         StartCoroutine(RespawnPlayerAfterDelay(player));
     }
 
-    IEnumerator RespawnPlayerAfterDelay(Player player)
+    private void RespawnPlayerInternal(Player player)
     {
-        yield return new WaitForSeconds(respawnDelay);
-
         Vector3 spawnPoint = GetSpawnPoint();
         spawnPoint.y += player.GetComponent<CharacterController>().height / 2f;
         player.RespawnOnServer(spawnPoint);
         logger.Log($"Respawning player {PlayerToString(player)} at {spawnPoint}");
+    }
+
+    IEnumerator RespawnPlayerAfterDelay(Player player)
+    {
+        yield return new WaitForSeconds(respawnDelay);
+
+        RespawnPlayerInternal(player);
+    }
+
+    public void RespawnAllPlayers()
+    {
+        players = GameState.Instance.GetPlayers();
+        foreach (var player in players)
+        {
+            RespawnPlayerInternal(player);
+        }
     }
 
     private Vector3 GetSpawnPoint()

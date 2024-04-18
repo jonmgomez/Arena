@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 
@@ -43,6 +44,18 @@ public class PlayerScore : NetworkBehaviour
     private int eliminations = 0;
     private int deaths       = 0;
     private int assists      = 0;
+
+    void Start()
+    {
+        InGameController.Instance.OnGameRestart += () =>
+        {
+            eliminations = 0;
+            deaths = 0;
+            assists = 0;
+
+            InGameController.Instance.UpdateScoreBoard();
+        };
+    }
 
     public void SyncScore()
     {

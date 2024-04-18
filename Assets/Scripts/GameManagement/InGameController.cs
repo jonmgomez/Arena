@@ -18,6 +18,9 @@ public class InGameController : NetworkBehaviour
     [Tooltip("Time in seconds to wait before the last player that damaged another player is forgotten")]
     [SerializeField] private float timeoutLastPlayerDamaged = 5f;
 
+    public event System.Action OnGameRestart;
+    public event System.Action OnGameStart;
+
     private bool gameStarted = false;
     private List<Player> acknowledgedPlayers = new();
     private readonly Dictionary<ulong, PlayerDamagedState> players = new();
@@ -44,6 +47,7 @@ public class InGameController : NetworkBehaviour
 
         gameModeController = gameObject.AddComponent<FreeForAllController>();
         gameModeController.StartGame();
+        OnGameStart?.Invoke();
     }
 
     private void Update()
@@ -172,6 +176,20 @@ public class InGameController : NetworkBehaviour
             logger.LogError($"Player {clientId} not found");
             return;
         }
+    }
+
+    public void OnGameEnded()
+    {
+        StartCoroutine(RestartGame());
+    }
+
+    private IEnumerator RestartGame()
+    {
+        yield return new WaitForSeconds(10f);
+
+        gameModeController.StartGame();
+        OnGameStart?.Invoke();
+        OnGameRestart?.Invoke();
     }
 
     public void GetPlayerMaterial(Player player)

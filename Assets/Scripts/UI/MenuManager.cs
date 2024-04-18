@@ -39,6 +39,11 @@ public class MenuManager : MonoBehaviour
         Instance = this;
     }
 
+    void Start()
+    {
+        InGameController.Instance.OnGameRestart += RemoveForceMenuEnabled;
+    }
+
     public void TrySetMenuEnabled(UIMenu menu)
     {
         if (menuForceEnabled) // If the menu is forced enabled, don't allow any other menu to be enabled

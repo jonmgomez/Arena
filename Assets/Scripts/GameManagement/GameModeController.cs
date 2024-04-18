@@ -39,6 +39,8 @@ public abstract class GameModeController : MonoBehaviour
         EnableLocalPlayerControls(false);
 
         FindObjectOfType<GameOverScreen>().ShowGameOverScreen(winnerName);
+
+        InGameController.Instance.OnGameEnded();
     }
 
     private void EnableLocalPlayerControls(bool enableControls)
