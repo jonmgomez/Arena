@@ -22,7 +22,7 @@ public class FreeForAllController : GameModeController
             {
                 Logger.Default.Log(Utility.PlayerNameToString(player) + " has won the game!");
 
-                EndGame();
+                EndGame(player.GetName());
                 return;
             }
         }

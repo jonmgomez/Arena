@@ -5124,6 +5124,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameOverScreen: {fileID: 317772246}
+  winnerNameText: {fileID: 511630303}
   timeBeforeScoreBoard: 3
 --- !u!1 &497909115
 GameObject:

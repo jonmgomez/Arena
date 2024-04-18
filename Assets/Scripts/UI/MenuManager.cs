@@ -70,7 +70,11 @@ public class MenuManager : MonoBehaviour
         }
 
         currentMenu = menu;
-        currentMenu.SetMenuEnabled(true);
+        if (currentMenu != null)
+        {
+            currentMenu.SetMenuEnabled(true);
+        }
+
         menuForceEnabled = true;
     }
 

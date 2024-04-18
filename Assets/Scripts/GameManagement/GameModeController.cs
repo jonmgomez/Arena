@@ -31,14 +31,14 @@ public abstract class GameModeController : MonoBehaviour
         EnableLocalPlayerControls(true);
     }
 
-    public void EndGame()
+    public void EndGame(string winnerName) // Singular player or team
     {
         Logger.Default.Log("Game Ended");
         isGameActive = false;
 
         EnableLocalPlayerControls(false);
 
-        FindObjectOfType<GameOverScreen>().ShowGameOverScreen();
+        FindObjectOfType<GameOverScreen>().ShowGameOverScreen(winnerName);
     }
 
     private void EnableLocalPlayerControls(bool enableControls)
