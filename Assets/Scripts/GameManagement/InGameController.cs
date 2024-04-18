@@ -25,6 +25,7 @@ public class InGameController : NetworkBehaviour
     private ScoreBoard scoreBoard;
     private PlayerMaterialController playerMaterialController;
     private WeaponSpawner[] weaponSpawners;
+    private GameModeController gameModeController;
 
     private void Awake()
     {
@@ -40,6 +41,9 @@ public class InGameController : NetworkBehaviour
         scoreBoard = FindObjectOfType<ScoreBoard>(true);
         playerMaterialController = GetComponent<PlayerMaterialController>();
         weaponSpawners = FindObjectsOfType<WeaponSpawner>();
+
+        gameModeController = gameObject.AddComponent<FreeForAllController>();
+        gameModeController.StartGame();
     }
 
     private void Update()
@@ -156,6 +160,8 @@ public class InGameController : NetworkBehaviour
         }
 
         player.GetPlayerScore().IncreaseScore(ScoreType.Death);
+
+        gameModeController.CheckGameScores();
     }
 
     public void PlayerHit(Player player, ulong clientId, float damage, bool headShot)

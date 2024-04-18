@@ -61,6 +61,11 @@ public static class Utility
         return $"Player-[{clientId}{name}" + (clientId == NetworkManager.Singleton.LocalClientId ? " (Self)" : "") + "]";
     }
 
+    public static string PlayerNameToString(Player player)
+    {
+        return PlayerNameToString(player.OwnerClientId);
+    }
+
     public static void Loop(int times, Action function)
     {
         for (int i = 0; i < times; i++)
