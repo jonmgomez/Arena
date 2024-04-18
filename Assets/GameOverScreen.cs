@@ -24,7 +24,7 @@ public class GameOverScreen : MonoBehaviour
     {
         yield return new WaitForSeconds(timeBeforeScoreBoard);
 
-        FindObjectOfType<ScoreBoard>().SetMenuEnabled(true);
+        FindObjectOfType<ScoreBoard>().ForceScoreBoardEnabled();
         gameOverScreen.SetActive(false);
     }
 }

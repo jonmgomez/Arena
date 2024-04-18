@@ -45,6 +45,12 @@ public class ScoreBoard : UIMenu
         scoreBoard.SetActive(enabled);
     }
 
+    public void ForceScoreBoardEnabled()
+    {
+        MenuManager menuManager = MenuManager.Instance;
+        menuManager.ForceMenuEnabled(this);
+    }
+
     public void UpdateScoreBoard()
     {
         foreach (var entry in scoreEntries)

@@ -26,12 +26,13 @@ public class MenuManager : MonoBehaviour
     public static MenuManager Instance { get; private set; }
 
     private UIMenu currentMenu = null;
+    private bool menuForceEnabled = false;
 
     void Awake()
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(this.gameObject);
+            Destroy(gameObject);
             return;
         }
 
@@ -40,6 +41,9 @@ public class MenuManager : MonoBehaviour
 
     public void TrySetMenuEnabled(UIMenu menu)
     {
+        if (menuForceEnabled) // If the menu is forced enabled, don't allow any other menu to be enabled
+           return;
+
         Debug.Assert(menu != null);
         if (currentMenu != null && currentMenu != menu)
         {
@@ -55,6 +59,28 @@ public class MenuManager : MonoBehaviour
         {
             menu.SetMenuEnabled(true);
             currentMenu = menu;
+        }
+    }
+
+    public void ForceMenuEnabled(UIMenu menu)
+    {
+        if (currentMenu != null)
+        {
+            currentMenu.SetMenuEnabled(false);
+        }
+
+        currentMenu = menu;
+        currentMenu.SetMenuEnabled(true);
+        menuForceEnabled = true;
+    }
+
+    public void RemoveForceMenuEnabled()
+    {
+        menuForceEnabled = false;
+        if (currentMenu != null)
+        {
+            currentMenu.SetMenuEnabled(false);
+            currentMenu = null;
         }
     }
 }
