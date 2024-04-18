@@ -27,5 +27,24 @@ public abstract class GameModeController : MonoBehaviour
     {
         Logger.Default.Log("Game Started");
         isGameActive = true;
+
+        EnableLocalPlayerControls(true);
+    }
+
+    public void EndGame()
+    {
+        Logger.Default.Log("Game Ended");
+        isGameActive = false;
+
+        EnableLocalPlayerControls(false);
+    }
+
+    private void EnableLocalPlayerControls(bool enableControls)
+    {
+        Player localPlayer = GameState.Instance.GetLocalPlayer();
+        if (localPlayer != null)
+        {
+            localPlayer.SetEnableControls(enableControls);
+        }
     }
 }

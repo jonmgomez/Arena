@@ -21,6 +21,8 @@ public class FreeForAllController : GameModeController
             if (player.GetPlayerScore().GetScore(ScoreType.Elimination) >= scoreToWin)
             {
                 Logger.Default.Log(Utility.PlayerNameToString(player) + " has won the game!");
+
+                EndGame();
                 return;
             }
         }
