@@ -37,6 +37,8 @@ public abstract class GameModeController : MonoBehaviour
         isGameActive = false;
 
         EnableLocalPlayerControls(false);
+
+        FindObjectOfType<GameOverScreen>().ShowGameOverScreen();
     }
 
     private void EnableLocalPlayerControls(bool enableControls)
