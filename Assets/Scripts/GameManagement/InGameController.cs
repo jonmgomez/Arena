@@ -34,23 +34,6 @@ public class InGameController : NetworkBehaviour
     private WeaponSpawner[] weaponSpawners;
     private GameModeController gameModeController;
 
-    public override void OnNetworkSpawn()
-    {
-        if (useCountDownTimer && IsServer)
-        {
-            StartGameCountdown();
-        }
-        else if (Net.IsClientOnly)
-        {
-            RequestGameCountDownTimerServerRpc(Net.LocalClientId);
-        }
-        else if (IsServer)
-        {
-            gameModeController.StartGame();
-            OnGameStart?.Invoke();
-        }
-    }
-
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -90,9 +73,9 @@ public class InGameController : NetworkBehaviour
 
     public void PlayerSpawned(Player player)
     {
-        if (!gameStarted)
-            GameSetup();
-
+        // Due to where players can be spawned from server/client side.
+        // This may be called multiple times with the same player,
+        // so check if we have already acknowledged this player
         if (!acknowledgedPlayers.Contains(player))
         {
             GetPlayerMaterial(player);
@@ -100,6 +83,27 @@ public class InGameController : NetworkBehaviour
             player.GetPlayerScore().SyncScore();
 
             acknowledgedPlayers.Add(player);
+
+            // If this is the local player setup the game
+            if (player == GameState.Instance.GetLocalPlayer())
+            {
+                if (!gameStarted)
+                    GameSetup();
+
+                player.SetEnableControls(false);
+
+                if (IsServer)
+                {
+                    if (!useCountDownTimer)
+                        gameStartTimer = 0;
+
+                    StartGameCountdown();
+                }
+                else if (Net.IsClientOnly)
+                {
+                    RequestGameCountDownTimerServerRpc(Net.LocalClientId);
+                }
+            }
         }
     }
 

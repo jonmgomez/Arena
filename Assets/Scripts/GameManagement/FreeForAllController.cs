@@ -13,8 +13,6 @@ public class FreeForAllController : GameModeController
 
     public override void CheckGameScores()
     {
-        Logger.Default.Log("Checking Game Scores");
-
         List<Player> players = GameState.Instance.GetPlayers();
         foreach (Player player in players)
         {

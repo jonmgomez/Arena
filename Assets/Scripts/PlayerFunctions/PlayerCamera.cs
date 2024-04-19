@@ -14,6 +14,7 @@ public class PlayerCamera : NetworkBehaviour
 
     private float xRotation;
     private float yRotation;
+    private bool canMove = true;
 
     // Triggered when the camera is rotated with either x or y value != 0.
     public event Action<float, float> OnRotate;
@@ -67,6 +68,9 @@ public class PlayerCamera : NetworkBehaviour
         if (!IsOwner)
             return;
 
+        if (!canMove)
+            return;
+
         float mouseX = Input.GetAxisRaw("Mouse X") * xSensitivity;
         float mouseY = Input.GetAxisRaw("Mouse Y") * ySensitivity;
 
@@ -102,13 +106,13 @@ public class PlayerCamera : NetworkBehaviour
 
     public void SetEnabled(bool enabled)
     {
-        this.enabled = enabled;
+        canMove = enabled;
         CameraManager.Instance.SetActiveCamera(enabled ? playersCamera : defaultCamera);
     }
 
     public void SetEnableControls(bool enabled)
     {
-        this.enabled = enabled;
+        canMove = enabled;
         Cursor.lockState = enabled ? CursorLockMode.Locked : CursorLockMode.Confined;
         Cursor.visible = !enabled;
     }

@@ -14,6 +14,7 @@ public class PlayerWeapon : NetworkBehaviour
     [SerializeField] private float maxSpeedForMaxSpread = 3f;
 
     private Weapon[] startingWeapons;
+    private bool scriptEnabled = true;
 
     public event System.Action<Weapon> OnActiveWeaponChanged;
 
@@ -56,6 +57,8 @@ public class PlayerWeapon : NetworkBehaviour
     void Update()
     {
         if (!IsOwner) return;
+
+        if (!scriptEnabled) return;
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
@@ -160,7 +163,7 @@ public class PlayerWeapon : NetworkBehaviour
 
     public void SetEnableControls(bool enable)
     {
-        enabled = enable;
+        scriptEnabled = enable;
     }
 
     public void ResetWeapons()
