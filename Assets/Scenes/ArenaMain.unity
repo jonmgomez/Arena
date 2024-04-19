@@ -32936,11 +32936,11 @@ RectTransform:
   - {fileID: 1009742231}
   - {fileID: 345063779}
   - {fileID: 1315824953}
+  - {fileID: 490902816}
+  - {fileID: 1410533160}
   - {fileID: 818038415}
   - {fileID: 1718256522}
   - {fileID: 1354657539}
-  - {fileID: 490902816}
-  - {fileID: 1410533160}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
