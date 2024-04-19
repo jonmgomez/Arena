@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FreeForAllController : GameModeController
+public class FreeForAllGameMode : GameModeController
 {
-    private readonly int scoreToWin = 2;
+    [SerializeField] private int scoreToWin = 2;
 
     void Update()
     {

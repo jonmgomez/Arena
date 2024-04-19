@@ -107,7 +107,7 @@ public class ScoreBoard : UIMenu
         gameModeText.text = gameMode.GetGameModeName();
         timeLeftText.text = ((int) gameMode.GetTimeLeft()).ToString();
 
-        if (gameMode is FreeForAllController)
+        if (gameMode is FreeForAllGameMode)
         {
             team1ScoreText.gameObject.SetActive(false);
             team2ScoreText.gameObject.SetActive(false);

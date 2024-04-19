@@ -49,7 +49,7 @@ public class InGameController : NetworkBehaviour
         playerMaterialController = GetComponent<PlayerMaterialController>();
         weaponSpawners = FindObjectsOfType<WeaponSpawner>();
 
-        gameModeController = gameObject.AddComponent<FreeForAllController>();
+        gameModeController = GetComponent<FreeForAllGameMode>();
         scoreBoard.SetGameMode(gameModeController);
     }
 

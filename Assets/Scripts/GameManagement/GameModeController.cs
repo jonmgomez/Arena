@@ -6,7 +6,8 @@ public abstract class GameModeController : MonoBehaviour
 {
     protected readonly Logger logger = new("GAMEMODE");
 
-    private float startingTimeLeft = 300f;
+    [SerializeField] private float startingTimeLeft = 300f;
+
     private float timeLeft = 0f;
     private int timeLeftAsInt = 0; // For display purposes
     private bool isGameActive = false;
