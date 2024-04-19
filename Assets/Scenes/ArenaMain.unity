@@ -3464,7 +3464,7 @@ GameObject:
   - component: {fileID: 330585548}
   - component: {fileID: 330585547}
   m_Layer: 0
-  m_Name: MainCamera
+  m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9278,7 +9278,7 @@ GameObject:
   - component: {fileID: 772201319}
   - component: {fileID: 772201318}
   m_Layer: 0
-  m_Name: EventSystem
+  m_Name: Event System
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13513,7 +13513,7 @@ GameObject:
   - component: {fileID: 889920928}
   - component: {fileID: 889920929}
   m_Layer: 0
-  m_Name: InGameController
+  m_Name: In Game Controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13747,7 +13747,7 @@ GameObject:
   - component: {fileID: 908153902}
   - component: {fileID: 908153903}
   m_Layer: 0
-  m_Name: PlayerSpawnController
+  m_Name: Player Spawn Controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14771,7 +14771,7 @@ GameObject:
   - component: {fileID: 1009742231}
   - component: {fileID: 1009742232}
   m_Layer: 5
-  m_Name: PlayerHUD
+  m_Name: Player HUD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15103,7 +15103,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1063522981}
   m_Layer: 0
-  m_Name: SpawnPoints
+  m_Name: Spawn Points
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22039,7 +22039,7 @@ GameObject:
   - component: {fileID: 1268940765}
   - component: {fileID: 1268940764}
   m_Layer: 5
-  m_Name: HitMarker
+  m_Name: Hit Marker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22631,7 +22631,7 @@ GameObject:
   - component: {fileID: 1299436355}
   - component: {fileID: 1299436354}
   m_Layer: 0
-  m_Name: WeaponSpawner (1)
+  m_Name: Weapon Spawner (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22715,7 +22715,7 @@ GameObject:
   - component: {fileID: 1315824953}
   - component: {fileID: 1315824954}
   m_Layer: 5
-  m_Name: EliminationFeed
+  m_Name: Elimination Feed
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22934,7 +22934,7 @@ GameObject:
   - component: {fileID: 1336148905}
   - component: {fileID: 1336148904}
   m_Layer: 0
-  m_Name: WeaponSpawner
+  m_Name: Weapon Spawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28716,7 +28716,7 @@ GameObject:
   - component: {fileID: 1526021024}
   - component: {fileID: 1526021023}
   m_Layer: 0
-  m_Name: KillZone
+  m_Name: Kill Zone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28789,7 +28789,7 @@ GameObject:
   - component: {fileID: 1542622208}
   - component: {fileID: 1542622207}
   m_Layer: 0
-  m_Name: CameraManager
+  m_Name: Camera Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31375,7 +31375,7 @@ GameObject:
   - component: {fileID: 1718256522}
   - component: {fileID: 1718256523}
   m_Layer: 5
-  m_Name: DebugMenu
+  m_Name: Debug Menu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32945,7 +32945,7 @@ GameObject:
   - component: {fileID: 1839339478}
   - component: {fileID: 1839339477}
   m_Layer: 5
-  m_Name: MenuBackground
+  m_Name: Menu Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -35368,7 +35368,7 @@ PrefabInstance:
     - target: {fileID: 8818963454983519788, guid: ec234a8fd53c9b847b290055adec840d,
         type: 3}
       propertyPath: m_Name
-      value: GameState
+      value: Game State
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -36233,7 +36233,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2102315625}
   m_Layer: 5
-  m_Name: TimeScale
+  m_Name: Time Scale
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36859,7 +36859,7 @@ PrefabInstance:
     - target: {fileID: 8363144380914282614, guid: b1fb1fefab0f54a458d8ea99d97330c2,
         type: 3}
       propertyPath: m_Name
-      value: LateNetworkButtons
+      value: Late Network Buttons
       objectReference: {fileID: 0}
     - target: {fileID: 9019839014932655035, guid: b1fb1fefab0f54a458d8ea99d97330c2,
         type: 3}
