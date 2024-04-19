@@ -20,13 +20,14 @@ public class InGameController : NetworkBehaviour
     [SerializeField] private float gameStartTimer = 10;
 
     [Header("Debug")]
+    [Tooltip("Use a countdown timer before the game starts. This only uses the server's value")]
     [SerializeField] private bool useCountDownTimer = true;
 
     public event System.Action OnGameRestart;
     public event System.Action OnGameStart;
 
     private bool gameStarted = false;
-    private List<Player> acknowledgedPlayers = new();
+    private readonly List<Player> acknowledgedPlayers = new();
     private readonly Dictionary<ulong, PlayerDamagedState> players = new();
     private EliminationFeed eliminationFeed;
     private ScoreBoard scoreBoard;
@@ -102,7 +103,7 @@ public class InGameController : NetworkBehaviour
                 }
                 else if (Net.IsClientOnly)
                 {
-                    RequestGameCountDownTimerServerRpc(Net.LocalClientId);
+                    RequestGameInformationServerRpc(Net.LocalClientId);
                 }
             }
         }
@@ -221,18 +222,35 @@ public class InGameController : NetworkBehaviour
         OnGameStart?.Invoke();
     }
 
+    /// <summary>
+    /// When the client joins they request various information about the game.
+    /// Server sends back the information requested to that client.
+    /// ex. Game mode, time left, etc.
+    /// </summary>
+    /// <param name="clientId">Id of client requesting information</param>
     [ServerRpc(RequireOwnership = false)]
-    private void RequestGameCountDownTimerServerRpc(ulong clientId)
+    private void RequestGameInformationServerRpc(ulong clientId)
     {
         float timeLeft = useCountDownTimer ? gameStartTimer : 0;
-        RequestGameCountDownTimerClientRpc(timeLeft, Utility.SendToOneClient(clientId));
+        RequestGameInformationClientRpc(timeLeft,
+                                        gameModeController.GetMaxTime(), gameModeController.GetTimeLeft(),
+                                        Utility.SendToOneClient(clientId));
     }
 
+    /// <summary>
+    /// Response from the server to the client with the requested game information.
+    /// </summary>
+    /// <param name="gameStartCountDownTimer">Pre game timer countdown</param>
+    /// <param name="gameTimer">Time left for game mode</param>
     [ClientRpc]
-    private void RequestGameCountDownTimerClientRpc(float time, ClientRpcParams clientRpcParams = default)
+    private void RequestGameInformationClientRpc(float gameStartCountDownTimer, float gameMaxTime, float gameTimer, ClientRpcParams clientRpcParams = default)
     {
-        gameStartTimer = time;
+        gameStartTimer = gameStartCountDownTimer;
+        gameModeController.SetMaxTime(gameMaxTime);
         StartGameCountdown();
+
+        // Must be done after since game may start before this is called
+        gameModeController.SetTimeLeft(gameTimer);
     }
 
     public void OnGameEnded()

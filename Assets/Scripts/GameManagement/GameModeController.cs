@@ -90,5 +90,9 @@ public abstract class GameModeController : MonoBehaviour
         }
     }
 
+    public void SetMaxTime(float maxTime) => startingTimeLeft = maxTime;
+    public float GetMaxTime() => startingTimeLeft;
+
+    public void SetTimeLeft(float timeLeft) => this.timeLeft = timeLeft;
     public float GetTimeLeft() => timeLeft;
 }
