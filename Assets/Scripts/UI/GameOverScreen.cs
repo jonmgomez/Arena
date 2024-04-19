@@ -17,7 +17,11 @@ public class GameOverScreen : MonoBehaviour
     public void ShowGameOverScreen(string playerName)
     {
         gameOverScreen.SetActive(true);
-        winnerNameText.text = playerName + " Won";
+
+        if (string.IsNullOrEmpty(playerName))
+            winnerNameText.text = "Draw";
+        else
+            winnerNameText.text = playerName + " Won";
 
         StartCoroutine(ShowScoreBoard());
     }

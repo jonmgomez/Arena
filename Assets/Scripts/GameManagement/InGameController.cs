@@ -50,6 +50,7 @@ public class InGameController : NetworkBehaviour
         weaponSpawners = FindObjectsOfType<WeaponSpawner>();
 
         gameModeController = gameObject.AddComponent<FreeForAllController>();
+        scoreBoard.SetGameMode(gameModeController);
     }
 
     private void Update()
@@ -188,7 +189,7 @@ public class InGameController : NetworkBehaviour
 
         player.GetPlayerScore().IncreaseScore(ScoreType.Death);
 
-        gameModeController.CheckGameScores();
+        gameModeController.CheckGameScoresForWin();
     }
 
     public void PlayerHit(Player player, ulong clientId, float damage, bool headShot)

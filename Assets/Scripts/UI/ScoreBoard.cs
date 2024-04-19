@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ScoreBoard : UIMenu
 {
@@ -20,6 +22,10 @@ public class ScoreBoard : UIMenu
     }
 
     [SerializeField] private GameObject scoreBoard;
+    [SerializeField] private TextMeshProUGUI gameModeText;
+    [SerializeField] private TextMeshProUGUI timeLeftText;
+    [SerializeField] private TextMeshProUGUI team1ScoreText;
+    [SerializeField] private TextMeshProUGUI team2ScoreText;
     [SerializeField] private ScoreCard playerScorePrefab;
     [SerializeField] private Vector3 playerScoreOffset;
     [SerializeField] private float playerScoreSpacing;
@@ -94,5 +100,28 @@ public class ScoreBoard : UIMenu
             Destroy(entry.ScoreCard.gameObject);
             UpdateScoreBoard();
         }
+    }
+
+    public void SetGameMode(GameModeController gameMode)
+    {
+        gameModeText.text = gameMode.GetGameModeName();
+        timeLeftText.text = ((int) gameMode.GetTimeLeft()).ToString();
+
+        if (gameMode is FreeForAllController)
+        {
+            team1ScoreText.gameObject.SetActive(false);
+            team2ScoreText.gameObject.SetActive(false);
+        }
+    }
+
+    public void SetGameTimeLeft(float timeLeft)
+    {
+        SetGameTimeLeft((int) timeLeft);
+    }
+
+
+    public void SetGameTimeLeft(int timeLeft)
+    {
+        timeLeftText.text = timeLeft.ToString();
     }
 }
