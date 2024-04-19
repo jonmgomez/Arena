@@ -23,7 +23,9 @@ public class ScoreBoard : UIMenu
 
     [SerializeField] private GameObject scoreBoard;
     [SerializeField] private TextMeshProUGUI gameModeText;
+    [SerializeField] private TextMeshProUGUI winConditionText;
     [SerializeField] private TextMeshProUGUI timeLeftText;
+    [SerializeField] private Transform teamScoresParent;
     [SerializeField] private TextMeshProUGUI team1ScoreText;
     [SerializeField] private TextMeshProUGUI team2ScoreText;
     [SerializeField] private ScoreCard playerScorePrefab;
@@ -105,12 +107,12 @@ public class ScoreBoard : UIMenu
     public void SetGameMode(GameModeController gameMode)
     {
         gameModeText.text = gameMode.GetGameModeName();
+        winConditionText.text = gameMode.GetWinConditionDescription();
         timeLeftText.text = ((int) gameMode.GetTimeLeft()).ToString();
 
         if (gameMode is FreeForAllGameMode)
         {
-            team1ScoreText.gameObject.SetActive(false);
-            team2ScoreText.gameObject.SetActive(false);
+            teamScoresParent.gameObject.SetActive(false);
         }
     }
 

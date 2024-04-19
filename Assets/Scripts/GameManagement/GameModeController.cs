@@ -29,6 +29,11 @@ public abstract class GameModeController : MonoBehaviour
     /// </summary>
     public abstract string GetGameModeName();
 
+    /// <summary>
+    /// Get the description of the win condition
+    /// </summary>
+    public abstract string GetWinConditionDescription();
+
     public void CalculateTimer()
     {
         if (isGameActive)

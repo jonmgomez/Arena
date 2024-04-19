@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class FreeForAllGameMode : GameModeController
 {
-    [SerializeField] private int scoreToWin = 2;
+    [SerializeField] private int scoreToWin = 30;
 
     void Update()
     {
@@ -60,4 +60,5 @@ public class FreeForAllGameMode : GameModeController
     }
 
     public override string GetGameModeName() => "Free For All";
+    public override string GetWinConditionDescription() => $"First to {scoreToWin} eliminations wins!";
 }
