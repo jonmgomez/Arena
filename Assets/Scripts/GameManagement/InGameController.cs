@@ -17,6 +17,10 @@ public class InGameController : NetworkBehaviour
 
     [Tooltip("Time in seconds to wait before the last player that damaged another player is forgotten")]
     [SerializeField] private float timeoutLastPlayerDamaged = 5f;
+    [SerializeField] private float gameStartTimer = 10;
+
+    [Header("Debug")]
+    [SerializeField] private bool useCountDownTimer = true;
 
     public event System.Action OnGameRestart;
     public event System.Action OnGameStart;
@@ -29,6 +33,23 @@ public class InGameController : NetworkBehaviour
     private PlayerMaterialController playerMaterialController;
     private WeaponSpawner[] weaponSpawners;
     private GameModeController gameModeController;
+
+    public override void OnNetworkSpawn()
+    {
+        if (useCountDownTimer && IsServer)
+        {
+            StartGameCountdown();
+        }
+        else if (Net.IsClientOnly)
+        {
+            RequestGameCountDownTimerServerRpc(Net.LocalClientId);
+        }
+        else if (IsServer)
+        {
+            gameModeController.StartGame();
+            OnGameStart?.Invoke();
+        }
+    }
 
     private void Awake()
     {
@@ -46,8 +67,6 @@ public class InGameController : NetworkBehaviour
         weaponSpawners = FindObjectsOfType<WeaponSpawner>();
 
         gameModeController = gameObject.AddComponent<FreeForAllController>();
-        gameModeController.StartGame();
-        OnGameStart?.Invoke();
     }
 
     private void Update()
@@ -176,6 +195,39 @@ public class InGameController : NetworkBehaviour
             logger.LogError($"Player {clientId} not found");
             return;
         }
+    }
+
+    public void StartGameCountdown()
+    {
+        StartCoroutine(StartGameCountdownCoroutine());
+    }
+
+    private IEnumerator StartGameCountdownCoroutine()
+    {
+        FindObjectOfType<GameStartScreen>().ShowGameStartScreen(gameStartTimer);
+
+        while (gameStartTimer > 0)
+        {
+            yield return null;
+            gameStartTimer -= Time.deltaTime;
+        }
+
+        gameModeController.StartGame();
+        OnGameStart?.Invoke();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void RequestGameCountDownTimerServerRpc(ulong clientId)
+    {
+        float timeLeft = useCountDownTimer ? gameStartTimer : 0;
+        RequestGameCountDownTimerClientRpc(timeLeft, Utility.SendToOneClient(clientId));
+    }
+
+    [ClientRpc]
+    private void RequestGameCountDownTimerClientRpc(float time, ClientRpcParams clientRpcParams = default)
+    {
+        gameStartTimer = time;
+        StartGameCountdown();
     }
 
     public void OnGameEnded()
