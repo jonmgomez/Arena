@@ -160,7 +160,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 9262945
+  GlobalObjectIdHash: 1429631593
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -305,7 +305,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9e5fea59fc02ef44bcb2e75c0d74e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ragdollModelRoot: {fileID: 8206965485954340977, guid: feca048d06c2e8b4da0331505867e382,
+  ragdollModelPrefab: {fileID: 8206965485954340977, guid: feca048d06c2e8b4da0331505867e382,
     type: 3}
   normalModelReference: {fileID: 3422087016515611011}
 --- !u!1 &3482308833131350286

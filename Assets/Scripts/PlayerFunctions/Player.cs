@@ -195,9 +195,9 @@ public class Player : NetworkBehaviour
     }
 
     #region Health
-    public void TakeDamage(float damage, ulong damagerClientId)
+    public void TakeDamage(float damage, PlayerHitDetails hitDetails, ulong damagerClientId)
     {
-        TakeDamageInternal(damage, damagerClientId, false);
+        TakeDamageInternal(damage, hitDetails, damagerClientId, false);
     }
 
     /// <summary>
@@ -207,7 +207,7 @@ public class Player : NetworkBehaviour
     /// <param name="damage">Amount of damage to deal to player</param>
     public void TakeDamageAnonymous(float damage)
     {
-        TakeDamageInternal(damage, Net.LocalClientId, true);
+        TakeDamageInternal(damage, null, Net.LocalClientId, true);
     }
 
     /// <summary>
@@ -216,7 +216,7 @@ public class Player : NetworkBehaviour
     /// <param name="damage">Amount of damage to deal</param>
     /// <param name="damagerClientId">Client id of the player that dealt damage to this player</param>
     /// <param name="isAnonymous">Did a player deal this damage, or was it an anonymous source</param>
-    private void TakeDamageInternal(float damage, ulong damagerClientId, bool isAnonymous)
+    private void TakeDamageInternal(float damage, PlayerHitDetails hitDetails, ulong damagerClientId, bool isAnonymous)
     {
         if (clientSideHealth <= 0f) return;
 
@@ -230,7 +230,7 @@ public class Player : NetworkBehaviour
         if (clientSideHealth <= 0f)
         {
             logger.Log($"{Utility.PlayerNameToString(OwnerClientId)} died");
-            OnDeath();
+            OnDeath(hitDetails);
             InGameController.Instance.PlayerDied(this, damagerClientId, isAnonymous);
         }
         else
@@ -354,13 +354,13 @@ public class Player : NetworkBehaviour
         healthVignette.intensity.value = Mathf.Clamp(intensity, 0f, healthVignetteMaxIntensity);
     }
 
-    private void OnDeath()
+    private void OnDeath(PlayerHitDetails hitDetails = null)
     {
         if (isDead)
             return;
 
         isDead = true;
-        playerRagdoll.SpawnRagdoll();
+        playerRagdoll.SpawnRagdoll(hitDetails);
         characterController.enabled = false;
         transform.position = OFF_SCREEN;
         clientNetworkTransform.enabled = false;

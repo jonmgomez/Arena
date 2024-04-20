@@ -12,6 +12,7 @@ public class Projectile : MonoBehaviour
     [SerializeField] private float headShotDamageMultiplier = 2f;
     [SerializeField] private float speed = 100f;
     [SerializeField] private LayerMask collisionMask;
+    [SerializeField] private float impactForce = 100f;
 
     [Header("Hit Scan Settings")]
     [SerializeField] private bool hitScan = false;
@@ -149,7 +150,9 @@ public class Projectile : MonoBehaviour
                     bool headShot = player.IsHeadCollider(collider);
 
                     float damageToDeal = headShot ? damage * headShotDamageMultiplier : damage;
-                    player.TakeDamage(damageToDeal, firedFromClientId);
+
+                    PlayerHitDetails hitDetails = new(collider, hitPoint, normal, transform.forward, impactForce);
+                    player.TakeDamage(damageToDeal, hitDetails, firedFromClientId);
 
                     Player ownerPlayer = GameState.Instance.GetPlayer(firedFromClientId);
                     if (ownerPlayer == null)
