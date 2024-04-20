@@ -238,7 +238,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   walkSpeed: 3
   runSpeed: 6
-  jumpPower: 4
+  jumpPower: 5
   gravity: 10
   canMove: 1
 --- !u!114 &7195662288568213887

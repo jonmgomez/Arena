@@ -55,10 +55,13 @@ public class PlayerMovement : NetworkBehaviour
 
         if (canMove)
         {
-            bool isRunning = Input.GetKey(KeyCode.LeftShift);
-            curSpeedX = (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Vertical");
-            curSpeedY = (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Horizontal");
-            moveDirection = (forward * curSpeedX) + (right * curSpeedY);
+            if (characterController.isGrounded)
+            {
+                bool isRunning = Input.GetKey(KeyCode.LeftShift);
+                curSpeedX = (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Vertical");
+                curSpeedY = (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Horizontal");
+                moveDirection = (forward * curSpeedX) + (right * curSpeedY);
+            }
         }
         else if (characterController.isGrounded)
         {
