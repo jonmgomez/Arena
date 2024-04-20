@@ -2818,9 +2818,9 @@ MonoBehaviour:
   adsPositionOffset: {x: 0, y: 0, z: 0}
   FireRate: 0.25
   IsAutomatic: 0
-  projectilesPerShot: 5
-  stationaryHipFireSpreadAngle: 5
-  fullMovementHipFireSpreadAngle: 9
+  projectilesPerShot: 8
+  stationaryHipFireSpreadAngle: 4
+  fullMovementHipFireSpreadAngle: 4
   ammo: 8
   ReloadTime: 0.3
   EmptyReloadTime: 1
