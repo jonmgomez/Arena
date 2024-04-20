@@ -159,11 +159,16 @@ public class Projectile : MonoBehaviour
                     }
 
                     ownerPlayer.DealtDamage(player, damageToDeal, headShot);
-
-                    var hitEffect = Instantiate(humanImpactEffect, hitPoint, quaternion.identity);
-                    hitEffect.transform.LookAt(hitPoint + normal);
                 }
+
+                var hitEffect = Instantiate(humanImpactEffect, hitPoint, quaternion.identity);
+                hitEffect.transform.LookAt(hitPoint + normal);
             }
+        }
+        else
+        {
+            var hitEffect = Instantiate(metalImpactEffect, hitPoint, quaternion.identity);
+            hitEffect.transform.LookAt(hitPoint + normal);
         }
 
         if (!hitScan)
