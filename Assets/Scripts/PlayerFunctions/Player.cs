@@ -62,6 +62,7 @@ public class Player : NetworkBehaviour
     private PlayerWeaponAnimator playerWeaponAnimator;
     private PlayerScore playerScore;
     private PlayerCamera playerCamera;
+    private PlayerRagdoll playerRagdoll;
     [NonSerialized] public PlayerHUD HUD;
     [NonSerialized] public HitMarker hitMarker;
 
@@ -134,6 +135,7 @@ public class Player : NetworkBehaviour
         playerWeaponAnimator = playerWeapon.GetComponent<PlayerWeaponAnimator>();
         playerScore = GetComponent<PlayerScore>();
         playerCamera = GetComponentInChildren<PlayerCamera>();
+        playerRagdoll = GetComponent<PlayerRagdoll>();
 
         if (!IsOwner)
             return;
@@ -358,6 +360,7 @@ public class Player : NetworkBehaviour
             return;
 
         isDead = true;
+        playerRagdoll.SpawnRagdoll();
         characterController.enabled = false;
         transform.position = OFF_SCREEN;
         clientNetworkTransform.enabled = false;
@@ -422,6 +425,8 @@ public class Player : NetworkBehaviour
         }
 
         firstPersonRenderer.material = material;
+
+        playerRagdoll.SetMaterial(material);
     }
 
     public string GetName() => playerNameText.text;
@@ -433,4 +438,5 @@ public class Player : NetworkBehaviour
     public PlayerWeaponAnimator GetPlayerWeaponAnimator() => playerWeaponAnimator;
     public PlayerCamera GetPlayerCamera() => playerCamera;
     public PlayerScore GetPlayerScore() => playerScore;
+    public PlayerRagdoll GetPlayerRagdoll() => playerRagdoll;
 }

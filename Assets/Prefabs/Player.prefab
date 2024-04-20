@@ -96,6 +96,7 @@ GameObject:
   - component: {fileID: 7195662288568213887}
   - component: {fileID: 4605815893360409202}
   - component: {fileID: 5014746645069013865}
+  - component: {fileID: 3435291345217623666}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -159,7 +160,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1429631593
+  GlobalObjectIdHash: 9262945
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -292,6 +293,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d161998acfe20fa4eb0dc11b3ba40dd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3435291345217623666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3021317606462415145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9e5fea59fc02ef44bcb2e75c0d74e29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ragdollModelRoot: {fileID: 8206965485954340977, guid: feca048d06c2e8b4da0331505867e382,
+    type: 3}
+  normalModelReference: {fileID: 3422087016515611011}
 --- !u!1 &3482308833131350286
 GameObject:
   m_ObjectHideFlags: 0
@@ -1809,6 +1825,12 @@ SkinnedMeshRenderer:
 --- !u!4 &3114601444002770651 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -7819606674236658383, guid: 9d7640f26eef3f74ca6ff3a7515878e7,
+    type: 3}
+  m_PrefabInstance: {fileID: 4053913295968371690}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3422087016515611011 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -7548078430360819095, guid: 9d7640f26eef3f74ca6ff3a7515878e7,
     type: 3}
   m_PrefabInstance: {fileID: 4053913295968371690}
   m_PrefabAsset: {fileID: 0}
