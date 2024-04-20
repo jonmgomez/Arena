@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7073428723794299553}
   - component: {fileID: 1399517602225904737}
   - component: {fileID: 972306846831413280}
-  - component: {fileID: 2909539959400897379}
+  - component: {fileID: -7207375927425734571}
   - component: {fileID: 693554819596595950}
   - component: {fileID: 969282754858399292}
   - component: {fileID: 46278716881453628}
@@ -87,7 +87,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!54 &2909539959400897379
+--- !u!54 &-7207375927425734571
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -253,13 +253,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 18
   headShotDamageMultiplier: 2
-  speed: 1000
+  speed: 20
   collisionMask:
     serializedVersion: 2
     m_Bits: 255
   hitScan: 0
   startFromBarrel: 0
-  maxDistance: 100000
+  maxDistance: 1000
   metalImpactEffect: {fileID: 19800002, guid: 20b31fcfaed0cb842a56fbbe2419428f, type: 3}
   humanImpactEffect: {fileID: 19800000, guid: 943b1af2bdcba8e4f984b6b78cff5737, type: 3}
   showHitScanRay: 0

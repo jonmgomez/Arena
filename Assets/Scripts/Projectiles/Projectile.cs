@@ -6,34 +6,34 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    const float SPEED_FOR_MISSED_COLLISIONS = 100f;
+    private const float SPEED_FOR_MISSED_COLLISIONS = 100f;
 
-    [SerializeField] float damage = 10f;
-    [SerializeField] float headShotDamageMultiplier = 2f;
-    [SerializeField] float speed = 100f;
-    [SerializeField] LayerMask collisionMask;
+    [SerializeField] private float damage = 10f;
+    [SerializeField] private float headShotDamageMultiplier = 2f;
+    [SerializeField] private float speed = 100f;
+    [SerializeField] private LayerMask collisionMask;
 
     [Header("Hit Scan Settings")]
-    [SerializeField] bool hitScan = false;
+    [SerializeField] private bool hitScan = false;
     [Tooltip("Hitscan only --- Originates the projectile from the barrel of the gun rather than the camera." +
              "Note that hitscan will still act as originating from the camera. A render thing only.")]
-    [SerializeField] bool startFromBarrel = false;
-    [SerializeField] float maxDistance = 100f;
+    [SerializeField] private bool startFromBarrel = false;
+    [SerializeField] private float maxDistance = 100f;
 
     [Header("Effects")]
     [SerializeField] private ParticleSystem metalImpactEffect;
     [SerializeField] private ParticleSystem humanImpactEffect;
 
     [Header("Debug")]
-    [SerializeField] bool showHitScanRay = false;
+    [SerializeField] private bool showHitScanRay = false;
 
-    Vector3 originalPosition;
-    Vector3 previousPosition;
+    private Vector3 originalPosition;
+    private Vector3 previousPosition;
 
-    bool calculateCollisions = true;
-    ulong firedFromClientId; // Who shot this projectile
+    private bool calculateCollisions = true;
+    private ulong firedFromClientId; // Who shot this projectile
 
-    Destroy destroyTimer;
+    private Destroy destroyTimer;
     private bool destroyed = false;
 
     void Start()
@@ -72,7 +72,7 @@ public class Projectile : MonoBehaviour
             previousPosition = transform.position;
 
             #if UNITY_EDITOR
-            if (!hitScan && GetComponent<Rigidbody>() == null)
+            if (GetComponent<Rigidbody>() == null)
             {
                 Logger.Default.LogError("Non-hitscan projectiles require a rigidbody to collide properly.");
                 Debug.Break();
