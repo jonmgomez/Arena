@@ -74,6 +74,11 @@ public static class Utility
         }
     }
 
+    public static Color RandomColor()
+    {
+        return new Color(UnityEngine.Random.value, UnityEngine.Random.value, UnityEngine.Random.value);
+    }
+
     /// <summary>
     /// Normalize a rotation value around -180 to 180 degrees.
     /// <para>e.g. 270 degrees becomes -90 degrees.</para>
