@@ -141,6 +141,9 @@ public class Player : NetworkBehaviour
 
     void Start()
     {
+        clientSideHealth = health;
+        maxHealth = health;
+
         if (!IsOwner)
             return;
 
@@ -152,9 +155,6 @@ public class Player : NetworkBehaviour
 
         hitMarker = FindObjectOfType<HitMarker>(true);
         hitMarker.gameObject.SetActive(true);
-
-        clientSideHealth = health;
-        maxHealth = health;
 
         Volume volume = FindObjectOfType<Volume>();
         volume.profile.TryGet<Vignette>(out healthVignette);
@@ -348,7 +348,6 @@ public class Player : NetworkBehaviour
 
     private void RecalculateHealthVignette()
     {
-        Debug.Log("Recalculating health vignette");
         float intensity = (1f - health / maxHealth) * healthVignetteMaxIntensity;
         healthVignette.intensity.value = Mathf.Clamp(intensity, 0f, healthVignetteMaxIntensity);
     }

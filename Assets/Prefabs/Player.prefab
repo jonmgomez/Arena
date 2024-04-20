@@ -240,7 +240,6 @@ MonoBehaviour:
   runSpeed: 6
   jumpPower: 4
   gravity: 10
-  inAirSpeedInfluence: 0.5
   canMove: 1
 --- !u!114 &7195662288568213887
 MonoBehaviour:
@@ -1371,7 +1370,7 @@ MonoBehaviour:
   muzzle: {fileID: 8354073682433407004}
   thirdPersonFirePoint: {fileID: 3676419777166815530}
   thirdPersonMuzzle: {fileID: 3676419777166815530}
-  projectilePrefab: {fileID: 5770585688798484500, guid: 749c4ec493decfd488c37d9f4424e1ed,
+  projectilePrefab: {fileID: 543468829648576604, guid: 749c4ec493decfd488c37d9f4424e1ed,
     type: 3}
   muzzleFlashPrefab: {fileID: 100000, guid: 8eaaa4f553116f44b8459bc24201c514, type: 3}
 --- !u!114 &7387093522120142823

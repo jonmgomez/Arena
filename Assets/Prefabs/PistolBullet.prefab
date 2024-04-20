@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 7073428723794299553}
   - component: {fileID: 1399517602225904737}
   - component: {fileID: 969282754858399292}
-  - component: {fileID: 5770585688798484500}
-  m_Layer: 0
+  - component: {fileID: 543468829648576604}
+  m_Layer: 8
   m_Name: PistolBullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -146,7 +146,7 @@ TrailRenderer:
   m_Autodestruct: 0
   m_Emitting: 1
   m_ApplyActiveColorSpace: 1
---- !u!114 &5770585688798484500
+--- !u!114 &543468829648576604
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -155,16 +155,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 4383937196038859221}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f7425e7634a7ee4da43132c65737a2b, type: 3}
+  m_Script: {fileID: 11500000, guid: b1af10a35ee12fc4f84059def064e726, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 18
   headShotDamageMultiplier: 2
   speed: 1000
-  hitScan: 1
-  startFromBarrel: 1
-  hitScanCollisionMask:
+  collisionMask:
     serializedVersion: 2
     m_Bits: 255
-  maxDistance: 100
+  hitScan: 1
+  startFromBarrel: 1
+  maxDistance: 1000
+  metalImpactEffect: {fileID: 0}
+  humanImpactEffect: {fileID: 19800000, guid: 943b1af2bdcba8e4f984b6b78cff5737, type: 3}
   showHitScanRay: 0

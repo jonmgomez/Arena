@@ -161,10 +161,12 @@ MonoBehaviour:
   damage: 13
   headShotDamageMultiplier: 2
   speed: 500
-  hitScan: 1
-  startFromBarrel: 1
-  hitScanCollisionMask:
+  collisionMask:
     serializedVersion: 2
     m_Bits: 255
+  hitScan: 1
+  startFromBarrel: 1
   maxDistance: 100
+  metalImpactEffect: {fileID: 0}
+  humanImpactEffect: {fileID: 19800000, guid: 943b1af2bdcba8e4f984b6b78cff5737, type: 3}
   showHitScanRay: 0

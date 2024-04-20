@@ -11,14 +11,18 @@ public class Projectile : MonoBehaviour
     [SerializeField] float damage = 10f;
     [SerializeField] float headShotDamageMultiplier = 2f;
     [SerializeField] float speed = 100f;
+    [SerializeField] LayerMask collisionMask;
 
     [Header("Hit Scan Settings")]
     [SerializeField] bool hitScan = false;
     [Tooltip("Hitscan only --- Originates the projectile from the barrel of the gun rather than the camera." +
              "Note that hitscan will still act as originating from the camera. A render thing only.")]
     [SerializeField] bool startFromBarrel = false;
-    [SerializeField] LayerMask hitScanCollisionMask;
     [SerializeField] float maxDistance = 100f;
+
+    [Header("Effects")]
+    [SerializeField] private ParticleSystem metalImpactEffect;
+    [SerializeField] private ParticleSystem humanImpactEffect;
 
     [Header("Debug")]
     [SerializeField] bool showHitScanRay = false;
@@ -30,6 +34,7 @@ public class Projectile : MonoBehaviour
     ulong firedFromClientId; // Who shot this projectile
 
     Destroy destroyTimer;
+    private bool destroyed = false;
 
     void Start()
     {
@@ -39,10 +44,10 @@ public class Projectile : MonoBehaviour
         if (hitScan)
         {
             Vector3 startPosition = startFromBarrel ? originalPosition : transform.position;
-            bool hitCollider = Physics.Raycast(startPosition, transform.forward, out RaycastHit hit, maxDistance, hitScanCollisionMask);
+            bool hitCollider = Physics.Raycast(startPosition, transform.forward, out RaycastHit hit, maxDistance, collisionMask);
             if (hitCollider)
             {
-                OnCollision(hit.collider);
+                OnCollision(hit.collider, hit);
                 destroyTimer.SetDestroyTimer(Vector3.Distance(transform.position, hit.point) / speed);
             }
 
@@ -65,14 +70,26 @@ public class Projectile : MonoBehaviour
         else
         {
             previousPosition = transform.position;
+
+            #if UNITY_EDITOR
+            if (!hitScan && GetComponent<Rigidbody>() == null)
+            {
+                Logger.Default.LogError("Non-hitscan projectiles require a rigidbody to collide properly.");
+                Debug.Break();
+            }
+            #endif
+
+            GetComponent<Rigidbody>().velocity = transform.forward * speed;
         }
     }
 
     void Update()
     {
-        MoveForward();
-
-        if (!hitScan)
+        if (hitScan)
+        {
+            MoveForward();
+        }
+        else
         {
             CheckForMissedCollisions();
 
@@ -82,9 +99,9 @@ public class Projectile : MonoBehaviour
 
     private void MoveForward() => transform.position += transform.forward * (speed * Time.deltaTime);
 
-    public virtual void OnTriggerEnter(Collider other)
+    public virtual void OnCollisionEnter(Collision collision)
     {
-        OnCollision(other);
+        OnCollision(collision.collider, collision);
     }
 
     /// <summary>
@@ -95,15 +112,31 @@ public class Projectile : MonoBehaviour
     {
         if (speed < SPEED_FOR_MISSED_COLLISIONS) return;
 
-        if (Physics.Raycast(previousPosition, transform.forward, out RaycastHit hit, Vector3.Distance(previousPosition, transform.position)))
+        Debug.DrawLine(previousPosition, transform.position, Utility.RandomColor(), 5f);
+
+        if (Physics.Raycast(previousPosition, transform.forward, out RaycastHit hit,
+                            Vector3.Distance(previousPosition, transform.position),
+                            collisionMask))
         {
-            OnCollision(hit.collider);
+            Debug.Log("Missed collision detected");
+            OnCollision(hit.collider, hit);
         }
-        Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(transform.position - previousPosition), 180f);
     }
 
-    private void OnCollision(Collider collider)
+    private void OnCollision(Collider collider, Collision collision)
     {
+        OnCollision(collider, collision.GetContact(0).point, collision.GetContact(0).normal);
+    }
+
+    private void OnCollision(Collider collider, RaycastHit hit)
+    {
+        OnCollision(collider, hit.point, hit.normal);
+    }
+
+    private void OnCollision(Collider collider, Vector3 hitPoint, Vector3 normal)
+    {
+        if (destroyed) return; // Prevent multiple collisions
+
         if (collider.transform.root.CompareTag("Player"))
         {
             Player player = collider.transform.root.GetComponent<Player>();
@@ -112,6 +145,7 @@ public class Projectile : MonoBehaviour
             {
                 if (calculateCollisions)
                 {
+                    Debug.Log("Hit player collider: " + collider.name);
                     bool headShot = player.IsHeadCollider(collider);
 
                     float damageToDeal = headShot ? damage * headShotDamageMultiplier : damage;
@@ -125,13 +159,20 @@ public class Projectile : MonoBehaviour
                     }
 
                     ownerPlayer.DealtDamage(player, damageToDeal, headShot);
-                }
 
-                // This may need to be done over the network by the player who shot rather than locally for clients.
-                // Clients need to do more processing to determine if they hit a player and destroy this way,
-                // but it seems responsive enough for the time being.
-                Destroy(gameObject);
+                    var hitEffect = Instantiate(humanImpactEffect, hitPoint, quaternion.identity);
+                    hitEffect.transform.LookAt(hitPoint + normal);
+                }
             }
+        }
+
+        if (!hitScan)
+        {
+            // This may need to be done over the network by the player who shot rather than locally for clients.
+            // Clients need to do more processing to determine if they hit a player and destroy this way,
+            // but it seems responsive enough for the time being.
+            Destroy(gameObject);
+            destroyed = true;
         }
     }
 
