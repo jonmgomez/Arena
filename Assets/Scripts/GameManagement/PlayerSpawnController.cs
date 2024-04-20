@@ -19,6 +19,8 @@ public class PlayerSpawnController : NetworkBehaviour
     [Header("Debug")]
     [SerializeField] private bool debugSingleSpawn = false;
 
+    private bool spawningEnabled = true;
+
     void Awake()
     {
         if (Instance != null)
@@ -33,7 +35,9 @@ public class PlayerSpawnController : NetworkBehaviour
 
     void Start()
     {
+        InGameController.Instance.OnGameStart += () => SetSpawningEnabled(true);
         InGameController.Instance.OnGameRestart += RespawnAllPlayers;
+        InGameController.Instance.OnGameEnd += () => SetSpawningEnabled(false);
     }
 
     public Player SpawnNewPlayerPrefab(ulong clientId)
@@ -60,6 +64,8 @@ public class PlayerSpawnController : NetworkBehaviour
 
     private void RespawnPlayerInternal(Player player)
     {
+        if (!spawningEnabled) return;
+
         Vector3 spawnPoint = GetSpawnPoint();
         spawnPoint.y += player.GetComponent<CharacterController>().height / 2f;
         player.RespawnOnServer(spawnPoint);
@@ -94,4 +100,6 @@ public class PlayerSpawnController : NetworkBehaviour
     {
         return $"({player.GetName()}-{player.OwnerClientId})";
     }
+
+    public void SetSpawningEnabled(bool enabled) => spawningEnabled = enabled;
 }

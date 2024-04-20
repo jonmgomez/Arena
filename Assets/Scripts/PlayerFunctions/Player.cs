@@ -332,6 +332,10 @@ public class Player : NetworkBehaviour
     IEnumerator StartHealthRegenOnServer()
     {
         yield return new WaitForSeconds(healthRegenDelay);
+
+        if (health <= 0f  || clientSideHealth <= 0f)
+            yield break;
+
         regeneratingHealth = true;
     }
 
@@ -344,6 +348,7 @@ public class Player : NetworkBehaviour
 
     private void RecalculateHealthVignette()
     {
+        Debug.Log("Recalculating health vignette");
         float intensity = (1f - health / maxHealth) * healthVignetteMaxIntensity;
         healthVignette.intensity.value = Mathf.Clamp(intensity, 0f, healthVignetteMaxIntensity);
     }

@@ -7737,7 +7737,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: -103.298035, w: 0}
+  m_margin: {x: 0, y: 0, z: -385.2834, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -13553,7 +13553,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeoutLastPlayerDamaged: 5
   gameStartTimer: 10
-  useCountDownTimer: 1
+  useCountDownTimer: 0
 --- !u!4 &889920927
 Transform:
   m_ObjectHideFlags: 0
@@ -13599,8 +13599,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a180fa2db2e87ad46a6b824870406b56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingTimeLeft: 30
-  scoreToWin: 4
+  startingTimeLeft: 300
+  scoreToWin: 30
 --- !u!1 &895455171
 GameObject:
   m_ObjectHideFlags: 0

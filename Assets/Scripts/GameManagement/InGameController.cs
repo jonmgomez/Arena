@@ -25,6 +25,7 @@ public class InGameController : NetworkBehaviour
 
     public event System.Action OnGameRestart;
     public event System.Action OnGameStart;
+    public event System.Action OnGameEnd;
 
     private bool gameStarted = false;
     private readonly List<Player> acknowledgedPlayers = new();
@@ -218,8 +219,7 @@ public class InGameController : NetworkBehaviour
             gameStartTimer -= Time.deltaTime;
         }
 
-        gameModeController.StartGame();
-        OnGameStart?.Invoke();
+        StartGame();
     }
 
     /// <summary>
@@ -255,17 +255,29 @@ public class InGameController : NetworkBehaviour
 
     public void OnGameEnded()
     {
-        StartCoroutine(RestartGame());
+        OnGameEnd?.Invoke();
+        StartCoroutine(RestartGameTimer());
     }
 
-    private IEnumerator RestartGame()
+    private IEnumerator RestartGameTimer()
     {
         yield return new WaitForSeconds(10f);
 
+        RestartGame();
+    }
+
+    private void StartGame()
+    {
         gameModeController.StartGame();
         OnGameStart?.Invoke();
+    }
+
+    private void RestartGame()
+    {
+        StartGame();
         OnGameRestart?.Invoke();
     }
+
 
     public void GetPlayerMaterial(Player player)
     {
