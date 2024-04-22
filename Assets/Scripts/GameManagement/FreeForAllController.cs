@@ -61,4 +61,7 @@ public class FreeForAllGameMode : GameModeController
 
     public override string GetGameModeName() => "Free For All";
     public override string GetWinConditionDescription() => $"First to {scoreToWin} eliminations wins!";
+
+    public void SetScoreLimit(int score) => scoreToWin = score;
+    public int GetScoreLimit() => scoreToWin;
 }

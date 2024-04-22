@@ -13245,7 +13245,7 @@ MonoBehaviour:
   playerScorePrefab: {fileID: 8676874610340973308, guid: ffd2361059cc2864f928fe9318218fb5,
     type: 3}
   playerScoreOffset: {x: 0, y: 80, z: 0}
-  playerScoreSpacing: 10
+  playerScoreSpacing: 30
   playerScoreParent: {fileID: 1551054694}
 --- !u!43 &819534301
 Mesh:

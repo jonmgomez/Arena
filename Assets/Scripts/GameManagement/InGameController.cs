@@ -50,8 +50,26 @@ public class InGameController : NetworkBehaviour
         scoreBoard = FindObjectOfType<ScoreBoard>(true);
         playerMaterialController = GetComponent<PlayerMaterialController>();
         weaponSpawners = FindObjectsOfType<WeaponSpawner>();
+    }
 
-        gameModeController = GetComponent<FreeForAllGameMode>();
+    private void Start()
+    {
+        GameSetupData gameSetupData = FindObjectOfType<GameSetupData>();
+        if (gameSetupData != null)
+        {
+            gameModeController = GetComponent<FreeForAllGameMode>();
+
+            FreeForAllGameMode freeForAllGameMode = gameModeController as FreeForAllGameMode;
+            freeForAllGameMode.SetMaxTime(gameSetupData.TimeLimit);
+            freeForAllGameMode.SetScoreLimit(gameSetupData.ScoreLimit);
+
+            Destroy(gameSetupData.gameObject);
+        }
+        else
+        {
+            gameModeController = GetComponent<FreeForAllGameMode>();
+        }
+
         scoreBoard.SetGameMode(gameModeController);
     }
 
