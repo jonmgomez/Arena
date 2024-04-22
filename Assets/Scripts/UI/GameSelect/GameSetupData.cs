@@ -1,12 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GameSetupData : MonoBehaviour
 {
-    public GameMode GameMode;
-    public float TimeLimit;
-    public int ScoreLimit;
+    [NonSerialized] public GameMode GameMode;
+    [NonSerialized] public float TimeLimit;
+    [NonSerialized] public int ScoreLimit;
 
     void Start()
     {
