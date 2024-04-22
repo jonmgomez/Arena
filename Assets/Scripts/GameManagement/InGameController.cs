@@ -57,12 +57,20 @@ public class InGameController : NetworkBehaviour
         GameSetupData gameSetupData = FindObjectOfType<GameSetupData>();
         if (gameSetupData != null)
         {
-            gameModeController = GetComponent<FreeForAllGameMode>();
+            switch (gameSetupData.GameMode.Value)
+            {
+                case GameMode.FreeForAll:
+                    gameModeController = GetComponent<FreeForAllGameMode>();
 
-            FreeForAllGameMode freeForAllGameMode = gameModeController as FreeForAllGameMode;
-            freeForAllGameMode.SetMaxTime(gameSetupData.TimeLimit);
-            freeForAllGameMode.SetScoreLimit(gameSetupData.ScoreLimit);
+                    FreeForAllGameMode freeForAllGameMode = gameModeController as FreeForAllGameMode;
+                    freeForAllGameMode.SetMaxTime(gameSetupData.TimeLimit.Value);
+                    freeForAllGameMode.SetScoreLimit(gameSetupData.ScoreLimit.Value);
 
+                    break;
+                default:
+                    logger.LogError($"Game mode {gameSetupData.GameMode} not found");
+                    break;
+            }
             Destroy(gameSetupData.gameObject);
         }
         else

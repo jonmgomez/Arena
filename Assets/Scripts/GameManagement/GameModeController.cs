@@ -4,6 +4,7 @@ using UnityEngine;
 
 public abstract class GameModeController : MonoBehaviour
 {
+    public static float DEFAULT_MAX_TIME = 300f;
     protected readonly Logger logger = new("GAMEMODE");
 
     [SerializeField] private float startingTimeLeft = 300f;

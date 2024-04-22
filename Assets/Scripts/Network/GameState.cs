@@ -142,7 +142,7 @@ public class GameState : NetworkBehaviour
 
                 CheckAllClientsReady();
 
-                InformClientIsSyncedClientRpc(Utility.SendToOneClient(clientId));
+                InformClientIsSyncedClientRpc();
             }
         }
     }
@@ -216,6 +216,7 @@ public class GameState : NetworkBehaviour
     [ClientRpc]
     private void InformClientIsSyncedClientRpc(ClientRpcParams clientRpcParams = default)
     {
+        if (IsServer) return;
         ClientReady?.Invoke(Net.LocalClientId);
     }
 

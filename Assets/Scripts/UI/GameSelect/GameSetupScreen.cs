@@ -10,15 +10,20 @@ public class GameSetupScreen : MonoBehaviour
 {
     private const string JOIN_CODE_TEXT = "Lobby Code: ";
 
-    [SerializeField] private GameSetupData gameSetupData;
     [SerializeField] private GameSetupModeSettings gameModeSettings;
     [SerializeField] private GameSetupPlayerList playerList;
 
+    [SerializeField] private GameObject loadingScreen;
+    [SerializeField] private GameObject gameSetupScreen;
+
     [SerializeField] private Button startButton;
     [SerializeField] private TMP_Dropdown gameModeSelector;
+    [SerializeField] private TMP_Dropdown mapSelector;
     [SerializeField] private TextMeshProUGUI joinCodeText;
 
+    private GameSetupData gameSetupData;
     private RelayManager relay;
+    private bool loading = false;
 
     void Start()
     {
@@ -27,29 +32,63 @@ public class GameSetupScreen : MonoBehaviour
         joinCodeText.text = JOIN_CODE_TEXT + joinCode;
 
         gameModeSelector.onValueChanged.AddListener(OnGameModeChanged);
-
-        List<ClientData> clients = GameState.Instance.GetConnectedClients();
-        foreach (ClientData client in clients)
-        {
-            Debug.Log("Adding player at start: " + client.clientName);
-            playerList.AddPlayer(client.clientName);
-        }
+        gameSetupData = GameSetupData.Instance;
+        gameSetupData.GameMode.OnValueChanged += (value) => gameModeSelector.value = (int) value;
 
         GameState.Instance.ClientReady += (ulong clientId) =>
         {
-            ClientData client = GameState.Instance.GetClientData(clientId);
-
-            if (client.clientName == null)
+            if (loading)
             {
-                Debug.Log("Client name is null");
-                return;
+                Debug.Log("Client ready while loading: " + clientId);
+                if (Net.IsLocalClient(clientId))
+                {
+                    ShowGameSetup();
+                }
             }
+            else
+            {
+                Debug.Log("Client ready: " + clientId);
+                ClientData client = GameState.Instance.GetClientData(clientId);
+                AddPlayerName(client);
+            }
+        };
 
-            playerList.AddPlayer(client.clientName);
+        if (Net.IsClientOnly)
+        {
+            ShowLoading();
+            return;
+        }
+
+        ShowGameSetup();
+    }
+
+    private void ShowLoading()
+    {
+        loading = true;
+        loadingScreen.SetActive(true);
+        gameSetupScreen.SetActive(false);
+    }
+
+    private void ShowGameSetup()
+    {
+        loading = false;
+        loadingScreen.SetActive(false);
+        gameSetupScreen.SetActive(true);
+
+        List<ClientData> clients = GameState.Instance.GetConnectedClients();
+        clients.ForEach(AddPlayerName);
+
+        GameState.Instance.ClientReady += (ulong clientId) =>
+        {
+
         };
 
         if (Net.IsServer)
         {
+            gameModeSelector.interactable = true;
+            mapSelector.interactable = true;
+            gameModeSettings.SetEditable(true);
+
             startButton.gameObject.SetActive(true);
             startButton.onClick.AddListener(() =>
             {
@@ -58,15 +97,28 @@ public class GameSetupScreen : MonoBehaviour
         }
         else
         {
+            gameModeSelector.interactable = false;
+            mapSelector.interactable = false;
+            gameModeSettings.SetEditable(false);
+
             startButton.gameObject.SetActive(false);
         }
+    }
+
+    private void AddPlayerName(ClientData client)
+    {
+        if (client.clientName == null)
+        {
+            Debug.Log("Client name is null");
+            return;
+        }
+        playerList.AddPlayer(client.clientName);
     }
 
     private void OnGameModeChanged(int value)
     {
         GameMode gameMode = (GameMode) value;
         gameModeSettings.SetGameMode(gameMode);
-        gameSetupData.GameMode = gameMode;
     }
 
     public void CopyJoinCode()

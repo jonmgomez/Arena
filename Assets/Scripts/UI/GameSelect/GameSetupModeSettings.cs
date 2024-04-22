@@ -14,59 +14,78 @@ public class GameSetupModeSettings : MonoBehaviour
     [SerializeField] private TMP_InputField scoreLimitTextArea;
 
     private GameSetupData gameSetupData;
+    private bool editable = true;
 
     void Start()
     {
-        gameSetupData = FindObjectOfType<GameSetupData>();
+        gameSetupData = GameSetupData.Instance;
+
+        SetTimeLimitValue(DEFAULT_TIME_LIMIT);
+        SetScoreLimitValue(DEFAULT_SCORE_LIMIT);
 
         timeLimitTextArea.onEndEdit.AddListener(SetTimeLimit);
+        gameSetupData.TimeLimit.OnValueChanged += (value) => { timeLimitTextArea.text = value.ToString(); };
         scoreLimitTextArea.onEndEdit.AddListener(SetScoreLimit);
+        gameSetupData.ScoreLimit.OnValueChanged += (value) => { scoreLimitTextArea.text = value.ToString(); };
     }
 
     public void SetGameMode(GameMode gameMode)
     {
-        gameSetupData.GameMode = gameMode;
+        gameSetupData.GameMode.Value = gameMode;
+    }
+
+    public void SetTimeLimitValue(int value)
+    {
+        gameSetupData.TimeLimit.Value = value;
+        timeLimitTextArea.text = value.ToString();
+    }
+
+    private void SetScoreLimitValue(int value)
+    {
+        gameSetupData.ScoreLimit.Value = value;
+        scoreLimitTextArea.text = value.ToString();
     }
 
     public void SetTimeLimit(string time)
     {
         if (time == "")
         {
-            gameSetupData.TimeLimit = DEFAULT_TIME_LIMIT;
-            timeLimitTextArea.text = DEFAULT_TIME_LIMIT.ToString();
+            SetTimeLimitValue(DEFAULT_TIME_LIMIT);
             return;
         }
 
         int timeLimit = System.Convert.ToInt32(time);
         if (timeLimit < MINIMUM_TIME_LIMIT)
         {
-            gameSetupData.TimeLimit = MINIMUM_TIME_LIMIT;
-            timeLimitTextArea.text = MINIMUM_TIME_LIMIT.ToString();
+            SetTimeLimitValue(MINIMUM_TIME_LIMIT);
             return;
         }
 
-        gameSetupData.TimeLimit = timeLimit;
-        timeLimitTextArea.text = timeLimit.ToString();
+        SetTimeLimitValue(timeLimit);
     }
 
     public void SetScoreLimit(string score)
     {
         if (score == "")
         {
-            gameSetupData.ScoreLimit = DEFAULT_SCORE_LIMIT;
-            scoreLimitTextArea.text = DEFAULT_SCORE_LIMIT.ToString();
+            SetScoreLimitValue(DEFAULT_SCORE_LIMIT);
             return;
         }
 
         int scoreLimit = System.Convert.ToInt32(score);
         if (scoreLimit < MINIMUM_SCORE_LIMIT)
         {
-            gameSetupData.ScoreLimit = MINIMUM_SCORE_LIMIT;
-            scoreLimitTextArea.text = MINIMUM_SCORE_LIMIT.ToString();
+            SetScoreLimitValue(MINIMUM_SCORE_LIMIT);
             return;
         }
 
-        gameSetupData.ScoreLimit = scoreLimit;
-        scoreLimitTextArea.text = scoreLimit.ToString();
+        SetScoreLimitValue(scoreLimit);
+    }
+
+    public void SetEditable(bool value)
+    {
+        editable = value;
+        timeLimitTextArea.interactable = value;
+        scoreLimitTextArea.interactable = value;
     }
 }

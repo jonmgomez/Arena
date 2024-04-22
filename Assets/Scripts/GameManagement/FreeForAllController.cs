@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class FreeForAllGameMode : GameModeController
 {
+    public static int DEFAULT_SCORE_LIMIT = 30;
+
     [SerializeField] private int scoreToWin = 30;
 
     void Update()
