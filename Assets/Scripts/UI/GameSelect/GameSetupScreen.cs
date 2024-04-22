@@ -1,7 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameSetupScreen : MonoBehaviour
 {
@@ -11,6 +14,7 @@ public class GameSetupScreen : MonoBehaviour
     [SerializeField] private GameSetupModeSettings gameModeSettings;
     [SerializeField] private GameSetupPlayerList playerList;
 
+    [SerializeField] private Button startButton;
     [SerializeField] private TMP_Dropdown gameModeSelector;
     [SerializeField] private TextMeshProUGUI joinCodeText;
 
@@ -43,6 +47,19 @@ public class GameSetupScreen : MonoBehaviour
 
             playerList.AddPlayer(client.clientName);
         };
+
+        if (Net.IsServer)
+        {
+            startButton.gameObject.SetActive(true);
+            startButton.onClick.AddListener(() =>
+            {
+                NetworkManager.Singleton.SceneManager.LoadScene("ArenaMain", LoadSceneMode.Single);
+            });
+        }
+        else
+        {
+            startButton.gameObject.SetActive(false);
+        }
     }
 
     private void OnGameModeChanged(int value)
