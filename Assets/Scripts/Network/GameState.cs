@@ -136,6 +136,7 @@ public class GameState : NetworkBehaviour
         {
             if (clientNetwork.IsClientSynced(clientId) && clientNameSynchronizer.IsClientSynced(clientId))
             {
+                logger.Log($"Client {clientId} is ready");
                 ClientReady?.Invoke(clientId);
                 OnClientReady(clientId);
 

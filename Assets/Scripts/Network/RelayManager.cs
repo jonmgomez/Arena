@@ -17,10 +17,13 @@ public class RelayManager : MonoBehaviour
     [Header("Debug")]
     [SerializeField] bool useRelay = true;
 
+    private string joinCode;
+
     public event System.Action<string> OnJoinCodeGenerated;
 
     private async void Start()
     {
+        DontDestroyOnLoad(gameObject);
         await UnityServices.InitializeAsync();
 
         AuthenticationService.Instance.SignedIn += () =>
@@ -36,7 +39,7 @@ public class RelayManager : MonoBehaviour
         {
             Allocation allocation =  await RelayService.Instance.CreateAllocationAsync(3);
 
-            string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+            joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
             logger.Log($"[SERVER] Created relay with code {joinCode}");
 
             RelayServerData serverData = new(allocation, "dtls");
@@ -46,6 +49,7 @@ public class RelayManager : MonoBehaviour
                 NetworkManager.Singleton.StartHost();
             else
                 NetworkManager.Singleton.StartServer();
+
 
             OnJoinCodeGenerated?.Invoke(joinCode);
         }
@@ -65,6 +69,7 @@ public class RelayManager : MonoBehaviour
             RelayServerData serverData = new(joinAllocation, "dtls");
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(serverData);
             NetworkManager.Singleton.StartClient();
+            this.joinCode = joinCode;
         }
         catch (RelayServiceException e)
         {
@@ -73,4 +78,5 @@ public class RelayManager : MonoBehaviour
     }
 
     public bool UsingRelay() => useRelay;
+    public string GetJoinCode() => joinCode;
 }

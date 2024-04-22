@@ -31,7 +31,8 @@ public class MainMenu : MonoBehaviour
             if (relay.UsingRelay())
             {
                 relay.OnJoinCodeGenerated += (joinCode) => {
-                    EnableServerReadyInterface(joinCode);
+                    // EnableServerReadyInterface(joinCode);
+                    SceneManager.LoadScene("GameSelect", LoadSceneMode.Single);
                 };
                 relay.CreateRelay();
             }
@@ -48,7 +49,8 @@ public class MainMenu : MonoBehaviour
             if (relay.UsingRelay())
             {
                 relay.OnJoinCodeGenerated += (joinCode) => {
-                    EnableServerReadyInterface(joinCode);
+                    // EnableServerReadyInterface(joinCode);
+                    SceneManager.LoadScene("GameSelect", LoadSceneMode.Single);
                 };
                 relay.CreateRelay(false);
             }
@@ -149,7 +151,11 @@ public class MainMenu : MonoBehaviour
         joinCodeInput.gameObject.SetActive(false);
 
         clientConnectingMessage.SetActive(true);
-        ClientNetwork.Instance.OnConnectToServer += EnableClientConnectedInterface;
+        GameState.Instance.ClientReady += (ulong clientId) =>
+        {
+            if (clientId == Net.LocalClientId)
+                SceneManager.LoadScene("GameSelect", LoadSceneMode.Single);
+        }; // EnableClientConnectedInterface;
     }
 
     private void EnableClientConnectedInterface(ulong clientId)
