@@ -31,8 +31,7 @@ public class MainMenu : MonoBehaviour
             if (relay.UsingRelay())
             {
                 relay.OnJoinCodeGenerated += (joinCode) => {
-                    // EnableServerReadyInterface(joinCode);
-                    NetworkManager.Singleton.SceneManager.LoadScene("GameSelect", LoadSceneMode.Single);
+                    SceneLoader.LoadSceneNetworked(Scene.GameSelect);
                 };
                 relay.CreateRelay();
             }
@@ -49,8 +48,7 @@ public class MainMenu : MonoBehaviour
             if (relay.UsingRelay())
             {
                 relay.OnJoinCodeGenerated += (joinCode) => {
-                    // EnableServerReadyInterface(joinCode);
-                    NetworkManager.Singleton.SceneManager.LoadScene("GameSelect", LoadSceneMode.Single);
+                    SceneLoader.LoadSceneNetworked(Scene.GameSelect);
                 };
                 relay.CreateRelay(false);
             }
@@ -91,7 +89,7 @@ public class MainMenu : MonoBehaviour
 
         startButton.onClick.AddListener(() =>
         {
-            NetworkManager.Singleton.SceneManager.LoadScene("ArenaMain", LoadSceneMode.Single);
+            SceneLoader.LoadSceneNetworked(Scene.Arena);
         });
     }
 

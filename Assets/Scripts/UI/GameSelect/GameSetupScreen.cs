@@ -104,7 +104,7 @@ public class GameSetupScreen : MonoBehaviour
             startButton.gameObject.SetActive(true);
             startButton.onClick.AddListener(() =>
             {
-                NetworkManager.Singleton.SceneManager.LoadScene("ArenaMain", LoadSceneMode.Single);
+                SceneLoader.LoadSceneNetworked(Scene.Arena);
             });
         }
         else
@@ -150,6 +150,6 @@ public class GameSetupScreen : MonoBehaviour
         ClientNetwork.Instance.OnSelfDisconnect -= OnSelfDisconnect;
         Destroy(gameSetupData.gameObject);
 
-        SceneManager.LoadScene("MainMenu");
+        SceneLoader.LoadScene(Scene.MainMenu);
     }
 }
