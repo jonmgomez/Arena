@@ -17,6 +17,7 @@ public class GameSetupScreen : MonoBehaviour
     [SerializeField] private GameObject gameSetupScreen;
 
     [SerializeField] private Button startButton;
+    [SerializeField] private Button exitButton;
     [SerializeField] private TMP_Dropdown gameModeSelector;
     [SerializeField] private TMP_Dropdown mapSelector;
     [SerializeField] private TextMeshProUGUI joinCodeText;
@@ -35,26 +36,9 @@ public class GameSetupScreen : MonoBehaviour
         gameSetupData = FindObjectOfType<GameSetupData>();
         gameSetupData.GameMode.OnValueChanged += (value) => gameModeSelector.value = (int) value;
 
-        GameState.Instance.ClientReady += (ulong clientId) =>
-        {
-            if (loading)
-            {
-                if (Net.IsLocalClient(clientId))
-                {
-                    ShowGameSetup();
-                }
-            }
-            else
-            {
-                ClientData client = GameState.Instance.GetClientData(clientId);
-                AddPlayerName(client);
-            }
-        };
-
-        ClientNetwork.Instance.OnClientDisconnected += (ulong clientId) =>
-        {
-            playerList.RemovePlayer(clientId);
-        };
+        GameState.Instance.ClientReady += OnClientReady;
+        ClientNetwork.Instance.OnClientDisconnected += OnClientDisconnect;
+        ClientNetwork.Instance.OnSelfDisconnect += OnSelfDisconnect;
 
         // Clients need to wait for the server to notify them that they have properly synced first.
         // Known through invoking the ClientReady event with the local client's ID.
@@ -66,6 +50,32 @@ public class GameSetupScreen : MonoBehaviour
         }
 
         ShowGameSetup();
+    }
+
+    private void OnClientReady(ulong clientId)
+    {
+        if (loading)
+        {
+            if (Net.IsLocalClient(clientId))
+            {
+                ShowGameSetup();
+            }
+        }
+        else
+        {
+            ClientData client = GameState.Instance.GetClientData(clientId);
+            AddPlayerName(client);
+        }
+    }
+
+    private void OnClientDisconnect(ulong clientId)
+    {
+        playerList.RemovePlayer(clientId);
+    }
+
+    private void OnSelfDisconnect(bool wasServer)
+    {
+        ExitBackToMainMenu(false);
     }
 
     private void ShowLoading()
@@ -84,6 +94,7 @@ public class GameSetupScreen : MonoBehaviour
         List<ClientData> clients = GameState.Instance.GetConnectedClients();
         clients.ForEach(AddPlayerName);
 
+        exitButton.onClick.AddListener(() => ExitBackToMainMenu());
         if (Net.IsServer)
         {
             gameModeSelector.interactable = true;
@@ -125,5 +136,20 @@ public class GameSetupScreen : MonoBehaviour
     public void CopyJoinCode()
     {
         GUIUtility.systemCopyBuffer = relay.GetJoinCode();
+    }
+
+    public void ExitBackToMainMenu(bool disconnect = true)
+    {
+        if (disconnect) // In case we get disconnected unintentionally
+        {
+            NetworkManager.Singleton.Shutdown();
+        }
+
+        GameState.Instance.ClientReady -= OnClientReady;
+        ClientNetwork.Instance.OnClientDisconnected -= OnClientDisconnect;
+        ClientNetwork.Instance.OnSelfDisconnect -= OnSelfDisconnect;
+        Destroy(gameSetupData.gameObject);
+
+        SceneManager.LoadScene("MainMenu");
     }
 }

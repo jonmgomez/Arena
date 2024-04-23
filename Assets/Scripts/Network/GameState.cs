@@ -65,6 +65,12 @@ public class GameState : NetworkBehaviour
         clientNetwork.ClientSynced += ClientNetworkSynced;
         clientNetwork.WaitingForClient += ClientsNoLongerReady;
         clientNetwork.OnClientDisconnected += OnClientDisconnect;
+        clientNetwork.OnSelfDisconnect += (bool wasServer) =>
+        {
+            connectedClients.Clear();
+            clientNetwork.Reset();
+            clientNameSynchronizer.Reset();
+        };
 
         clientNameSynchronizer = GetComponent<ClientNamesSynchronizer>();
         clientNameSynchronizer.ClientSynced += ClientNamesSynced;
@@ -181,6 +187,8 @@ public class GameState : NetworkBehaviour
     {
         if (inGameScene) // Clients only have a player prefab in in-game scenes
             DespawnClientPlayerPrefab(clientId);
+        else
+            RemoveClient(clientId);
     }
 
     private void SpawnClientPlayerPrefab(ulong clientId)
@@ -224,6 +232,13 @@ public class GameState : NetworkBehaviour
     public void SetLocalClientName(string name)
     {
         clientNameSynchronizer.SetLocalClientName(name);
+    }
+
+    private void RemoveClient(ulong clientId)
+    {
+        ClientData client = FindClient(clientId);
+        if (client != null)
+            connectedClients.Remove(client);
     }
 
     public List<Player> GetActivePlayers()

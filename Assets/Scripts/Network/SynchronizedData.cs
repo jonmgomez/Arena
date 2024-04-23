@@ -171,4 +171,10 @@ public class SynchronizedData : NetworkBehaviour
         WaitingForClient?.Invoke(clientId);
         ClientSynced?.Invoke(clientId);
     }
+
+    public void Reset()
+    {
+        syncingNewClient.Clear();
+        syncingCurrentClients.Clear();
+    }
 }

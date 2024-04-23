@@ -17,6 +17,7 @@ public class ClientNetwork : SynchronizedData
     public event Action<ulong> OnClientConnected;
     public event Action<ulong> OnClientConnectedAndReady;
     public event Action<ulong> OnClientDisconnected;
+    public event Action<bool> OnSelfDisconnect;
 
     public ClientNetwork()
     {
@@ -43,6 +44,7 @@ public class ClientNetwork : SynchronizedData
         {
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnect;
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
+            NetworkManager.Singleton.OnClientStopped += OnClientStopped;
         }
         else
         {
@@ -110,6 +112,12 @@ public class ClientNetwork : SynchronizedData
         }
 
         OnClientDisconnected?.Invoke(clientId);
+    }
+
+    private void OnClientStopped(bool wasServer)
+    {
+        logger.Log("Client disconnected from server");
+        OnSelfDisconnect?.Invoke(wasServer);
     }
 
     [ClientRpc]
