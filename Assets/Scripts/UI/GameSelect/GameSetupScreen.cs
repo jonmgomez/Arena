@@ -53,9 +53,12 @@ public class GameSetupScreen : MonoBehaviour
             }
         };
 
+        // Clients need to wait for the server to notify them that they have properly synced first.
+        // Known through invoking the ClientReady event with the local client's ID.
         if (Net.IsClientOnly)
         {
             ShowLoading();
+            gameSetupData.SyncData();
             return;
         }
 

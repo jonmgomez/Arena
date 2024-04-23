@@ -216,7 +216,7 @@ public class GameState : NetworkBehaviour
     [ClientRpc]
     private void InformClientIsSyncedClientRpc(ClientRpcParams clientRpcParams = default)
     {
-        if (IsServer) return;
+        if (IsServer) return; // Server has already notified itself
         ClientReady?.Invoke(Net.LocalClientId);
     }
 

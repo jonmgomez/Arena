@@ -71,7 +71,7 @@ public class GameSetupData : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void UpdateVariableClientRpc(int variableCode, double value)
+    private void UpdateVariableClientRpc(int variableCode, double value, ClientRpcParams clientRpcParams = default)
     {
         if (IsServer) return;
 
@@ -87,5 +87,21 @@ public class GameSetupData : NetworkBehaviour
                 ScoreLimit.Value = (int)value;
                 break;
         }
+    }
+
+    public void SyncData()
+    {
+        if (IsClient)
+        {
+            RequestGameSettingsServerRpc(Net.LocalClientId);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void RequestGameSettingsServerRpc(ulong clientId)
+    {
+        UpdateVariableClientRpc(0, (double)GameMode.Value, Utility.SendToOneClient(clientId));
+        UpdateVariableClientRpc(1, (double)TimeLimit.Value, Utility.SendToOneClient(clientId));
+        UpdateVariableClientRpc(2, (double)ScoreLimit.Value, Utility.SendToOneClient(clientId));
     }
 }
