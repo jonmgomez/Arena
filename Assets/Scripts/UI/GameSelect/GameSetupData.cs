@@ -37,21 +37,12 @@ public class GameSetupData : NetworkBehaviour
         }
     }
 
-    public static GameSetupData Instance { get; private set; }
-
     public GameSetupVariable<GameMode> GameMode = null; // 0
     public GameSetupVariable<float> TimeLimit = null; // 1
     public GameSetupVariable<int> ScoreLimit = null; // 2
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(this);
-            return;
-        }
-        Instance = this;
-
         GameMode = new GameSetupVariable<GameMode>(this);
         TimeLimit = new GameSetupVariable<float>(this);
         ScoreLimit = new GameSetupVariable<int>(this);
@@ -89,7 +80,7 @@ public class GameSetupData : NetworkBehaviour
         }
     }
 
-    public void SyncData()
+    public void SyncCurrentData()
     {
         if (IsClient)
         {

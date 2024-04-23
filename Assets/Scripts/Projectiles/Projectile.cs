@@ -119,7 +119,6 @@ public class Projectile : MonoBehaviour
                             Vector3.Distance(previousPosition, transform.position),
                             collisionMask))
         {
-            Debug.Log("Missed collision detected");
             OnCollision(hit.collider, hit);
         }
     }
@@ -146,7 +145,6 @@ public class Projectile : MonoBehaviour
             {
                 if (calculateCollisions)
                 {
-                    Debug.Log("Hit player collider: " + collider.name);
                     bool headShot = player.IsHeadCollider(collider);
 
                     float damageToDeal = headShot ? damage * headShotDamageMultiplier : damage;

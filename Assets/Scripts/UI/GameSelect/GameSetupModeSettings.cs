@@ -18,7 +18,7 @@ public class GameSetupModeSettings : MonoBehaviour
 
     void Start()
     {
-        gameSetupData = GameSetupData.Instance;
+        gameSetupData =  FindObjectOfType<GameSetupData>();
 
         SetTimeLimitValue(DEFAULT_TIME_LIMIT);
         SetScoreLimitValue(DEFAULT_SCORE_LIMIT);

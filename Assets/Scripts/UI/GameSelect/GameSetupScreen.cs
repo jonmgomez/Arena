@@ -32,14 +32,13 @@ public class GameSetupScreen : MonoBehaviour
         joinCodeText.text = JOIN_CODE_TEXT + joinCode;
 
         gameModeSelector.onValueChanged.AddListener(OnGameModeChanged);
-        gameSetupData = GameSetupData.Instance;
+        gameSetupData = FindObjectOfType<GameSetupData>();
         gameSetupData.GameMode.OnValueChanged += (value) => gameModeSelector.value = (int) value;
 
         GameState.Instance.ClientReady += (ulong clientId) =>
         {
             if (loading)
             {
-                Debug.Log("Client ready while loading: " + clientId);
                 if (Net.IsLocalClient(clientId))
                 {
                     ShowGameSetup();
@@ -47,10 +46,14 @@ public class GameSetupScreen : MonoBehaviour
             }
             else
             {
-                Debug.Log("Client ready: " + clientId);
                 ClientData client = GameState.Instance.GetClientData(clientId);
                 AddPlayerName(client);
             }
+        };
+
+        ClientNetwork.Instance.OnClientDisconnected += (ulong clientId) =>
+        {
+            playerList.RemovePlayer(clientId);
         };
 
         // Clients need to wait for the server to notify them that they have properly synced first.
@@ -58,7 +61,7 @@ public class GameSetupScreen : MonoBehaviour
         if (Net.IsClientOnly)
         {
             ShowLoading();
-            gameSetupData.SyncData();
+            gameSetupData.SyncCurrentData(); // Upon joining, sync to the server's current data.
             return;
         }
 
@@ -80,11 +83,6 @@ public class GameSetupScreen : MonoBehaviour
 
         List<ClientData> clients = GameState.Instance.GetConnectedClients();
         clients.ForEach(AddPlayerName);
-
-        GameState.Instance.ClientReady += (ulong clientId) =>
-        {
-
-        };
 
         if (Net.IsServer)
         {
@@ -112,10 +110,10 @@ public class GameSetupScreen : MonoBehaviour
     {
         if (client.clientName == null)
         {
-            Debug.Log("Client name is null");
+            Logger.Default.Log("Client name is null");
             return;
         }
-        playerList.AddPlayer(client.clientName);
+        playerList.AddPlayer(client.clientId, client.clientName);
     }
 
     private void OnGameModeChanged(int value)

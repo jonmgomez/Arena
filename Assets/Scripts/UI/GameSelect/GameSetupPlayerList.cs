@@ -10,7 +10,7 @@ public class GameSetupPlayerList : MonoBehaviour
     [SerializeField] private float initialYOffset = 0f;
     [SerializeField] private float playerGapBetween = 10f;
 
-    private readonly List<TextMeshProUGUI> playerTexts = new();
+    private readonly Dictionary<ulong, TextMeshProUGUI> playerTexts = new();
     private float currentGap = 0;
 
     private void Start()
@@ -18,7 +18,7 @@ public class GameSetupPlayerList : MonoBehaviour
         currentGap = initialYOffset;
     }
 
-    public void AddPlayer(string playerName)
+    public void AddPlayer(ulong clientId, string playerName)
     {
         TextMeshProUGUI playerText = Instantiate(playerTextPrefab, transform);
         playerText.text = playerName;
@@ -26,7 +26,24 @@ public class GameSetupPlayerList : MonoBehaviour
         playerText.transform.localPosition = new Vector3(0, currentGap, 0);
         currentGap -= playerGapBetween;
 
-        playerTexts.Add(playerText);
+        playerTexts[clientId] = playerText;
         playerCountText.text = "Players: " + playerTexts.Count.ToString();
+    }
+
+    public void RemovePlayer(ulong clientId)
+    {
+        if (playerTexts.ContainsKey(clientId))
+        {
+            Destroy(playerTexts[clientId].gameObject);
+            playerTexts.Remove(clientId);
+            playerCountText.text = "Players: " + playerTexts.Count.ToString();
+
+            currentGap = initialYOffset;
+            foreach (var playerText in playerTexts.Values)
+            {
+                playerText.transform.localPosition = new Vector3(0, currentGap, 0);
+                currentGap -= playerGapBetween;
+            }
+        }
     }
 }
