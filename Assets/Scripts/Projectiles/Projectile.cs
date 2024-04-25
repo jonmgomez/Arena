@@ -22,7 +22,10 @@ public class Projectile : MonoBehaviour
     [SerializeField] private float maxDistance = 100f;
 
     [Header("Effects")]
+    [SerializeField] private ParticleSystem concreteImpactEffect;
     [SerializeField] private ParticleSystem metalImpactEffect;
+    [SerializeField] private ParticleSystem woodImpactEffect;
+    [SerializeField] private ParticleSystem sandImpactEffect;
     [SerializeField] private ParticleSystem humanImpactEffect;
 
     [Header("Debug")]
@@ -162,14 +165,12 @@ public class Projectile : MonoBehaviour
                     ownerPlayer.DealtDamage(player, damageToDeal, headShot);
                 }
 
-                var hitEffect = Instantiate(humanImpactEffect, hitPoint, quaternion.identity);
-                hitEffect.transform.LookAt(hitPoint + normal);
+                SpawnImpactEffect(hitPoint, normal, "Player");
             }
         }
         else
         {
-            var hitEffect = Instantiate(metalImpactEffect, hitPoint, quaternion.identity);
-            hitEffect.transform.LookAt(hitPoint + normal);
+            SpawnImpactEffect(hitPoint, normal, LayerMask.LayerToName(collider.gameObject.layer));
         }
 
         if (!hitScan)
@@ -179,6 +180,24 @@ public class Projectile : MonoBehaviour
             // but it seems responsive enough for the time being.
             Destroy(gameObject);
             destroyed = true;
+        }
+    }
+
+    private void SpawnImpactEffect(Vector3 hitPoint, Vector3 normal, string layerName)
+    {
+        ParticleSystem impactEffect = layerName switch
+        {
+            "Concrete" => Instantiate(concreteImpactEffect, hitPoint, quaternion.identity),
+            "Metal" => Instantiate(metalImpactEffect, hitPoint, quaternion.identity),
+            "Wood" => Instantiate(woodImpactEffect, hitPoint, quaternion.identity),
+            "Sand" => Instantiate(sandImpactEffect, hitPoint, quaternion.identity),
+            "Player" => Instantiate(humanImpactEffect, hitPoint, quaternion.identity),
+            // Default to concrete
+            _ => Instantiate(concreteImpactEffect, hitPoint, quaternion.identity),
+        };
+        if (impactEffect != null)
+        {
+            impactEffect.transform.LookAt(hitPoint + normal);
         }
     }
 

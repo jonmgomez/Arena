@@ -163,11 +163,15 @@ MonoBehaviour:
   speed: 500
   collisionMask:
     serializedVersion: 2
-    m_Bits: 255
+    m_Bits: 7935
   impactForce: 50
   hitScan: 1
   startFromBarrel: 1
   maxDistance: 100
-  metalImpactEffect: {fileID: 19800006, guid: 94a130fb17f1cae4388a8fe1d8bd3055, type: 3}
+  concreteImpactEffect: {fileID: 19800006, guid: 94a130fb17f1cae4388a8fe1d8bd3055,
+    type: 3}
+  metalImpactEffect: {fileID: 19800002, guid: 627bfa08ce624ab40ab2fea71785b5f0, type: 3}
+  woodImpactEffect: {fileID: 19800000, guid: 053ffbc5e89111349bb060a39ffa0f37, type: 3}
+  sandImpactEffect: {fileID: 19800002, guid: 0b24f31f464fa614a84acdeac974ed6b, type: 3}
   humanImpactEffect: {fileID: 19800000, guid: 943b1af2bdcba8e4f984b6b78cff5737, type: 3}
   showHitScanRay: 0
