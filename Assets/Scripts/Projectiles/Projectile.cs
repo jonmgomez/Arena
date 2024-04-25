@@ -164,14 +164,10 @@ public class Projectile : MonoBehaviour
 
                     ownerPlayer.DealtDamage(player, damageToDeal, headShot);
                 }
-
-                SpawnImpactEffect(hitPoint, normal, "Player");
             }
         }
-        else
-        {
-            SpawnImpactEffect(hitPoint, normal, LayerMask.LayerToName(collider.gameObject.layer));
-        }
+
+        SpawnImpactEffect(hitPoint, normal, LayerMask.LayerToName(collider.gameObject.layer));
 
         if (!hitScan)
         {

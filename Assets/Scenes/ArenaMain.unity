@@ -299,13 +299,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.36043444, z: -0, w: 0.93278456}
-  m_LocalPosition: {x: -6.03, y: 2.99, z: -7.02}
+  m_LocalRotation: {x: 0.058393545, y: -0.9230835, z: 0.14579582, w: 0.35107064}
+  m_LocalPosition: {x: 17.89, y: 13.34, z: 16.192}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 42.254, z: 0}
+  m_LocalEulerAnglesHint: {x: 18.069, y: -138.406, z: -0.328}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2682,6 +2682,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Game State
       objectReference: {fileID: 0}
+    - target: {fileID: 8818963454983519788, guid: ec234a8fd53c9b847b290055adec840d,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3022,6 +3027,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 8515636202857071918, guid: ecfaf14003fdcb64689636ea922db7ce,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

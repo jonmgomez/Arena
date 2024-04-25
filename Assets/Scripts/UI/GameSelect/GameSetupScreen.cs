@@ -20,7 +20,10 @@ public class GameSetupScreen : MonoBehaviour
     [SerializeField] private Button exitButton;
     [SerializeField] private TMP_Dropdown gameModeSelector;
     [SerializeField] private TMP_Dropdown mapSelector;
+    [SerializeField] private Image mapImage;
     [SerializeField] private TextMeshProUGUI joinCodeText;
+
+    [SerializeField] private List<Sprite> mapImages;
 
     private GameSetupData gameSetupData;
     private RelayManager relay;
@@ -37,7 +40,7 @@ public class GameSetupScreen : MonoBehaviour
         gameModeSelector.onValueChanged.AddListener(OnGameModeChanged);
         gameSetupData = FindObjectOfType<GameSetupData>();
         gameSetupData.GameMode.OnValueChanged += (value) => gameModeSelector.value = (int) value;
-        gameSetupData.Map.OnValueChanged += (value) => mapSelector.value = (int) value;
+        gameSetupData.Map.OnValueChanged += (value) => { mapSelector.value = (int) value; mapImage.sprite = mapImages[(int) value]; };
 
         GameState.Instance.ClientReady += OnClientReady;
         ClientNetwork.Instance.OnClientDisconnected += OnClientDisconnect;
@@ -53,6 +56,13 @@ public class GameSetupScreen : MonoBehaviour
         }
 
         ShowGameSetup();
+    }
+
+    void OnDestroy()
+    {
+        GameState.Instance.ClientReady -= OnClientReady;
+        ClientNetwork.Instance.OnClientDisconnected -= OnClientDisconnect;
+        ClientNetwork.Instance.OnSelfDisconnect -= OnSelfDisconnect;
     }
 
     private void OnClientReady(ulong clientId)
@@ -140,6 +150,7 @@ public class GameSetupScreen : MonoBehaviour
     {
         Scene scene = (Scene) value;
         gameSetupData.Map.Value = scene;
+        mapImage.sprite = mapImages[value];
     }
 
     public void CopyJoinCode()
