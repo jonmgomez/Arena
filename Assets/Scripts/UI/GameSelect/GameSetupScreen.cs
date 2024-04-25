@@ -32,9 +32,12 @@ public class GameSetupScreen : MonoBehaviour
         string joinCode = relay.GetJoinCode();
         joinCodeText.text = JOIN_CODE_TEXT + joinCode;
 
+        mapSelector.onValueChanged.AddListener(OnMapChanged);
+
         gameModeSelector.onValueChanged.AddListener(OnGameModeChanged);
         gameSetupData = FindObjectOfType<GameSetupData>();
         gameSetupData.GameMode.OnValueChanged += (value) => gameModeSelector.value = (int) value;
+        gameSetupData.Map.OnValueChanged += (value) => mapSelector.value = (int) value;
 
         GameState.Instance.ClientReady += OnClientReady;
         ClientNetwork.Instance.OnClientDisconnected += OnClientDisconnect;
@@ -104,7 +107,7 @@ public class GameSetupScreen : MonoBehaviour
             startButton.gameObject.SetActive(true);
             startButton.onClick.AddListener(() =>
             {
-                SceneLoader.LoadSceneNetworked(Scene.Arena);
+                SceneLoader.LoadSceneNetworked(gameSetupData.Map.Value);
             });
         }
         else
@@ -131,6 +134,12 @@ public class GameSetupScreen : MonoBehaviour
     {
         GameMode gameMode = (GameMode) value;
         gameModeSettings.SetGameMode(gameMode);
+    }
+
+    private void OnMapChanged(int value)
+    {
+        Scene scene = (Scene) value;
+        gameSetupData.Map.Value = scene;
     }
 
     public void CopyJoinCode()

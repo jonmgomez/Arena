@@ -31,6 +31,7 @@ public class GameState : NetworkBehaviour
 
     // Is this is a in-game scene or a lobby/menu
     bool inGameScene = false;
+    string currentScene = "";
 
     public override void OnNetworkSpawn()
     {
@@ -97,6 +98,9 @@ public class GameState : NetworkBehaviour
                                             List<ulong> clientsCompleted,
                                             List<ulong> clientsTimedOut)
     {
+        if (currentScene == sceneName) return;
+        currentScene = sceneName;
+
         logger.Log($"Networked load scene complete. {sceneName} loaded. {clientsCompleted.Count} clients connected. {clientsTimedOut.Count} clients timed out.");
 
         if (IsServer)

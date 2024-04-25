@@ -6,9 +6,12 @@ using UnityEngine.SceneManagement;
 
 public enum Scene
 {
-    MainMenu,
+    // MENU SCENES
+    MainMenu = -2147483647,
     GameSelect,
-    Arena,
+
+    // IN GAME SCENES
+    Arena = 0,
     Prototype
 }
 
@@ -38,6 +41,7 @@ public class SceneLoader : MonoBehaviour
 
     private static string GetSceneName(Scene scene)
     {
+        Debug.Log("Loading scene: " + scene);
         switch (scene)
         {
             case Scene.MainMenu:

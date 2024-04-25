@@ -50,10 +50,7 @@ public class InGameController : NetworkBehaviour
         scoreBoard = FindObjectOfType<ScoreBoard>(true);
         playerMaterialController = GetComponent<PlayerMaterialController>();
         weaponSpawners = FindObjectsOfType<WeaponSpawner>();
-    }
 
-    private void Start()
-    {
         GameSetupData gameSetupData = FindObjectOfType<GameSetupData>();
         if (gameSetupData != null)
         {
@@ -77,7 +74,10 @@ public class InGameController : NetworkBehaviour
         {
             gameModeController = GetComponent<FreeForAllGameMode>();
         }
+    }
 
+    private void Start()
+    {
         scoreBoard.SetGameMode(gameModeController);
     }
 

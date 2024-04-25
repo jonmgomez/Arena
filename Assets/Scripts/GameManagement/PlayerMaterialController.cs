@@ -10,7 +10,7 @@ public class PlayerMaterialController : NetworkBehaviour
     private readonly Dictionary<ulong, int> playerMaterials = new();
     private readonly List<Material> availableMaterials = new();
 
-    void Start()
+    void Awake()
     {
         availableMaterials.AddRange(materials);
     }
@@ -24,6 +24,7 @@ public class PlayerMaterialController : NetworkBehaviour
     private void RequestMaterialServerRpc(ulong requestClientId, ulong clientId)
     {
         Debug.Assert(availableMaterials.Count > 0, "No materials available to choose from");
+        Debug.Log($"Requesting material for client {clientId}");
 
         if (playerMaterials.ContainsKey(clientId))
         {

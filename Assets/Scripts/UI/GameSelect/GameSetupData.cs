@@ -15,7 +15,7 @@ public class GameSetupData : NetworkBehaviour
     public class GameSetupVariable<T>
     {
         private readonly GameSetupData dataContainer;
-        public readonly int variableCode;
+        public readonly int VariableCode;
         private T value;
         public T Value
         {
@@ -23,7 +23,7 @@ public class GameSetupData : NetworkBehaviour
             set
             {
                 this.value = value;
-                dataContainer.VariableChanged(variableCode, Convert.ToDouble(value));
+                dataContainer.VariableChanged(VariableCode, Convert.ToDouble(value));
                 OnValueChanged?.Invoke(value);
             }
         }
@@ -33,16 +33,18 @@ public class GameSetupData : NetworkBehaviour
         public GameSetupVariable(GameSetupData gameSetupData)
         {
             dataContainer = gameSetupData;
-            variableCode = variableCodeCounter++;
+            VariableCode = variableCodeCounter++;
         }
     }
 
-    public GameSetupVariable<GameMode> GameMode = null; // 0
-    public GameSetupVariable<float> TimeLimit = null; // 1
-    public GameSetupVariable<int> ScoreLimit = null; // 2
+    public GameSetupVariable<Scene> Map = null;
+    public GameSetupVariable<GameMode> GameMode = null;
+    public GameSetupVariable<float> TimeLimit = null;
+    public GameSetupVariable<int> ScoreLimit = null;
 
     void Awake()
     {
+        Map = new GameSetupVariable<Scene>(this);
         GameMode = new GameSetupVariable<GameMode>(this);
         TimeLimit = new GameSetupVariable<float>(this);
         ScoreLimit = new GameSetupVariable<int>(this);
@@ -69,12 +71,15 @@ public class GameSetupData : NetworkBehaviour
         switch (variableCode)
         {
             case 0:
-                GameMode.Value = (GameMode)value;
+                Map.Value = (Scene)value;
                 break;
             case 1:
-                TimeLimit.Value = (float)value;
+                GameMode.Value = (GameMode)value;
                 break;
             case 2:
+                TimeLimit.Value = (float)value;
+                break;
+            case 3:
                 ScoreLimit.Value = (int)value;
                 break;
         }
@@ -91,8 +96,9 @@ public class GameSetupData : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void RequestGameSettingsServerRpc(ulong clientId)
     {
-        UpdateVariableClientRpc(0, (double)GameMode.Value, Utility.SendToOneClient(clientId));
-        UpdateVariableClientRpc(1, (double)TimeLimit.Value, Utility.SendToOneClient(clientId));
-        UpdateVariableClientRpc(2, (double)ScoreLimit.Value, Utility.SendToOneClient(clientId));
+        UpdateVariableClientRpc(Map.VariableCode, (double)Map.Value, Utility.SendToOneClient(clientId));
+        UpdateVariableClientRpc(GameMode.VariableCode, (double)GameMode.Value, Utility.SendToOneClient(clientId));
+        UpdateVariableClientRpc(TimeLimit.VariableCode, (double)TimeLimit.Value, Utility.SendToOneClient(clientId));
+        UpdateVariableClientRpc(ScoreLimit.VariableCode, (double)ScoreLimit.Value, Utility.SendToOneClient(clientId));
     }
 }
