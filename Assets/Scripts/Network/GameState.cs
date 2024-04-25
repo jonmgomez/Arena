@@ -85,7 +85,7 @@ public class GameState : NetworkBehaviour
     private void ValidateScene(string sceneName)
     {
         // Any scenes where a player must be spawned for clients are prefixed with "Arena"
-        inGameScene = sceneName.StartsWith("Arena");
+        inGameScene = sceneName.StartsWith("Arena") || sceneName.StartsWith("Prototype");
     }
 
     private ClientData FindClient(ulong clientId)
@@ -179,6 +179,10 @@ public class GameState : NetworkBehaviour
             if (inGameScene)
             {
                 SpawnClientPlayerPrefab(clientId);
+            }
+            else
+            {
+                logger.LogDebug($"Client {clientId} is ready. Not spawning player prefab as this is not an in-game scene");
             }
         }
     }

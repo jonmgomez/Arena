@@ -8,25 +8,16 @@ public enum Scene
 {
     MainMenu,
     GameSelect,
-    Arena
+    Arena,
+    Prototype
 }
 
 public class SceneLoader : MonoBehaviour
 {
     public static void LoadScene(Scene scene, LoadSceneMode loadSceneMode = LoadSceneMode.Single)
     {
-        switch (scene)
-        {
-            case Scene.MainMenu:
-                LoadScene("MainMenu", loadSceneMode);
-                break;
-            case Scene.GameSelect:
-                LoadScene("GameSelect", loadSceneMode);
-                break;
-            case Scene.Arena:
-                LoadScene("ArenaMain", loadSceneMode);
-                break;
-        }
+        string sceneName = GetSceneName(scene);
+        LoadScene(sceneName, loadSceneMode);
     }
 
     public static void LoadScene(string scene, LoadSceneMode loadSceneMode = LoadSceneMode.Single)
@@ -36,22 +27,30 @@ public class SceneLoader : MonoBehaviour
 
     public static void LoadSceneNetworked(Scene scene, LoadSceneMode loadSceneMode = LoadSceneMode.Single)
     {
-        switch (scene)
-        {
-            case Scene.MainMenu:
-                LoadSceneNetworked("MainMenu", loadSceneMode);
-                break;
-            case Scene.GameSelect:
-                LoadSceneNetworked("GameSelect", loadSceneMode);
-                break;
-            case Scene.Arena:
-                LoadSceneNetworked("ArenaMain", loadSceneMode);
-                break;
-        }
+        string sceneName = GetSceneName(scene);
+        LoadSceneNetworked(sceneName, loadSceneMode);
     }
 
     public static void LoadSceneNetworked(string scene, LoadSceneMode loadSceneMode = LoadSceneMode.Single)
     {
         NetworkManager.Singleton.SceneManager.LoadScene(scene, loadSceneMode);
+    }
+
+    private static string GetSceneName(Scene scene)
+    {
+        switch (scene)
+        {
+            case Scene.MainMenu:
+                return "MainMenu";
+            case Scene.GameSelect:
+                return "GameSelect";
+            case Scene.Arena:
+                return "ArenaMain";
+            case Scene.Prototype:
+                return "Prototype";
+            default:
+                Logger.Default.LogError("Scene not found");
+                return null;
+        }
     }
 }
