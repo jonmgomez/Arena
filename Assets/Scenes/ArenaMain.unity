@@ -577,7 +577,7 @@ Transform:
   m_GameObject: {fileID: 410087039}
   serializedVersion: 2
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalPosition: {x: 0, y: 41, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -606,6 +606,18 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 1
+--- !u!114 &459212189 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6584548585247648083, guid: ecfaf14003fdcb64689636ea922db7ce,
+    type: 3}
+  m_PrefabInstance: {fileID: 5761276610480443609}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1f070c32d09edd4d810ae8ab7ccf2a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &527179425 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 294246993771769383, guid: 9532e6ae284ee9e4c80d7fb657fd91b7,
@@ -1465,6 +1477,140 @@ Transform:
   - {fileID: 841879884}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1064848632
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1064848633}
+  - component: {fileID: 1064848635}
+  - component: {fileID: 1064848634}
+  m_Layer: 5
+  m_Name: Pickup Weapon Text Prompt
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1064848633
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1064848632}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.47523513, y: 0.47523513, z: 0.47523513}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1467401776}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -148.4}
+  m_SizeDelta: {x: 500, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1064848634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1064848632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: Hold E to pickup Pistol
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 36
+  m_fontSizeBase: 36
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_enableWordWrapping: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 1
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &1064848635
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1064848632}
+  m_CullTransparentMesh: 1
 --- !u!1 &1069425284
 GameObject:
   m_ObjectHideFlags: 0
@@ -1571,6 +1717,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1069425284}
   m_Mesh: {fileID: -1277366460620338370, guid: 5e75dcd611bb11e47817975abce5fbfd, type: 3}
+--- !u!114 &1105487396 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2874695292786529955, guid: ecfaf14003fdcb64689636ea922db7ce,
+    type: 3}
+  m_PrefabInstance: {fileID: 5761276610480443609}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b29d3f39f2cfac4f9b3da411cb6d506, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1120930157
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1995,7 +2153,7 @@ Transform:
   m_GameObject: {fileID: 1336148903}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10.96, y: -2.359, z: 23.25}
+  m_LocalPosition: {x: 13.593, y: 1.398, z: 0.01}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2165,6 +2323,12 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4887463948519030391, guid: 6a25fb9792794ed42923619feedea2a8,
     type: 3}
   m_PrefabInstance: {fileID: 1380304125}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &1467401776 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 694726625448884783, guid: ecfaf14003fdcb64689636ea922db7ce,
+    type: 3}
+  m_PrefabInstance: {fileID: 5761276610480443609}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1526021022
 GameObject:
@@ -2918,6 +3082,76 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 414462996913438620, guid: ecfaf14003fdcb64689636ea922db7ce,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1401083481830637490, guid: ecfaf14003fdcb64689636ea922db7ce,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3189868111650280830, guid: ecfaf14003fdcb64689636ea922db7ce,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3189868111650280830, guid: ecfaf14003fdcb64689636ea922db7ce,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3189868111650280830, guid: ecfaf14003fdcb64689636ea922db7ce,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3189868111650280830, guid: ecfaf14003fdcb64689636ea922db7ce,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3189868111650280830, guid: ecfaf14003fdcb64689636ea922db7ce,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3189868111650280830, guid: ecfaf14003fdcb64689636ea922db7ce,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3189868111650280830, guid: ecfaf14003fdcb64689636ea922db7ce,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3189868111650280830, guid: ecfaf14003fdcb64689636ea922db7ce,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3189868111650280830, guid: ecfaf14003fdcb64689636ea922db7ce,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4881081991618421471, guid: ecfaf14003fdcb64689636ea922db7ce,
+        type: 3}
+      propertyPath: crosshair
+      value: 
+      objectReference: {fileID: 1105487396}
+    - target: {fileID: 4881081991618421471, guid: ecfaf14003fdcb64689636ea922db7ce,
+        type: 3}
+      propertyPath: hitMarker
+      value: 
+      objectReference: {fileID: 459212189}
+    - target: {fileID: 4881081991618421471, guid: ecfaf14003fdcb64689636ea922db7ce,
+        type: 3}
+      propertyPath: pickupWeaponPromptText
+      value: 
+      objectReference: {fileID: 1064848634}
     - target: {fileID: 6164971150324551721, guid: ecfaf14003fdcb64689636ea922db7ce,
         type: 3}
       propertyPath: m_Pivot.x
@@ -3035,7 +3269,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 694726625448884783, guid: ecfaf14003fdcb64689636ea922db7ce,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1064848633}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ecfaf14003fdcb64689636ea922db7ce, type: 3}
 --- !u!1001 &7025198187178728704

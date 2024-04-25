@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class PlayerHUD : MonoBehaviour
 {
+    [SerializeField] private Crosshair crosshair;
+    [SerializeField] private HitMarker hitMarker;
     [SerializeField] private TextMeshProUGUI weaponNameText;
     [SerializeField] private TextMeshProUGUI ammoText;
     [SerializeField] private TextMeshProUGUI pickupWeaponPromptText;
@@ -32,5 +34,7 @@ public class PlayerHUD : MonoBehaviour
         return currentAmmo + " / " + maxAmmo;
     }
 
+    public Crosshair GetCrosshair() => crosshair;
+    public HitMarker GetHitMarker() => hitMarker;
     public TextMeshProUGUI GetPickupWeaponPromptText() => pickupWeaponPromptText;
 }

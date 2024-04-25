@@ -50,7 +50,7 @@ public class PlayerWeapon : NetworkBehaviour
         player = GetComponent<Player>();
         player.HUD.UpdateWeapon(activeWeapon.Name, activeWeapon.Ammo, activeWeapon.MaxAmmo);
 
-        crosshair = FindObjectOfType<Crosshair>(true);
+        crosshair = player.GetPlayerHUD().GetCrosshair();
         crosshair.gameObject.SetActive(true);
     }
 

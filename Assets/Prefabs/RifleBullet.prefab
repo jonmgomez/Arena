@@ -163,7 +163,7 @@ MonoBehaviour:
   speed: 500
   collisionMask:
     serializedVersion: 2
-    m_Bits: 7935
+    m_Bits: 7423
   impactForce: 50
   hitScan: 1
   startFromBarrel: 1

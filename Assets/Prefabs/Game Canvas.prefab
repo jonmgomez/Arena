@@ -26,7 +26,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 414462996913438620}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -36,7 +36,7 @@ RectTransform:
   - {fileID: 708587676776611125}
   - {fileID: 2782568203832344316}
   - {fileID: 2954700887301183111}
-  m_Father: {fileID: 6164971150324551721}
+  m_Father: {fileID: 694726625448884783}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1164,6 +1164,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2088356809156305454}
+  - {fileID: 8146219761387309638}
+  - {fileID: 3189868111650280830}
   m_Father: {fileID: 6164971150324551721}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1185,6 +1187,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponNameText: {fileID: 4074227550965571479}
   ammoText: {fileID: 3590325837222649606}
+  pickupWeaponPromptText: {fileID: 0}
 --- !u!1 &1408069492389345643
 GameObject:
   m_ObjectHideFlags: 0
@@ -3038,7 +3041,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3742053387868278151}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.60361934, y: 0.60361934, z: 0.60361934}
   m_ConstrainProportionsScale: 0
@@ -3047,7 +3050,7 @@ RectTransform:
   - {fileID: 2466937597114159610}
   - {fileID: 2883562903934708213}
   - {fileID: 3482924586169042167}
-  m_Father: {fileID: 6164971150324551721}
+  m_Father: {fileID: 694726625448884783}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -5916,8 +5919,6 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8146219761387309638}
-  - {fileID: 3189868111650280830}
   - {fileID: 694726625448884783}
   - {fileID: 2025174645095407915}
   - {fileID: 1916376098844351130}

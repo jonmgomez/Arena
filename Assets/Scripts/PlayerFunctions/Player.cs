@@ -63,6 +63,7 @@ public class Player : NetworkBehaviour
     private PlayerScore playerScore;
     private PlayerCamera playerCamera;
     private PlayerRagdoll playerRagdoll;
+    private PlayerWeaponPickupController playerWeaponPickupController;
     [NonSerialized] public PlayerHUD HUD;
     [NonSerialized] public HitMarker hitMarker;
 
@@ -136,6 +137,8 @@ public class Player : NetworkBehaviour
         playerScore = GetComponent<PlayerScore>();
         playerCamera = GetComponentInChildren<PlayerCamera>();
         playerRagdoll = GetComponent<PlayerRagdoll>();
+        playerWeaponPickupController = GetComponent<PlayerWeaponPickupController>();
+        HUD = FindObjectOfType<PlayerHUD>(true);
 
         if (!IsOwner)
             return;
@@ -152,10 +155,9 @@ public class Player : NetworkBehaviour
         characterController.enabled = true;
         playerNameText.gameObject.SetActive(false);
 
-        HUD = FindObjectOfType<PlayerHUD>(true);
         HUD.gameObject.SetActive(true);
 
-        hitMarker = FindObjectOfType<HitMarker>(true);
+        hitMarker = HUD.GetHitMarker();
         hitMarker.gameObject.SetActive(true);
 
         Volume volume = FindObjectOfType<Volume>();
@@ -439,5 +441,6 @@ public class Player : NetworkBehaviour
     public PlayerCamera GetPlayerCamera() => playerCamera;
     public PlayerScore GetPlayerScore() => playerScore;
     public PlayerRagdoll GetPlayerRagdoll() => playerRagdoll;
+    public PlayerWeaponPickupController GetPlayerWeaponPickupController() => playerWeaponPickupController;
     public PlayerHUD GetPlayerHUD() => HUD;
 }
