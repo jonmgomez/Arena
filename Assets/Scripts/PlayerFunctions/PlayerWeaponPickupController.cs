@@ -47,6 +47,10 @@ public class PlayerWeaponPickupController : MonoBehaviour
     public void PickupOutOfRange(WeaponPickup pickup)
     {
         pickupsInRange.Remove(pickup);
+        if (pickup == inRangePickup)
+        {
+            ChangeInRangePickup(null);
+        }
     }
 
     private void CalculateClosestWeapon()
