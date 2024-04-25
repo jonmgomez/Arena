@@ -5,8 +5,9 @@ using UnityEngine;
 
 public class PlayerHUD : MonoBehaviour
 {
-    [SerializeField] TextMeshProUGUI weaponNameText;
-    [SerializeField] TextMeshProUGUI ammoText;
+    [SerializeField] private TextMeshProUGUI weaponNameText;
+    [SerializeField] private TextMeshProUGUI ammoText;
+    [SerializeField] private TextMeshProUGUI pickupWeaponPromptText;
 
     int currentAmmo;
     int maxAmmo;
@@ -30,4 +31,6 @@ public class PlayerHUD : MonoBehaviour
     {
         return currentAmmo + " / " + maxAmmo;
     }
+
+    public TextMeshProUGUI GetPickupWeaponPromptText() => pickupWeaponPromptText;
 }

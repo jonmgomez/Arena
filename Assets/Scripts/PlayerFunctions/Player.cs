@@ -439,4 +439,5 @@ public class Player : NetworkBehaviour
     public PlayerCamera GetPlayerCamera() => playerCamera;
     public PlayerScore GetPlayerScore() => playerScore;
     public PlayerRagdoll GetPlayerRagdoll() => playerRagdoll;
+    public PlayerHUD GetPlayerHUD() => HUD;
 }

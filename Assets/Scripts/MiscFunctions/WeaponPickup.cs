@@ -5,18 +5,44 @@ using UnityEngine;
 
 public class WeaponPickup : NetworkBehaviour
 {
-    [SerializeField] int weaponId;
+    [SerializeField] private int weaponId;
 
-    WeaponSpawner originalSpawner;
+    private readonly List<PlayerWeaponPickupController> collidingPlayers = new();
+    private WeaponSpawner originalSpawner;
 
     void OnTriggerEnter(Collider other)
     {
         if (other.transform.root.CompareTag("Player"))
         {
-            var player = other.transform.root.GetComponent<PlayerWeapon>();
-            player.PickupWeapon(weaponId);
-            PickedUpWeaponServerRpc();
+            var player = other.transform.root.GetComponent<PlayerWeaponPickupController>();
+            player.PickupInRange(this);
+            collidingPlayers.Add(player);
         }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (other.transform.root.CompareTag("Player"))
+        {
+            var player = other.transform.root.GetComponent<PlayerWeaponPickupController>();
+            player.PickupOutOfRange(this);
+            collidingPlayers.Remove(player);
+        }
+    }
+
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+
+        foreach (var player in collidingPlayers)
+        {
+            player.PickupOutOfRange(this);
+        }
+    }
+
+    public void PickupWeapon()
+    {
+        PickedUpWeaponServerRpc();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -38,4 +64,6 @@ public class WeaponPickup : NetworkBehaviour
     {
         originalSpawner = weaponSpawner;
     }
+
+    public int GetWeaponId() => weaponId;
 }

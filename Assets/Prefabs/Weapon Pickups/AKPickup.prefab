@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1844699105848637374}
   - component: {fileID: 5035770028331424449}
   - component: {fileID: 2994309128588526977}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: AKPickup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56,7 +56,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 2.2715423, z: 1}
+  m_Size: {x: 1.99, y: 2.2715423, z: 2.01}
   m_Center: {x: 0, y: 0.6357713, z: 0}
 --- !u!114 &1844699105848637374
 MonoBehaviour:
@@ -115,7 +115,7 @@ GameObject:
   - component: {fileID: 6376453287780689528}
   - component: {fileID: 1273473435471967152}
   - component: {fileID: 2110014093281303188}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -260,10 +260,40 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -4540998354776016539, guid: e7bf112bb0b0cab44aba332401170059,
+        type: 3}
+      propertyPath: m_Layer
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: -3426002638768816645, guid: e7bf112bb0b0cab44aba332401170059,
+        type: 3}
+      propertyPath: m_Layer
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 764133070332188016, guid: e7bf112bb0b0cab44aba332401170059,
+        type: 3}
+      propertyPath: m_Layer
+      value: 13
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: e7bf112bb0b0cab44aba332401170059,
         type: 3}
       propertyPath: m_Name
       value: AK47
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e7bf112bb0b0cab44aba332401170059,
+        type: 3}
+      propertyPath: m_Layer
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 1027060221025665972, guid: e7bf112bb0b0cab44aba332401170059,
+        type: 3}
+      propertyPath: m_Layer
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 7923848470190438427, guid: e7bf112bb0b0cab44aba332401170059,
+        type: 3}
+      propertyPath: m_Layer
+      value: 13
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

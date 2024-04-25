@@ -191,6 +191,7 @@ public class PlayerWeapon : NetworkBehaviour
         return -1;
     }
 
+
     public void MovementChanged(Vector3 velocity)
     {
         float percentage = velocity.magnitude / maxSpeedForMaxSpread;
@@ -202,4 +203,7 @@ public class PlayerWeapon : NetworkBehaviour
 
     public Weapon GetActiveWeapon() => activeWeapon;
     public string GetActiveWeaponName() => activeWeapon.Name;
+
+    public Weapon GetWeapon(int weaponId) => allWeapons[weaponId];
+    public string GetWeaponName(int weaponId) => allWeapons[weaponId].Name;
 }
